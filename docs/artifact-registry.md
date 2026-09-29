@@ -14,8 +14,8 @@ each document lives in *this* project and the next version to use.
 | UCD | Use Case Diagram | docs/use-case-diagram.md | 002 |
 | US | User Story | docs/user-stories.md | 002 |
 | UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 003 |
-| DM | Domain Model | docs/domain-model.md | 001 |
-| ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0001 |
+| DM | Domain Model | docs/domain-model.md | 002 |
+| ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0008 |
 | RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 001 |
 | TM | Traceability Matrix | docs/sqa/traceability-matrix.md | 002 |
 

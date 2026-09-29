@@ -33,12 +33,20 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [MIL-005] | Milestone / Gateway | [PP-001] | - | - |
 | [MIL-006] | Milestone / Gateway | [PP-001] | - | - |
 | [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | - |
-| [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | - | - |
-| [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | - | - |
+| [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | - |
+| [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | - |
+| [DM-001] | Domain Model | [UC-001], [UC-002], [UCD-001] | [ADR-0001], [ADR-0002], [ADR-0003], [ADR-0007] | - |
+| [ADR-0001] | Architecture Decision Record | [US-001], [UC-001] | - | - |
+| [ADR-0002] | Architecture Decision Record | [US-001], [UC-001] | - | - |
+| [ADR-0003] | Architecture Decision Record | [US-001], [UC-001] | - | - |
+| [ADR-0004] | Architecture Decision Record | [US-001], [UC-001] | - | - |
+| [ADR-0005] | Architecture Decision Record | [US-001], [UC-001] | - | - |
+| [ADR-0006] | Architecture Decision Record | [US-001], [UC-001] | - | - |
+| [ADR-0007] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 
 ## Coverage Notes
 
-- No type beyond those listed has an instance yet: DM and ADR are planned in MIL-003.
+- ADR instances have no QC checklist, so no RC record is possible for them (OI-07); they are approved by the S04 reviewer instead.
 - `-` in Upstream means foundational, in Downstream means nothing is built on it yet, and in Last Reviewed means no `RC-*` record exists yet.
 - No review record has been issued because no independent reviewer (S04) has been named.
 
@@ -57,3 +65,11 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [US-001]: ./../user-stories.md
 [UC-001]: ./../use-cases/uc-001-analyze-hotel-bookings.md
 [UC-002]: ./../use-cases/uc-002-review-analysis-history.md
+[DM-001]: ./../domain-model.md
+[ADR-0001]: ./../adr/adr-0001-input-json-contract.md
+[ADR-0002]: ./../adr/adr-0002-result-json-contract.md
+[ADR-0003]: ./../adr/adr-0003-jsonl-history-and-retention.md
+[ADR-0004]: ./../adr/adr-0004-configuration-file.md
+[ADR-0005]: ./../adr/adr-0005-delivery-and-failure-semantics.md
+[ADR-0006]: ./../adr/adr-0006-architecture-and-invocation.md
+[ADR-0007]: ./../adr/adr-0007-analysis-methods.md
