@@ -13,6 +13,7 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -34,7 +35,7 @@ An approved planning baseline consisting of the Stakeholder Analysis (SA-001), B
 | 4 | Each of SA-001, BC-001, UCD-001 and MIL-001 to MIL-006 has an RC record with verdict Go (or Go-with-conditions and all action items closed) | All verdicts Go | Any No-Go verdict or open action item |
 | 5 | PP-001 lists all six gateways with owner and dependency order; target dates are either stated with a source or recorded as an accepted open issue | Consistent | Dates invented without a source, or gateway missing |
 | 6 | TM-001 has a row for every existing artifact instance | Complete | Any instance missing |
-| 7 | Open issues OI-01 to OI-11 in PP-001 each have an owner S-ID and a resolving gateway | Assigned | Any without an owner |
+| 7 | Open issues OI-01 to OI-12 in PP-001 each have an owner S-ID and a resolving gateway | Assigned | Any without an owner |
 
 ## Dependencies
 
@@ -46,14 +47,14 @@ An approved planning baseline consisting of the Stakeholder Analysis (SA-001), B
 
 | Business Case objective / KPI / user story | Reference |
 | --- | --- |
-| Business goal: interactive, understandable analysis of booking timing, arrivals, holidays, cancellations, guest mix and estimated room revenue | BC-001 (planned, task 9); no KPI document is planned, see PP-001 Scope Coverage |
+| Business goal: interactive, understandable analysis of booking timing, arrivals, holidays, cancellations, guest mix and estimated room revenue | BC-001 objective 7 (deliver through reviewed gateways); no KPI document is planned, see PP-001 Scope Coverage |
 
 ## Ownership
 
 | Role | Stakeholder ID (SA) |
 | --- | --- |
-| Owner | TBD, pending SA-001 (open issue OI-02) |
-| Approving reviewer | TBD, pending SA-001 (open issue OI-02) |
+| Owner | S01 |
+| Approving reviewer | S04 |
 
 ## Target Date
 

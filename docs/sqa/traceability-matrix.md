@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -22,16 +23,16 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 
 | Artifact Instance | Type | Upstream (Backward Link) | Downstream (Forward Link) | Last Reviewed (RC-ID) |
 | --- | --- | --- | --- | --- |
-| [SA-001] | Stakeholder Analysis | - | [BC-001], [UCD-001] | - |
-| [BC-001] | Business Case | [SA-001] | [UCD-001], [PP-001] | - |
-| [UCD-001] | Use Case Diagram | [SA-001], [BC-001] | [US-001], [UC-001], [UC-002] | - |
+| [SA-001] | Stakeholder Analysis | - | [BC-001], [UCD-001] | [RC-001] |
+| [BC-001] | Business Case | [SA-001] | [UCD-001], [PP-001] | [RC-002] |
+| [UCD-001] | Use Case Diagram | [SA-001], [BC-001] | [US-001], [UC-001], [UC-002] | [RC-003] |
 | [PP-001] | Project Plan | [BC-001] | [MIL-001] to [MIL-006] | - |
-| [MIL-001] | Milestone / Gateway | [PP-001] | - | - |
-| [MIL-002] | Milestone / Gateway | [PP-001] | - | - |
-| [MIL-003] | Milestone / Gateway | [PP-001] | - | - |
-| [MIL-004] | Milestone / Gateway | [PP-001] | - | - |
-| [MIL-005] | Milestone / Gateway | [PP-001] | - | - |
-| [MIL-006] | Milestone / Gateway | [PP-001] | - | - |
+| [MIL-001] | Milestone / Gateway | [PP-001] | - | [RC-004] |
+| [MIL-002] | Milestone / Gateway | [PP-001] | - | [RC-005] |
+| [MIL-003] | Milestone / Gateway | [PP-001] | - | [RC-006] |
+| [MIL-004] | Milestone / Gateway | [PP-001] | - | [RC-007] |
+| [MIL-005] | Milestone / Gateway | [PP-001] | - | [RC-008] |
+| [MIL-006] | Milestone / Gateway | [PP-001] | - | [RC-009] |
 | [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | - |
 | [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | - |
 | [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | - |
@@ -48,7 +49,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 
 - ADR instances have no QC checklist, so no RC record is possible for them (OI-07); they are approved by the S04 reviewer instead.
 - `-` in Upstream means foundational, in Downstream means nothing is built on it yet, and in Last Reviewed means no `RC-*` record exists yet.
-- No review record has been issued because no independent reviewer (S04) has been named.
+- RC-001 to RC-009 are AI-assisted draft reviews with verdict Go-with-conditions, awaiting confirmation by S04. ADR, DM, US, UC and PP have no RC record yet or no QC checklist.
 
 ---
 
@@ -73,3 +74,12 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [ADR-0005]: ./../adr/adr-0005-delivery-and-failure-semantics.md
 [ADR-0006]: ./../adr/adr-0006-architecture-and-invocation.md
 [ADR-0007]: ./../adr/adr-0007-analysis-methods.md
+[RC-001]: ./reviews/rc-001-stakeholder-analysis.md
+[RC-002]: ./reviews/rc-002-business-case.md
+[RC-003]: ./reviews/rc-003-use-case-diagram.md
+[RC-004]: ./reviews/rc-004-mil-001.md
+[RC-005]: ./reviews/rc-005-mil-002.md
+[RC-006]: ./reviews/rc-006-mil-003.md
+[RC-007]: ./reviews/rc-007-mil-004.md
+[RC-008]: ./reviews/rc-008-mil-005.md
+[RC-009]: ./reviews/rc-009-mil-006.md

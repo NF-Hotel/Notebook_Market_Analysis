@@ -13,6 +13,7 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -28,7 +29,7 @@ Schedule the phases (gateways) that take the hotel-booking analysis application 
 - Phase length is not fixed; a phase ends when its Go/No-Go criteria are met.
 - The Calling system is the primary actor. The person viewing history in marimo is not identified (OI-03).
 - The production input is JSON. The example CSV `./data/example/nf_hotel_bookings.csv` (semicolon-delimited, 8538 data rows, columns listed in the prompt, dates such as `08-03-2021`) is development context only, not a production schema.
-- Stakeholder IDs do not exist yet; owners and reviewers are recorded as pending SA-001 (OI-02).
+- Stakeholder IDs come from SA-001: S01 owns every gateway and S04 is the approving reviewer (OI-02 remains open until S02 to S05 are confirmed as named people).
 - The repository is not yet a Git repository and no remote is known, so no sync to a git host can occur (OI-08).
 - The Python environment `.venv` has none of marimo, polars, holidays or pytest installed; installing them is a MIL-004 task, not part of this activity.
 
@@ -36,12 +37,12 @@ Schedule the phases (gateways) that take the hotel-booking analysis application 
 
 | Gateway | Document | Window | Decision date | Owner | Stories | Main deliverable | Milestone |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| G1 Inception baseline | [MIL-001] | TBD (OI-01) | TBD | TBD (OI-02) | none | SA, BC, UCD, TM, plan and gateway reviews | [Milestone-1] |
-| G2 Requirements | [MIL-002] | TBD | TBD | TBD | US-001.01 to US-001.10 | US-001, UC-001, UC-002 and reviews | [Milestone-2] |
-| G3 Contracts and design | [MIL-003] | TBD | TBD | TBD | US-001.01 to US-001.10 | DM-001, ADR-0001 to ADR-0007 | [Milestone-3] |
-| G4 Core pipeline (coding) | [MIL-004] | TBD | TBD | TBD | US-001.01, .08, .09 | Working input, result, history, retention, delivery | [Milestone-4] |
-| G5 Analyses (coding) | [MIL-005] | TBD | TBD | TBD | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
-| G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | TBD | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
+| G1 Inception baseline | [MIL-001] | TBD (OI-01) | TBD | S01 | none | SA, BC, UCD, TM, plan and gateway reviews | [Milestone-1] |
+| G2 Requirements | [MIL-002] | TBD | TBD | S01 | US-001.01 to US-001.10 | US-001, UC-001, UC-002 and reviews | [Milestone-2] |
+| G3 Contracts and design | [MIL-003] | TBD | TBD | S01 | US-001.01 to US-001.10 | DM-001, ADR-0001 to ADR-0007 | [Milestone-3] |
+| G4 Core pipeline (coding) | [MIL-004] | TBD | TBD | S01 | US-001.01, .08, .09 | Working input, result, history, retention, delivery | [Milestone-4] |
+| G5 Analyses (coding) | [MIL-005] | TBD | TBD | S01 | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
+| G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | S01 | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
 
 ```mermaid
 flowchart LR
@@ -129,7 +130,7 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 ## Open Issues
 
 - **OI-01:** No start date, deadline or gateway target dates are supplied. Resolve in G1.
-- **OI-02:** Stakeholders, owners and approving reviewers: SA-001 now defines S01 to S05, but only S01 is named (assumed project owner); S02 to S05 are roles still to be named, and gateway owners and reviewers are still TBD. Resolve in G1.
+- **OI-02:** Stakeholders: SA-001 defines S01 to S05 and all are now named (S02 Valdemar, S03 and S04 Team2, S05 PO). S01 owns every gateway and S04 is the approving reviewer. Still open: each named person confirming their entry, and the communication channels for S02, S03 and S05.
 - **OI-03:** Who views history in marimo is unspecified; the prompt names only the Calling system as actor. UCD-001 provisionally adds an Analyst actor (S05) that S01 must confirm. Resolve in G1.
 - **OI-04:** Invocation mechanism: proposed in ADR-0006 as a command-line entry writing JSON to standard output (exit codes in ADR-0005); awaiting confirmation by S02 and acceptance.
 - **OI-05:** Production input schema: proposed in ADR-0001 (top-level array, sample field names, ISO dates); awaiting confirmation by S02 and acceptance.
