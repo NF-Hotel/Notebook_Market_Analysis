@@ -1,0 +1,154 @@
+# Project Plan: Hotel Booking Analysis (marimo)
+
+## Metadata
+| Key | Value |
+| --- | --- |
+| ID | PP-001 |
+| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006] |
+| DomainLanguages | IT Professional English |
+
+## Version History
+| Date | Status | Author | Reviewer |
+| --- | --- | --- | --- |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+
+---
+
+## Purpose
+
+Schedule the phases (gateways) that take the hotel-booking analysis application from an empty repository to a marimo app. A calling system supplies a JSON file of booking records and receives an analysis result as JSON. Each result is also appended to a local JSONL history that marimo can display, and only the latest N results are kept (N from a configuration file, default 10). No deadline is known, so the plan orders phases by dependency and leaves dates open (OI-01).
+
+**Status of this activity:** planning only. This activity creates and revises planning artifacts (`docs/`) and defines future coding tasks. No marimo app, Python module, test, configuration file, dependency installation or `.venv` change is made until the required artifacts are completed and reviewed and the coding gateway (MIL-004) is authorized to start. No Git host synchronization, commit, push or pull request has been done.
+
+## Planning Assumptions
+
+- Start date and end date are unknown; no date in this plan is a commitment (OI-01).
+- Phase length is not fixed; a phase ends when its Go/No-Go criteria are met.
+- The Calling system is the primary actor. The person viewing history in marimo is not identified (OI-03).
+- The production input is JSON. The example CSV `./data/example/nf_hotel_bookings.csv` (semicolon-delimited, 8538 data rows, columns listed in the prompt, dates such as `08-03-2021`) is development context only, not a production schema.
+- Stakeholder IDs do not exist yet; owners and reviewers are recorded as pending SA-001 (OI-02).
+- The repository is not yet a Git repository and no remote is known, so no sync to a git host can occur (OI-08).
+- The Python environment `.venv` has none of marimo, polars, holidays or pytest installed; installing them is a MIL-004 task, not part of this activity.
+
+## Gateway Schedule
+
+| Gateway | Document | Window | Decision date | Owner | Stories | Main deliverable | Milestone |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| G1 Inception baseline | [MIL-001] | TBD (OI-01) | TBD | TBD (OI-02) | none | SA, BC, UCD, TM, plan and gateway reviews | [Milestone-1] |
+| G2 Requirements | [MIL-002] | TBD | TBD | TBD | US-001.01 to US-001.10 | US-001, UC-001, UC-002 and reviews | [Milestone-2] |
+| G3 Contracts and design | [MIL-003] | TBD | TBD | TBD | US-001.01 to US-001.10 | DM-001, ADR-0001 to ADR-0007 | [Milestone-3] |
+| G4 Core pipeline (coding) | [MIL-004] | TBD | TBD | TBD | US-001.01, .08, .09 | Working input, result, history, retention, delivery | [Milestone-4] |
+| G5 Analyses (coding) | [MIL-005] | TBD | TBD | TBD | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
+| G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | TBD | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
+
+```mermaid
+flowchart LR
+    G1["G1 MIL-001<br/>Inception baseline"] --> G2["G2 MIL-002<br/>Requirements"]
+    G2 --> G3["G3 MIL-003<br/>Contracts and design"]
+    G3 --> G4["G4 MIL-004<br/>Core pipeline"]
+    G4 --> G5["G5 MIL-005<br/>Analyses"]
+    G5 --> G6["G6 MIL-006<br/>marimo UI and acceptance"]
+```
+
+The Mermaid `gantt` chart recommended by the PP reference is deferred until dates exist (OI-01); the chart above shows order only.
+
+## Scope Coverage
+
+| Business Case scope item | Gateway |
+| --- | --- |
+| Load and understand data (record count, coverage, missing, invalid, duplicates) | G2 story, G3 input contract, G4 code, G6 view |
+| Lead time, holidays (KH), seasonality, cancellations, room value, guest mix | G2 stories, G3 ADR-0007, G5 code, G6 views |
+| Return the analysis result to the caller as JSON | G2 story and UC-001, G3 ADR-0002 and ADR-0005, G4 code |
+| Append each result to a local JSONL history | G3 ADR-0003, G4 code |
+| Retain only the latest N results, N from a configuration file, default 10 | G3 ADR-0003 and ADR-0004, G4 code |
+| Display prior results from the history in marimo | G2 UC-002, G6 code |
+| Visible data limitations and association-not-causation wording | G3 ADR-0007, G5 code, G6 notice component |
+| Development-only CSV fallback | G3 ADR-0001, G4 code, G6 docs |
+
+No KPI document is planned, because no measurable success targets or baselines are supplied; gateways trace to BC-001 objectives instead.
+
+## Dependencies
+
+```
+MIL-001 → MIL-002 → MIL-003 → MIL-004 → MIL-005 → MIL-006
+```
+
+A No-Go at a gateway pauses every later gateway; dates cannot be stated until OI-01 is resolved. Coding gateways (MIL-004 to MIL-006) may not start before MIL-001 to MIL-003 are Go.
+
+## Artifact Selection
+
+Each selected artifact has exactly one task. Review records (RC) are separate artifacts and have separate tasks. ADR, PP and TM have no QC checklist, so no RC is planned for them (OI-07).
+
+| Artifact | Purpose and why needed | Gateway, task | Depends on |
+| --- | --- | --- | --- |
+| PP-001 Project Plan | Schedules the gateways; required by convention | MIL-001 task 1 (drafted, review) | none |
+| MIL-001 to MIL-006 | One gateway per phase, each holding its tasks; required by convention | MIL-001 tasks 2 to 7 (drafted, RC each) | PP-001 |
+| SA-001 Stakeholder Analysis | Supplies the S-IDs every owner and reviewer needs; none exist | MIL-001 task 8 | none |
+| BC-001 Business Case | States objectives, scope and constraints that gateways and stories trace to | MIL-001 task 9 | SA-001 |
+| UCD-001 Use Case Diagram | Fixes actors and goals so story roles and use cases match | MIL-001 task 10 | SA-001, BC-001 |
+| TM-001 Traceability Matrix | Tracks links and review status of every instance | MIL-001 task 11 | none |
+| RC records for SA-001, BC-001, UCD-001 | Review evidence before requirements | MIL-001 tasks 12 to 14 | the reviewed artifact |
+| RC records for MIL-001 to MIL-006 | Confirm objective Go/No-Go criteria | MIL-001 tasks 2 to 7 | the reviewed MIL |
+| US-001 User Stories | Ten actor-goal stories (one document, one task) | MIL-002 task 1 | UCD-001, BC-001 |
+| UC-001 Analyze Hotel Bookings | Primary use case, fully dressed | MIL-002 task 2 | UCD-001, US-001 |
+| UC-002 Review Analysis History | Use case for displaying retained results | MIL-002 task 3 | UCD-001, US-001 |
+| RC records for US-001, UC-001, UC-002 | Review evidence before design | MIL-002 tasks 4 to 6 | the reviewed artifact |
+| DM-001 Domain Model | One vocabulary for contracts and code | MIL-003 task 1 | UC-001, UC-002 |
+| ADR-0001 Input contract | Production JSON shape and required versus optional fields; the repository has none | MIL-003 task 2 | US-001, DM-001 |
+| ADR-0002 Result contract | Result envelope, versioning and identification | MIL-003 task 3 | DM-001 |
+| ADR-0003 History and retention | JSONL format, location, corruption handling, retention timing | MIL-003 task 4 | ADR-0002 |
+| ADR-0004 Configuration file | Format, location, default 10, validation | MIL-003 task 5 | ADR-0003 |
+| ADR-0005 Delivery and failure semantics | Return and history consistency, failure behavior | MIL-003 task 6 | ADR-0002, ADR-0003 |
+| ADR-0006 Architecture and invocation | Layering, marimo boundary, invocation mechanism, dependencies | MIL-003 task 7 | ADR-0005 |
+| ADR-0007 Analysis methods | Bands, holiday windows, baselines, sample sizes, labels | MIL-003 task 8 | US-001, ADR-0001 |
+| RC record for DM-001 | Review evidence for the domain model | MIL-003 task 9 | DM-001 |
+
+Types assessed and not selected: BMC, BPMN and RA (no business-model, process or risk questions that block implementation; risks are in this plan and BC-001); KPI (no measurable targets supplied); SSD, OC, SD, DCD and ERD (ADR-0006 and DM-001 give enough design for this size, and there is no relational store); GOV (no approval workflow information); a separate data-contract type does not exist in the catalog, so contracts are ADRs (OI-07).
+
+## Planning Coverage Check
+
+- Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) and 8 (G6) tasks.
+- Every user story traces to UC-001, UC-002 or a gateway: US-001.01 to .07 to UC-001 and MIL-002, US-001.08 and .09 to UC-001, US-001.10 to UC-002.
+- Every coding task cites the ADR, story or use case it implements, and no coding task appears before MIL-004.
+- Every gateway has a deliverable and numbered Go/No-Go criteria.
+
+## Plan Risks
+
+| Risk | Impact | Mitigation |
+| --- | --- | --- |
+| Production JSON schema stays unknown | ADR-0001 and validation cannot be finalized | Resolve with the calling-system owner in G3; No-Go on MIL-003 until decided |
+| No stakeholders identified | Gateways lack owners and approving reviewers | SA-001 first in G1; No-Go criterion 1 |
+| Invocation mechanism between caller and marimo unclear | Delivery design blocked | ADR-0006 must decide (OI-04) |
+| Small or partial-year data makes holiday and seasonal findings weak | Misleading conclusions | ADR-0007 sample-size flags and association-only wording |
+| Concurrent callers corrupt the history file | Lost or malformed results | Decide locking and atomic append in ADR-0003 (OI-10) |
+| `holidays` lacks a needed KH year | Holiday analysis incomplete | Report the analysis unavailable rather than invent dates |
+| Review effort (many RC records) slows the gateways | Schedule slip | Reviews are small and per artifact; batch reviewer time per gateway |
+
+## Open Issues
+
+- **OI-01:** No start date, deadline or gateway target dates are supplied. Resolve in G1.
+- **OI-02:** Stakeholders, owners and approving reviewers are unknown; no S-IDs exist. Resolve in G1 (SA-001).
+- **OI-03:** Who views history in marimo (a human analyst, the caller, or both) is unspecified; the prompt names only the Calling system as actor. Resolve in G1 (UCD-001).
+- **OI-04:** How the calling system invokes the app and receives the JSON (function call, command line with stdout or output file, HTTP) is unspecified. Resolve in G3 (ADR-0006).
+- **OI-05:** Production input JSON schema is unspecified (array or wrapper object, field names, types, date format, timezone, nulls). Resolve in G3 (ADR-0001).
+- **OI-06:** Result envelope, history file location and configuration file format and location are unspecified. Resolve in G3 (ADR-0002, ADR-0003, ADR-0004).
+- **OI-07:** The catalog has no data-contract type, no QC checklist for ADR, PP or TM. Contracts are ADRs and their review is a stakeholder approval. Propose upstream changes to the framework rather than edit `framework/`.
+- **OI-08:** The repository is not a Git repository and has no remote or issue host; `sync-project.sh` is not run. Milestone links in the schedule stay blank.
+- **OI-09:** Sensitivity of booking data (country, agent) in results and history is unassessed; the plan excludes raw records from results. Resolve in G3 (ADR-0002).
+- **OI-10:** What counts as one retained result, whether retention runs before or after the append, and behavior with concurrent callers are unspecified. Resolve in G3 (ADR-0003).
+- **OI-11:** `marimo`, `polars`, `holidays` and `pytest` are not installed and KH holiday coverage for the data's years is unverified. Verify at the start of G4 (MIL-004 task 1).
+
+---
+
+[MIL-001]: ./milestones/mil-001-inception-baseline.md
+[MIL-002]: ./milestones/mil-002-requirements-actor-goals.md
+[MIL-003]: ./milestones/mil-003-contracts-and-design.md
+[MIL-004]: ./milestones/mil-004-core-pipeline-implementation.md
+[MIL-005]: ./milestones/mil-005-analyses-implementation.md
+[MIL-006]: ./milestones/mil-006-marimo-ui-and-acceptance.md
+[Milestone-1]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/1
+[Milestone-2]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/2
+[Milestone-3]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/3
+[Milestone-4]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/4
+[Milestone-5]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/5
+[Milestone-6]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/6

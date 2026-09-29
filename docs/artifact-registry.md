@@ -1,0 +1,30 @@
+# Artifact Registry
+
+This project's artifact state. Types, short names and `CrossReference
+Candidates` come from the framework catalog
+(`framework/registry/artifact-catalog.md`); this file only records where
+each document lives in *this* project and the next version to use.
+
+| Short Name | Artifact Type | Primary File | Next Available Version |
+| --- | --- | --- | --- |
+| BC | Business Case | docs/business-case.md | 001 |
+| SA | Stakeholder Analysis | docs/stakeholder-analysis.md | 001 |
+| PP | Project Plan | docs/project-plan.md | 002 |
+| MIL | Milestone / Gateway | docs/milestones/*.md | 007 |
+| UCD | Use Case Diagram | docs/use-case-diagram.md | 001 |
+| US | User Story | docs/user-stories.md | 001 |
+| UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 001 |
+| DM | Domain Model | docs/domain-model.md | 001 |
+| ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0001 |
+| RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 001 |
+| TM | Traceability Matrix | docs/sqa/traceability-matrix.md | 001 |
+
+## Notes
+
+- "Next Available Version" is the zero-padded version to use the *next* time
+  a new document of that type is created. Increment it only when a brand-new
+  document is created, not when an existing document's `## Version History`
+  gets a row.
+- `ADR` uses 4 digits (`0001`); `RC` is sequential across all artifact types.
+- Only `PP` and `MIL` documents exist so far (planning phase). All other rows
+  are planned artifacts whose tasks are listed in the `MIL-*` documents.
