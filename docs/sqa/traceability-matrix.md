@@ -16,6 +16,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -49,16 +50,16 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [ADR-0005] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 | [ADR-0006] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 | [ADR-0007] | Architecture Decision Record | [US-001], [UC-001] | - | - |
-| [SSD-001] | System Sequence Diagram | [UC-001], [UC-002], [DM-001] | [OC-001] | - |
-| [OC-001] | Operation Contract | [SSD-001], [DM-001] | [SD-001] | - |
-| [SD-001] | Sequence Diagram | [OC-001] | [DCD-001] | - |
-| [DCD-001] | Design Class Diagram | [SD-001], [DM-001] | - | - |
+| [SSD-001] | System Sequence Diagram | [UC-001], [UC-002], [DM-001] | [OC-001] | [RC-014] |
+| [OC-001] | Operation Contract | [SSD-001], [DM-001] | [SD-001] | [RC-015] |
+| [SD-001] | Sequence Diagram | [OC-001] | [DCD-001] | [RC-016] |
+| [DCD-001] | Design Class Diagram | [SD-001], [DM-001] | - | [RC-017] |
 
 ## Coverage Notes
 
 - ADR instances have no QC checklist, so no RC record is possible for them (OI-07); they are approved by the S04 reviewer instead.
 - `-` in Upstream means foundational, in Downstream means nothing is built on it yet, and in Last Reviewed means no `RC-*` record exists yet.
-- RC-001 to RC-013 are AI-assisted draft reviews with verdict Go-with-conditions, awaiting confirmation by S04. ADR and PP have no QC checklist, so no RC record is possible for them.
+- RC-001 to RC-017 are AI-assisted draft reviews with verdict Go-with-conditions, awaiting confirmation by S04. ADR and PP have no QC checklist, so no RC record is possible for them.
 
 ---
 
@@ -101,3 +102,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [OC-001]: ./../operation-contracts.md
 [SD-001]: ./../sequence-diagrams.md
 [DCD-001]: ./../dcd.md
+[RC-014]: ./reviews/rc-014-ssd.md
+[RC-015]: ./reviews/rc-015-operation-contracts.md
+[RC-016]: ./reviews/rc-016-sequence-diagrams.md
+[RC-017]: ./reviews/rc-017-dcd.md

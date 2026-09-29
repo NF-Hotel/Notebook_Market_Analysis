@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -25,7 +26,7 @@ The operation `analyzeBookings` is realized in the code by `AnalyzeBookings.run(
 
 | Item | Value |
 | --- | --- |
-| Operation | `analyzeBookings(inputFile: Path \| None, configFile: Path \| None): (resultJson: str, exitCode: int)` where `exitCode` is 0, 2, 3 or 4 and `resultJson` is absent when `exitCode` is 3 |
+| Operation | `analyzeBookings(inputFile: Path \| None, configFile: Path \| None): (resultJson: str, exitCode: int)` where `exitCode` is 0, 2, 3 or 4 and `resultJson` is absent when `exitCode` is 3 or 4 |
 | Traces to | UC-001 message 1 (`analyzeBookings`) in [SSD-001], all diagrams 1.1 to 1.5 |
 | Domain Model concepts | Booking Submission, Booking Record, Data Quality Summary, Analysis (Lead Time Analysis, Holiday Analysis, Seasonality Analysis, Cancellation Analysis, Room Value Analysis, Guest Mix Analysis), Analysis Result, Result History, Retention Policy; associations supplies, is answered by, includes, contains, retains, is limited by ([DM-001]) |
 
@@ -162,6 +163,7 @@ The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones t
 | AD-2 | [ADR-0005]: exit code 4 leaves the result saved. | For a `failed` result that cannot be delivered, exit code 4 and nothing is stored. | Last exception row of `analyzeBookings`. |
 | AD-3 | [ADR-0003]: "latest" means later in the file. | The notebook orders the list by generated time. | Postcondition of `listRetainedResults`. |
 | OD-1 | [UC-001] has an extension for a history that cannot be written (6a) but none for a failure of retention (step 7) or for a lock that cannot be taken. | Retention failure and lock timeout end the run with exit code 3 ([ADR-0003], [ADR-0005]); after a retention failure the appended result stays. | Two exception rows of `analyzeBookings` have no use case extension. |
+| OD-2 | [DM-001] associates an Analysis Result with the Booking Submission it answers ("is answered by"). | As built the result holds a copy of the input metadata (`ResultInput`: source, reference, record count, content hash) and no link to a Booking Submission object; the postconditions of `analyzeBookings` that name this association are satisfied by that copy (SD-7, DD-5). | Postconditions of `analyzeBookings` that create the association. |
 
 ---
 

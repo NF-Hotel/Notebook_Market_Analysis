@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -659,7 +660,7 @@ sequenceDiagram
     HN->>HN: 8: is_fully_supported(selected), major_version(schema_version)
     alt schema_version is missing or its major version is not 1
         HN-->>NB: 9: notice text naming the version, only readable parts are shown
-        NB->>RN: 10: mo.callout(notice)
+        NB->>NB: 10: mo.callout(mo.md(notice), kind="warn") (marimo is called directly by the cell)
     else the schema version is supported
         HN-->>NB: 11: None
     end
@@ -735,6 +736,7 @@ sequenceDiagram
     NB->>+BV: 2: build_xxx_view(selected)
     create participant HVW as ":HolidayView<br/>interface"
     BV->>HVW: 3: create(message, note, calendar, windows_days, sections)
+    participant HSC as ":HolidaySection<br/>interface, one per side (booking date, arrival date)"
     BV-->>-NB: 4: view
     alt the Analysis is holidays
         NB->>+HVW: 5: window_options()
@@ -758,8 +760,8 @@ sequenceDiagram
     NB->>+BV: 16: build_holiday_view(selected)
     BV-->>-NB: 17: HolidayView
     NB->>+RN: 18: render_holidays(view, window)
-    RN->>+HVW: 19: comparison_table(window), weekday_table(window), statements(window), coverage_lines()
-    HVW-->>-RN: 20: rows and statements for the window
+    RN->>+HSC: 19: comparison_table(window), weekday_table(window), statements(window), coverage_lines()
+    HSC-->>-RN: 20: rows and statements for the window
     RN-->>-NB: 21: mo.Html
     NB->>+LM: 22: build_limitations(selected, "holidays"), render_limitations(notice)
     LM-->>-NB: 23: limitation notes

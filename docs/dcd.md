@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -430,28 +431,28 @@ classDiagram
         <<module>>
         +run_analyses(validated: ValidatedBookings, configuration: AppConfiguration, analyzers: tuple[Analyzer, ...] = ...) tuple[tuple[Analysis, ...], tuple[Notice, ...]]
     }
-    AnalyzeBookings o-- "1" ConfigurationLoader : configuration_loader
-    AnalyzeBookings o-- "1" BookingLoader : booking_loader
-    AnalyzeBookings o-- "1" ResultSerializer : serializer
-    AnalyzeBookings o-- "1" HistoryWriter : history_writer
-    AnalyzeBookings o-- "1" HistoryReader : history_reader
-    AnalyzeBookings o-- "1" ResultSink : sink
-    AnalyzeBookings o-- "1" Clock : clock
-    AnalyzeBookings o-- "1" ResultIdGenerator : ids
-    AnalyzeBookings o-- "0..*" Analyzer : analyzers
+    AnalyzeBookings "1" o-- "1" ConfigurationLoader : configuration_loader
+    AnalyzeBookings "1" o-- "1" BookingLoader : booking_loader
+    AnalyzeBookings "1" o-- "1" ResultSerializer : serializer
+    AnalyzeBookings "1" o-- "1" HistoryWriter : history_writer
+    AnalyzeBookings "1" o-- "1" HistoryReader : history_reader
+    AnalyzeBookings "1" o-- "1" ResultSink : sink
+    AnalyzeBookings "1" o-- "1" Clock : clock
+    AnalyzeBookings "1" o-- "1" ResultIdGenerator : ids
+    AnalyzeBookings "1" o-- "0..*" Analyzer : analyzers
     AnalyzeBookings ..> AnalyzeOutcome : creates
     AnalyzeBookings ..> validate_bookings : calls
     AnalyzeBookings ..> build_result : calls
     AnalyzeOutcome "1" --> "1" RunStatus : status
     LoadedConfiguration "1" *-- "1" AppConfiguration : configuration
-    LoadedConfiguration "1" *-- "0..*" Notice : notices
+    LoadedConfiguration "1" o-- "0..*" Notice : notices
     AppConfiguration "1" --> "1" Environment : environment
     AppConfiguration "1" *-- "1" RetentionPolicy : retention
-    BookingLoader o-- "2" BookingReader : supplied_reader and development_reader
+    BookingLoader "1" o-- "2" BookingReader : supplied_reader and development_reader
     BookingLoader ..> Environment : reads
     BookingLoader ..> BookingSubmission : returns
     ValidatedBookings "1" o-- "1" BookingSubmission : submission
-    ValidatedBookings "1" *-- "1" DataQualitySummary : summary
+    ValidatedBookings "1" o-- "1" DataQualitySummary : summary
     ValidatedBookings "1" *-- "6" AnalysisAvailability : availability
     validate_bookings ..> ValidatedBookings : creates
     build_result ..> AnalysisResult : creates
@@ -580,7 +581,7 @@ classDiagram
     CancellationAnalyzer ..|> Analyzer : realizes
     RoomValueAnalyzer ..|> Analyzer : realizes
     GuestMixAnalyzer ..|> Analyzer : realizes
-    HolidayAnalyzer o-- "1" HolidayCalendar : calendar
+    HolidayAnalyzer "1" o-- "1" HolidayCalendar : calendar
     TomlConfigurationLoader ..> LoadedConfiguration : creates
     JsonBookingReader ..> BookingSubmission : creates
     DevelopmentCsvReader ..> BookingSubmission : creates
@@ -1189,9 +1190,9 @@ Every operation drawn above appears once, with the operation contract of [OC-001
 | `quality.summarize(records: tuple[BookingRecord, ...], unknown_fields: tuple[str, ...] = ...) -> DataQualitySummary` | `analyzeBookings` / SD 1.1 message 18 |
 | `quality.usable_fields(records: tuple[BookingRecord, ...]) -> frozenset[str]` | `analyzeBookings` / SD 1.1 message 17 |
 | `quality.assess_availability(records: tuple[BookingRecord, ...]) -> tuple[AnalysisAvailability, ...]` | `analyzeBookings` / SD 1.1 message 17 |
-| `analysis_rules.lead_time_band(days: int) -> str` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
+| `analysis_rules.lead_time_band(days: int) -> str` | none: no production caller, the lead-time analyzer uses the band expression built from `LEAD_TIME_BANDS`; tested only (DD-3) |
 | `analysis_rules.stay_bucket(nights: int) -> str` | none / no SD message: not called by the production code (DD-3) |
-| `analysis_rules.capped_label(value: int, cap: int) -> str` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
+| `analysis_rules.capped_label(value: int, cap: int) -> str` | none: no production caller, only `capped_labels` is used; tested only (DD-3) |
 | `analysis_rules.capped_labels(cap: int) -> tuple[str, ...]` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
 | `analysis_rules.is_small_sample(group_size: int, min_group_size: int) -> bool` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
 | `analysis_rules.rate_statistic(group: str, numerator: int, denominator: int, min_group_size: int) -> GroupStatistic` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
@@ -1407,7 +1408,7 @@ The class relationships drawn in the layer diagrams form no cycle either: the ve
 
 ## Verification Note
 
-The script `verify_dcd.py` (a throw-away check that is not committed to the repository) reads this document and `src/` with Python `ast` and compares them. It was run with `.venv/Scripts/python.exe` on the version of this document you are reading; the outcome is:
+The script `verify_dcd.py` (a throw-away check that is not committed to the repository, so the result is reproducible only by an equivalent `ast` script; the independent review [RC-017] re-ran such a check and agreed) reads this document and `src/` with Python `ast` and compares them. It was run with `.venv/Scripts/python.exe` on the version of this document you are reading; the outcome is:
 
 | Check | Result |
 | --- | --- |
@@ -1434,7 +1435,7 @@ Differences found while drawing the built classes, continuing the numbering of t
 | --- | --- | --- | --- |
 | DD-1 | [DM-001] Generalizations: Lead Time Analysis, Holiday Analysis, Seasonality Analysis, Cancellation Analysis, Room Value Analysis and Guest Mix Analysis are kinds (subclasses) of Analysis. [ADR-0006] puts "polars-based analyzers implementing the analyzer ports" in `adapters`. | No subclass of `Analysis` exists. One `Analysis` value class plus `AnalysisName` represents all six; six `Analyzer` strategy classes in `adapters` compute them. The six kinds are therefore not domain classes (same as SD-4). | Open issue: amend DM-001 (kinds are analyzers, not entity subclasses) or accept the Strategy realization. |
 | DD-2 | [DM-001] Result History (with location) is a concept that retains Analysis Results and is limited by a Retention Policy; [ADR-0006] speaks of one "history repository" port. | There is no `ResultHistory` class. The history is the JSONL file reached through two ports `HistoryWriter` (append and retention, the policy is an argument of `append`) and `HistoryReader` (read, never modifies); `HistoryReadout` holds a read result; `AppConfiguration.history_path` holds the location. | Open issue: state in DM-001 or ADR-0006 that the Result History is a file behind two ports. |
-| DD-3 | [DM-001] Holiday Window is a concept with days before and after; [ADR-0006] and the design work assume everything defined is used. | `HolidayWindow` (domain) is defined but not referenced by any production module; windows are integers and `DayClass` and `DayKind` classify days. Also not called by the production flow: `ValidatedBookings.availability_of`, `DayClass.in_window`, `analysis_rules.stay_bucket`; `wording.forbidden_words_in`, `wording.finding_texts` and `wording.forbidden_words_in_findings` are used by the tests only. | New task: remove the unused definitions or use them; if kept, state that they are test support. |
+| DD-3 | [DM-001] Holiday Window is a concept with days before and after; [ADR-0006] and the design work assume everything defined is used. | `HolidayWindow` (domain) is defined but not referenced by any production module; windows are integers and `DayClass` and `DayKind` classify days. Also not called by the production flow: `ValidatedBookings.availability_of`, `DayClass.in_window`, `analysis_rules.stay_bucket`, `analysis_rules.lead_time_band`, `analysis_rules.capped_label`; `wording.forbidden_words_in`, `wording.finding_texts` and `wording.forbidden_words_in_findings` are used by the tests only. | New task: remove the unused definitions or use them; if kept, state that they are test support. |
 | DD-4 | [DM-001] Analysis reports Group Statistic (association 1 to 0..*), and [ADR-0002] defines the numerator and denominator. | `GroupStatistic` exists but is transient: it is created by `count_statistic` or `rate_statistic` and converted at once to JSON by `figure_to_json`; `Analysis.findings` holds `Mapping[str, JsonValue]`, and the read side reads the stored figure as `Figure` (interface). The association is not drawn. | Open issue: accept that statistics are JSON inside findings, or type the findings. |
 | DD-5 | [DM-001] Booking Submission is answered by Analysis Result (1 to 1). | `AnalysisResult` has `input: ResultInput | None`, a copy of the source, reference, record count and content hash; no reference to the submission or its records exists (the result holds no raw record, [ADR-0002]). Repeats SD-7. | Open issue: accept as the realization of "no raw records in the result". |
 | DD-6 | [ADR-0006] lists four layers, puts the marimo notebook in `infrastructure` and says the notebook reads through the same history reader port as the command line. | There are five layers; the notebook and its view models are in the outermost `interface` package (the `pyproject.toml` comment states this). `interface/history_source.py` imports the concrete `TomlConfigurationLoader` (adapters) and `JsonlHistoryReader` (infrastructure), which the `layers` contract allows. The contract named "Only the composition root imports adapters and infrastructure" forbids only `domain`, `application` and `adapters` from importing `infrastructure`; it does not restrict `interface`, so its name says more than it enforces. Repeats AD-4, SD-1 and SD-2. | Open issue: amend ADR-0006 for the fifth layer and rename or extend the contract; decide whether `history_source` should use the `HistoryReader` port. |
@@ -1458,3 +1459,4 @@ Differences found while drawing the built classes, continuing the numbering of t
 [ADR-0005]: ./adr/adr-0005-delivery-and-failure-semantics.md
 [ADR-0006]: ./adr/adr-0006-architecture-and-invocation.md
 [ADR-0007]: ./adr/adr-0007-analysis-methods.md
+[RC-017]: ./sqa/reviews/rc-017-dcd.md

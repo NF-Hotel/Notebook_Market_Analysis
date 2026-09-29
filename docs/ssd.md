@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -122,7 +123,7 @@ sequenceDiagram
 
 ### Lifecycle Notes
 
-The System instance is one operating-system process per call. It is created when the process starts (the composition root wires the adapters) and destroyed when the process ends with the exit code. No conversational state survives between calls; the only durable state is the Result History file and the configuration file. Two callers can run two System instances at the same time; they coordinate only through the history lock ([ADR-0003]). A run that ends with exit code 4 leaves its Analysis Result in the Result History, so a retry by the Calling system creates a second Analysis Result ([ADR-0005]).
+The System instance is one operating-system process per call. It is created when the process starts (the composition root wires the adapters) and destroyed when the process ends with the exit code. No conversational state survives between calls; the only durable state is the Result History file and the configuration file. Two callers can run two System instances at the same time; they coordinate only through the history lock ([ADR-0003]). A run whose completed Analysis Result could not be delivered (exit code 4) leaves that result in the Result History, so a retry by the Calling system creates a second Analysis Result ([ADR-0005]); a `failed` result that cannot be delivered is never stored (AD-2).
 
 ## UC-002 Review Analysis History
 
