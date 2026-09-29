@@ -5,7 +5,9 @@ The result carries aggregate figures and metadata only, never raw booking record
 
 from datetime import datetime
 
+from hotel_booking_analysis.application.configuration import AppConfiguration
 from hotel_booking_analysis.application.placeholder_analyses import run_analyses
+from hotel_booking_analysis.application.ports import Analyzer
 from hotel_booking_analysis.application.validate_bookings import ValidatedBookings
 from hotel_booking_analysis.domain.analysis import Analysis, Availability
 from hotel_booking_analysis.domain.booking import InputSource
@@ -30,10 +32,18 @@ def build_result(
     config_notices: tuple[Notice, ...],
     result_id: str,
     generated_at: datetime,
+    configuration: AppConfiguration | None = None,
+    analyzers: tuple[Analyzer, ...] = (),
 ) -> AnalysisResult:
-    """Build the result of a run whose input was accepted (ADR-0002)."""
+    """Build the result of a run whose input was accepted (ADR-0002).
+
+    Analyses without an analyzer are reported as placeholders; `configuration` defaults to the
+    ADR-0004 defaults.
+    """
     submission = validated.submission
-    analyses, analysis_notices = run_analyses(validated)
+    analyses, analysis_notices = run_analyses(
+        validated, configuration or AppConfiguration(), analyzers
+    )
     notices = (
         *config_notices,
         *_source_notices(submission.source),

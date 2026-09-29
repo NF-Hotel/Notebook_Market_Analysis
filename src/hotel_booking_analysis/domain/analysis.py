@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from enum import StrEnum
 
-type JsonValue = str | int | bool | list[JsonValue] | dict[str, JsonValue] | None
+type JsonValue = str | int | float | bool | list[JsonValue] | dict[str, JsonValue] | None
 """Plain JSON-shaped data; money is carried as a decimal string (ADR-0002)."""
 
 
