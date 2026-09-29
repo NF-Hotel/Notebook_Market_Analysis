@@ -17,6 +17,7 @@ document lives under `docs/`:
 | Project plan and the gateways (phases, tasks, Go/No-Go criteria) | `docs/project-plan.md`, `docs/milestones/` |
 | User stories and use cases | `docs/user-stories.md`, `docs/use-cases/` |
 | Domain model and architecture decisions (input, result, history, configuration, delivery, architecture, analysis methods) | `docs/domain-model.md`, `docs/adr/` |
+| Behavior and design of every use case (as built) | `docs/ssd.md`, `docs/operation-contracts.md`, `docs/sequence-diagrams.md`, `docs/dcd.md` |
 | Review records and traceability matrix | `docs/sqa/reviews/`, `docs/sqa/traceability-matrix.md` |
 | Artifact registry (locations and next versions) | `docs/artifact-registry.md` |
 
@@ -48,11 +49,15 @@ import-linter.
 | MIL-004 | Core pipeline: input, result, history, retention, command line | Implemented |
 | MIL-005 | The six analyses | Implemented |
 | MIL-006 | marimo notebook and acceptance | Implemented |
+| MIL-007 | System sequence diagrams, operation contracts, sequence diagrams, design class diagram | Drafted as built, reviews pending |
 
-Not built yet: charts (the notebook shows tables), the system sequence, operation contract,
-sequence and design class diagrams for the use cases (planned as their own gateway), and real
-production input, whose schema is a proposal until the calling-system owner confirms it
-(ADR-0001).
+Not built yet: charts (the notebook shows tables), and real production input, whose schema is a
+proposal until the calling-system owner confirms it (ADR-0001).
+
+MIL-007 documents the built design for every use case: system sequence diagrams
+(`docs/ssd.md`), operation contracts (`docs/operation-contracts.md`), sequence diagrams
+(`docs/sequence-diagrams.md`) and the design class diagram (`docs/dcd.md`). They are drafts until
+reviewed.
 
 ## Install
 

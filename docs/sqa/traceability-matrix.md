@@ -15,6 +15,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -38,9 +39,9 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [MIL-006] | Milestone / Gateway | [PP-001] | - | [RC-009] |
 | [MIL-007] | Milestone / Gateway | [PP-001] | - | - |
 | [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | [RC-010] |
-| [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | [RC-011] |
-| [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | [RC-012] |
-| [DM-001] | Domain Model | [UC-001], [UC-002], [UCD-001] | [ADR-0001], [ADR-0002], [ADR-0003], [ADR-0007] | [RC-013] |
+| [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-011] |
+| [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-012] |
+| [DM-001] | Domain Model | [UC-001], [UC-002], [UCD-001] | [ADR-0001], [ADR-0002], [ADR-0003], [ADR-0007], [SSD-001], [DCD-001] | [RC-013] |
 | [ADR-0001] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 | [ADR-0002] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 | [ADR-0003] | Architecture Decision Record | [US-001], [UC-001] | - | - |
@@ -48,6 +49,10 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [ADR-0005] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 | [ADR-0006] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 | [ADR-0007] | Architecture Decision Record | [US-001], [UC-001] | - | - |
+| [SSD-001] | System Sequence Diagram | [UC-001], [UC-002], [DM-001] | [OC-001] | - |
+| [OC-001] | Operation Contract | [SSD-001], [DM-001] | [SD-001] | - |
+| [SD-001] | Sequence Diagram | [OC-001] | [DCD-001] | - |
+| [DCD-001] | Design Class Diagram | [SD-001], [DM-001] | - | - |
 
 ## Coverage Notes
 
@@ -92,3 +97,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [RC-012]: ./reviews/rc-012-uc-002-review-analysis-history.md
 [RC-013]: ./reviews/rc-013-domain-model.md
 [MIL-007]: ./../milestones/mil-007-behavior-and-design-artifacts.md
+[SSD-001]: ./../ssd.md
+[OC-001]: ./../operation-contracts.md
+[SD-001]: ./../sequence-diagrams.md
+[DCD-001]: ./../dcd.md

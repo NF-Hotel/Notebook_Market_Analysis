@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | OC-001 |
-| CrossReference | [SSD-001], [DM-001] |
+| CrossReference | [SSD-001], [DM-001], [SD-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -170,3 +171,4 @@ The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones t
 [UC-002]: ./use-cases/uc-002-review-analysis-history.md
 [ADR-0003]: ./adr/adr-0003-jsonl-history-and-retention.md
 [ADR-0005]: ./adr/adr-0005-delivery-and-failure-semantics.md
+[SD-001]: ./sequence-diagrams.md

@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | SSD-001 |
-| CrossReference | [UC-001], [UC-002], [DM-001] |
+| CrossReference | [UC-001], [UC-002], [DM-001], [OC-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 

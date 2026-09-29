@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | UC-002 |
-| CrossReference | [UCD-001], [US-001], [SA-001], [DM-001] |
+| CrossReference | [UCD-001], [US-001], [SA-001], [DM-001], [SSD-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -34,3 +35,4 @@ Business rules: viewing never modifies or removes history entries (only the rete
 [US-001]: ../user-stories.md
 [SA-001]: ../stakeholder-analysis.md
 [DM-001]: ../domain-model.md
+[SSD-001]: ../ssd.md
