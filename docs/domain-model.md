@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -46,7 +47,7 @@ classDiagram
     }
     class AnalysisResult {
         result identifier
-        schema version
+        format version
         generated time
         status
     }
@@ -82,7 +83,7 @@ classDiagram
     Analysis "1" --> "0..*" GroupStatistic : reports
     HolidayAnalysis "1" --> "0..*" HolidayWindow : compares
     HolidayWindow "*" --> "1" Holiday : surrounds
-    ResultHistory "1" --> "0..*" AnalysisResult : retains
+    ResultHistory "0..1" --> "0..*" AnalysisResult : retains
     ResultHistory "1" --> "1" RetentionPolicy : is limited by
     Analysis <|-- LeadTimeAnalysis
     Analysis <|-- HolidayAnalysis
@@ -108,8 +109,8 @@ classDiagram
 | Guest Mix Analysis | Analysis of guest and booking composition | name, availability | UC-001 "guest and booking mix" |
 | Group Statistic | A count-based figure for one group of bookings | group, numerator, denominator, small sample flag | UC-001 "numerator and denominator", "small samples" |
 | Holiday | A Cambodian public holiday from the holiday calendar | date, name | UC-001 "Cambodian holidays" |
-| Holiday Window | The days before and after a holiday that are compared with ordinary days | days before, days after | UC-001 "windows before and after" |
-| Analysis Result | The complete outcome of one analysis run | result identifier, schema version, generated time, status | UC-001 "result", UC-002 "retained result" |
+| Holiday Window | The days before and after a holiday that are compared with ordinary days | days before, days after | US-001.03 "windows before and after" a holiday |
+| Analysis Result | The complete outcome of one analysis run | result identifier, format version, generated time, status | UC-001 "result", UC-002 "retained result" |
 | Result History | The local record of retained results | location | UC-001 "history", UC-002 "history" |
 | Retention Policy | The rule limiting how many results the history keeps | limit | UC-001 "retention limit" |
 
@@ -124,10 +125,10 @@ classDiagram
 | Analysis | reports (analysis reports statistics) | Group Statistic | 1 to 0..* |
 | Holiday Analysis | compares (analysis compares windows) | Holiday Window | 1 to 0..* |
 | Holiday Window | surrounds (window surrounds holiday) | Holiday | * to 1 |
-| Result History | retains (history retains results) | Analysis Result | 1 to 0..* |
+| Result History | retains (history retains results) | Analysis Result | 0..1 to 0..* |
 | Result History | is limited by (history is limited by policy) | Retention Policy | 1 to 1 |
 
-An Analysis Result of a failed run has no Analysis and is not retained; the multiplicity 0..* on both associations covers this ([ADR-0003], [ADR-0005]).
+An Analysis Result of a failed run has no Analysis and is not retained; the 0..* on the contains association and the 0..1 on the retains association cover this ([ADR-0003], [ADR-0005]).
 
 ## Generalizations
 
