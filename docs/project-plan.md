@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | PP-001 |
-| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006], [BC-001], [SA-001] |
+| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006], [BC-001], [SA-001], [US-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
@@ -155,3 +156,4 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 [Milestone-6]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/6
 [BC-001]: ./business-case.md
 [SA-001]: ./stakeholder-analysis.md
+[US-001]: ./user-stories.md
