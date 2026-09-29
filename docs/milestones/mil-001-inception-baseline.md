@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | MIL-001 |
-| CrossReference | |
+| CrossReference | [BC-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -75,3 +76,7 @@ TBD. No project deadline or start date is supplied; recorded as open issue OI-01
 | 12 | Review SA-001 | Produce the RC record for SA-001 against QC-SA-001; the reviewer must not be the author. | No | SA-001, QC-SA-001 |
 | 13 | Review BC-001 | Produce the RC record for BC-001 against QC-BC-001 to confirm the scope and objectives before requirements start. | No | BC-001, QC-BC-001 |
 | 14 | Review UCD-001 | Produce the RC record for UCD-001 against QC-UCD-001 so actors and goals are agreed before stories and use cases are written. | No | UCD-001, QC-UCD-001 |
+
+---
+
+[BC-001]: ../business-case.md
