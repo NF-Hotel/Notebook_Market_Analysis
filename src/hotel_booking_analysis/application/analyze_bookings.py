@@ -13,6 +13,7 @@ from hotel_booking_analysis.application.build_result import build_failed_result,
 from hotel_booking_analysis.application.configuration import AppConfiguration
 from hotel_booking_analysis.application.load_bookings import BookingLoader
 from hotel_booking_analysis.application.ports import (
+    Analyzer,
     Clock,
     ConfigurationLoader,
     HistoryReader,
@@ -69,6 +70,7 @@ class AnalyzeBookings:
     sink: ResultSink
     clock: Clock
     ids: ResultIdGenerator
+    analyzers: tuple[Analyzer, ...] = ()
 
     def run(self, input_path: Path | None, config_path: Path | None) -> AnalyzeOutcome:
         try:
@@ -81,7 +83,14 @@ class AnalyzeBookings:
             validated = validate_bookings(submission)
         except InputError as error:
             return self._deliver_failure(error, loaded.notices)
-        result = build_result(validated, loaded.notices, self.ids.new_id(), self.clock.now())
+        result = build_result(
+            validated,
+            loaded.notices,
+            self.ids.new_id(),
+            self.clock.now(),
+            configuration,
+            self.analyzers,
+        )
         return self._store_and_deliver(result, configuration)
 
     def _store_and_deliver(
