@@ -2,9 +2,13 @@
 
 import io
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
+import hotel_booking_analysis.interface.history_notebook as notebook_module
 from hotel_booking_analysis.infrastructure.cli import main
 
 HISTORY_RELATIVE = Path("output") / "analysis_history.jsonl"
@@ -71,3 +75,34 @@ def write_history(working_directory: Path, *results: Result, extra: str = "") ->
 
 def with_identity(result: Result, result_id: str, generated_at: str) -> Result:
     return {**result, "result_id": result_id, "generated_at": generated_at}
+
+
+def export_notebook(
+    working_directory: Path, extra_environment: dict[str, str] | None = None
+) -> str:
+    """Run the notebook headlessly (`marimo export html`) in the directory; return its HTML."""
+    output = working_directory / "notebook.html"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "marimo",
+            "export",
+            "html",
+            str(Path(notebook_module.__file__)),
+            "-o",
+            str(output),
+            "--no-include-code",
+            "-f",
+        ],
+        cwd=working_directory,
+        env={**os.environ, **(extra_environment or {})},
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "Traceback" not in completed.stderr, completed.stderr
+    assert "cells failed" not in completed.stderr, completed.stderr
+    return output.read_text(encoding="utf-8")
