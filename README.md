@@ -153,3 +153,10 @@ production exits with code 2.
 .venv\Scripts\python.exe -m ruff check .
 .venv\Scripts\python.exe -m ruff format --check .
 ```
+
+`pytest` also prints a coverage report (line and branch, with the missing lines per file) and
+writes an HTML report to `htmlcov/index.html`; both come from `pytest-cov`, configured in
+`pyproject.toml` under `[tool.pytest.ini_options]` and `[tool.coverage]`. No minimum coverage is
+enforced yet. The command line run by the subprocess tests is measured too. The marimo notebook
+cells are executed by marimo and their lines are not attributed (`history_notebook.py` and part of
+`marimo_render.py` read low); the view models behind them are tested directly.
