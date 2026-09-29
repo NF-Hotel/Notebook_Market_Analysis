@@ -4,7 +4,7 @@
 | Key | Value |
 | --- | --- |
 | ID | PP-001 |
-| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006], [BC-001], [SA-001], [US-001] |
+| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006], [BC-001], [SA-001], [US-001], [MIL-007] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
@@ -15,6 +15,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -44,6 +45,7 @@ Schedule the phases (gateways) that take the hotel-booking analysis application 
 | G4 Core pipeline (coding) | [MIL-004] | TBD | TBD | S01 | US-001.01, .08, .09 | Working input, result, history, retention, delivery | [Milestone-4] |
 | G5 Analyses (coding) | [MIL-005] | TBD | TBD | S01 | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
 | G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | S01 | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
+| G7 Behavior and design artifacts | [MIL-007] | TBD | TBD | S01 | US-001.01 to US-001.10 | SSD-001, OC-001, SD-001, DCD-001 and reviews | |
 
 ```mermaid
 flowchart LR
@@ -52,6 +54,7 @@ flowchart LR
     G3 --> G4["G4 MIL-004<br/>Core pipeline"]
     G4 --> G5["G5 MIL-005<br/>Analyses"]
     G5 --> G6["G6 MIL-006<br/>marimo UI and acceptance"]
+    G6 --> G7["G7 MIL-007<br/>Behavior and design artifacts"]
 ```
 
 The Mermaid `gantt` chart recommended by the PP reference is deferred until dates exist (OI-01); the chart above shows order only.
@@ -68,16 +71,17 @@ The Mermaid `gantt` chart recommended by the PP reference is deferred until date
 | Display prior results from the history in marimo | G2 UC-002, G6 code |
 | Visible data limitations and association-not-causation wording | G3 ADR-0007, G5 code, G6 notice component |
 | Development-only CSV fallback | G3 ADR-0001, G4 code, G6 docs |
+| Behavior and design of every use case (system sequence diagram, operation contracts, sequence diagrams, design class diagram) | G7, written as built |
 
 No KPI document is planned, because no measurable success targets or baselines are supplied; gateways trace to BC-001 objectives instead.
 
 ## Dependencies
 
 ```
-MIL-001 → MIL-002 → MIL-003 → MIL-004 → MIL-005 → MIL-006
+MIL-001 → MIL-002 → MIL-003 → MIL-004 → MIL-005 → MIL-006 → MIL-007
 ```
 
-A No-Go at a gateway pauses every later gateway; dates cannot be stated until OI-01 is resolved. Coding gateways (MIL-004 to MIL-006) may not start before MIL-001 to MIL-003 are Go.
+A No-Go at a gateway pauses every later gateway; dates cannot be stated until OI-01 is resolved. Coding gateways (MIL-004 to MIL-006) may not start before MIL-001 to MIL-003 are Go. MIL-007 documents the built design and follows MIL-006.
 
 ## Artifact Selection
 
@@ -106,12 +110,17 @@ Each selected artifact has exactly one task. Review records (RC) are separate ar
 | ADR-0006 Architecture and invocation | Layering, marimo boundary, invocation mechanism, dependencies | MIL-003 task 7 | ADR-0005 |
 | ADR-0007 Analysis methods | Bands, holiday windows, baselines, sample sizes, labels | MIL-003 task 8 | US-001, ADR-0001 |
 | RC record for DM-001 | Review evidence for the domain model | MIL-003 task 9 | DM-001 |
+| SSD-001 System Sequence Diagrams | System operations of each use case (one document, a diagram per use case); required for every use case | MIL-007 task 1 | UC-001, UC-002 |
+| OC-001 Operation Contracts | One contract per system operation in SSD-001 | MIL-007 task 2 | SSD-001, DM-001 |
+| SD-001 Sequence Diagrams | How the built objects realize each contract | MIL-007 task 3 | OC-001 |
+| DCD-001 Design Class Diagram | The built classes, ports and relationships per layer | MIL-007 task 4 | SD-001, DM-001 |
+| RC records for SSD-001, OC-001, SD-001, DCD-001 | Review evidence for the behavior and design artifacts | MIL-007 tasks 5 to 8 | the reviewed artifact |
 
-Types assessed and not selected: BMC, BPMN and RA (no business-model, process or risk questions that block implementation; risks are in this plan and BC-001); KPI (no measurable targets supplied); SSD, OC, SD, DCD and ERD (ADR-0006 and DM-001 give enough design for this size, and there is no relational store); GOV (no approval workflow information); a separate data-contract type does not exist in the catalog, so contracts are ADRs (OI-07).
+Types assessed and not selected: BMC, BPMN and RA (no business-model, process or risk questions that block implementation; risks are in this plan and BC-001); KPI (no measurable targets supplied); ERD (there is no relational store); GOV (no approval workflow information); a separate data-contract type does not exist in the catalog, so contracts are ADRs (OI-07).
 
 ## Planning Coverage Check
 
-- Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) and 8 (G6) tasks.
+- Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) 8 (G6) and 8 (G7) tasks.
 - Every user story traces to UC-001, UC-002 or a gateway: US-001.01 to .07 to UC-001 and MIL-002, US-001.08 and .09 to UC-001, US-001.10 to UC-002.
 - Every coding task cites the ADR, story or use case it implements, and no coding task appears before MIL-004.
 - Every gateway has a deliverable and numbered Go/No-Go criteria.
@@ -127,6 +136,7 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 | Concurrent callers corrupt the history file | Lost or malformed results | Decide locking and atomic append in ADR-0003 (OI-10) |
 | `holidays` lacks a needed KH year | Holiday analysis incomplete | Report the analysis unavailable rather than invent dates |
 | Review effort (many RC records) slows the gateways | Schedule slip | Reviews are small and per artifact; batch reviewer time per gateway |
+| Design artifacts written after the code (MIL-007) drift from it or hide design flaws | The diagrams describe what was built, not what was intended | Check every class and method against `src/`; list differences from the ADRs; turn flaws into new coding tasks |
 
 ## Review Notes
 
@@ -168,6 +178,7 @@ Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are
 [MIL-004]: ./milestones/mil-004-core-pipeline-implementation.md
 [MIL-005]: ./milestones/mil-005-analyses-implementation.md
 [MIL-006]: ./milestones/mil-006-marimo-ui-and-acceptance.md
+[MIL-007]: ./milestones/mil-007-behavior-and-design-artifacts.md
 [Milestone-1]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/1
 [Milestone-2]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/2
 [Milestone-3]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/3

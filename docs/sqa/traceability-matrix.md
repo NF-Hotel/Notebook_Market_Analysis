@@ -14,6 +14,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -35,6 +36,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [MIL-004] | Milestone / Gateway | [PP-001] | - | [RC-007] |
 | [MIL-005] | Milestone / Gateway | [PP-001] | - | [RC-008] |
 | [MIL-006] | Milestone / Gateway | [PP-001] | - | [RC-009] |
+| [MIL-007] | Milestone / Gateway | [PP-001] | - | - |
 | [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | [RC-010] |
 | [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | [RC-011] |
 | [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001] | [RC-012] |
@@ -89,3 +91,4 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [RC-011]: ./reviews/rc-011-uc-001-analyze-hotel-bookings.md
 [RC-012]: ./reviews/rc-012-uc-002-review-analysis-history.md
 [RC-013]: ./reviews/rc-013-domain-model.md
+[MIL-007]: ./../milestones/mil-007-behavior-and-design-artifacts.md
