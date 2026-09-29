@@ -26,3 +26,23 @@ class ConfigurationError(InputError):
     def __init__(self, message: str, key: str | None = None) -> None:
         super().__init__("CONFIGURATION_ERROR", message)
         self.key = key
+
+
+class HistoryError(Exception):
+    """The result history could not be updated (ADR-0003, ADR-0005 exit code 3)."""
+
+
+class HistoryWriteError(HistoryError):
+    """The result could not be appended, or the history lock could not be taken (ADR-0003)."""
+
+
+class HistoryRetentionError(HistoryError):
+    """Retention failed after a successful append; the appended result stays (ADR-0003)."""
+
+
+class HistoryReadError(HistoryError):
+    """The history file exists but cannot be read (ADR-0003)."""
+
+
+class ResultDeliveryError(Exception):
+    """The result could not be written to the caller (ADR-0005 exit code 4)."""
