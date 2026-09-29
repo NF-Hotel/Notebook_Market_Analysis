@@ -1,0 +1,28 @@
+"""Domain errors and notices (ADR-0001, ADR-0004, ADR-0005)."""
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class Notice:
+    """A non-fatal message carried by the result (ADR-0002 `notices`)."""
+
+    code: str
+    message: str
+
+
+class InputError(Exception):
+    """The run cannot start or continue because of the input (ADR-0001, ADR-0005 exit code 2)."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+class ConfigurationError(InputError):
+    """A configuration file or value is invalid; names the key when known (ADR-0004)."""
+
+    def __init__(self, message: str, key: str | None = None) -> None:
+        super().__init__("CONFIGURATION_ERROR", message)
+        self.key = key

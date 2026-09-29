@@ -1,0 +1,104 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hotel-booking-analysis"
+version = "0.1.0"
+description = "Hotel booking analysis called by another system (ADR-0006)."
+requires-python = ">=3.13"
+dependencies = [
+    "polars",
+    "holidays",
+    "marimo",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "import-linter",
+    "jsonschema",
+    "mypy",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+hotel_booking_analysis = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF", "ANN"]
+
+[tool.mypy]
+strict = true
+python_version = "3.13"
+mypy_path = "src"
+packages = ["hotel_booking_analysis", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["jsonschema.*"]
+ignore_missing_imports = true
+
+# Layer direction (ADR-0006): infrastructure -> adapters -> application -> domain.
+[tool.importlinter]
+root_packages = ["hotel_booking_analysis"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers point inward"
+type = "layers"
+layers = [
+    "hotel_booking_analysis.infrastructure",
+    "hotel_booking_analysis.adapters",
+    "hotel_booking_analysis.application",
+    "hotel_booking_analysis.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Domain and application use no dataframe or framework libraries"
+type = "forbidden"
+source_modules = [
+    "hotel_booking_analysis.domain",
+    "hotel_booking_analysis.application",
+]
+forbidden_modules = ["polars", "pandas", "marimo", "holidays"]
+
+[[tool.importlinter.contracts]]
+name = "Domain imports nothing from other layers"
+type = "forbidden"
+source_modules = ["hotel_booking_analysis.domain"]
+forbidden_modules = [
+    "hotel_booking_analysis.application",
+    "hotel_booking_analysis.adapters",
+    "hotel_booking_analysis.infrastructure",
+]
+
+[[tool.importlinter.contracts]]
+name = "Application imports only domain"
+type = "forbidden"
+source_modules = ["hotel_booking_analysis.application"]
+forbidden_modules = [
+    "hotel_booking_analysis.adapters",
+    "hotel_booking_analysis.infrastructure",
+]
+
+[[tool.importlinter.contracts]]
+name = "Only the composition root imports adapters and infrastructure"
+type = "forbidden"
+source_modules = [
+    "hotel_booking_analysis.domain",
+    "hotel_booking_analysis.application",
+    "hotel_booking_analysis.adapters",
+]
+forbidden_modules = ["hotel_booking_analysis.infrastructure"]
