@@ -50,7 +50,10 @@ packages = ["hotel_booking_analysis", "tests"]
 module = ["jsonschema.*"]
 ignore_missing_imports = true
 
-# Layer direction (ADR-0006): infrastructure -> adapters -> application -> domain.
+# Layer direction (ADR-0006): interface -> infrastructure -> adapters -> application -> domain.
+# `interface` is the outermost package: the read-only marimo notebook and its view models
+# (ADR-0006 places the notebook at src/hotel_booking_analysis/interface/). It reads the history
+# through infrastructure and configuration through adapters, and nothing may import it.
 [tool.importlinter]
 root_packages = ["hotel_booking_analysis"]
 include_external_packages = true
@@ -59,6 +62,7 @@ include_external_packages = true
 name = "Layers point inward"
 type = "layers"
 layers = [
+    "hotel_booking_analysis.interface",
     "hotel_booking_analysis.infrastructure",
     "hotel_booking_analysis.adapters",
     "hotel_booking_analysis.application",
@@ -102,3 +106,14 @@ source_modules = [
     "hotel_booking_analysis.adapters",
 ]
 forbidden_modules = ["hotel_booking_analysis.infrastructure"]
+
+[[tool.importlinter.contracts]]
+name = "Only the interface package uses marimo"
+type = "forbidden"
+source_modules = [
+    "hotel_booking_analysis.domain",
+    "hotel_booking_analysis.application",
+    "hotel_booking_analysis.adapters",
+    "hotel_booking_analysis.infrastructure",
+]
+forbidden_modules = ["marimo"]

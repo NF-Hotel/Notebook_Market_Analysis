@@ -4,7 +4,7 @@
 | Key | Value |
 | --- | --- |
 | ID | UC-001 |
-| CrossReference | [UCD-001], [US-001], [SA-001], [DM-001] |
+| CrossReference | [UCD-001], [US-001], [SA-001], [DM-001], [SSD-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
@@ -13,6 +13,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -94,3 +95,4 @@
 [US-001]: ../user-stories.md
 [SA-001]: ../stakeholder-analysis.md
 [DM-001]: ../domain-model.md
+[SSD-001]: ../ssd.md

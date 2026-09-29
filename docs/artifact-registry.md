@@ -10,13 +10,17 @@ each document lives in *this* project and the next version to use.
 | BC | Business Case | docs/business-case.md | 002 |
 | SA | Stakeholder Analysis | docs/stakeholder-analysis.md | 002 |
 | PP | Project Plan | docs/project-plan.md | 002 |
-| MIL | Milestone / Gateway | docs/milestones/*.md | 007 |
+| MIL | Milestone / Gateway | docs/milestones/*.md | 008 |
 | UCD | Use Case Diagram | docs/use-case-diagram.md | 002 |
 | US | User Story | docs/user-stories.md | 002 |
 | UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 003 |
 | DM | Domain Model | docs/domain-model.md | 002 |
+| SSD | System Sequence Diagram | docs/ssd.md | 002 |
+| OC | Operation Contract | docs/operation-contracts.md | 002 |
+| SD | Sequence Diagram | docs/sequence-diagrams.md | 002 |
+| DCD | Design Class Diagram | docs/dcd.md | 002 |
 | ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0008 |
-| RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 014 |
+| RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 018 |
 | TM | Traceability Matrix | docs/sqa/traceability-matrix.md | 002 |
 
 ## Notes

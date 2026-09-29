@@ -4,7 +4,7 @@
 | Key | Value |
 | --- | --- |
 | ID | DM-001 |
-| CrossReference | [UC-001], [UC-002], [UCD-001] |
+| CrossReference | [UC-001], [UC-002], [UCD-001], [SSD-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -141,3 +142,4 @@ Lead Time Analysis, Holiday Analysis, Seasonality Analysis, Cancellation Analysi
 [UCD-001]: ./use-case-diagram.md
 [ADR-0003]: ./adr/adr-0003-jsonl-history-and-retention.md
 [ADR-0005]: ./adr/adr-0005-delivery-and-failure-semantics.md
+[SSD-001]: ./ssd.md
