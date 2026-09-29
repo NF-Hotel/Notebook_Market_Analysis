@@ -20,7 +20,7 @@
 
 Identify who influences or is affected by the hotel-booking analysis application, so that every later artifact can name owners, reviewers and actors by stable ID. The analysis follows the Power/Interest grid; concerns are mapped to FURPS+.
 
-Only one person is known by name. The other stakeholders are roles taken from the project brief, with the person still to be named. Rows S02 to S05 were named after the first draft; each named person still has to confirm their entry (open issue OI-02 in [PP-001]).
+All five stakeholders are named: S01 is the project owner and author, S02 to S05 were named after the first draft. Each named person still has to confirm their entry (open issue OI-02 in [PP-001]). S01's role and S04's organization are assumptions to be confirmed.
 
 ## Stakeholder Summary Table
 
@@ -53,10 +53,10 @@ Only one person is known by name. The other stakeholders are roles taken from th
 | ID | Channel | Frequency | Deliverable | Phase / Milestone |
 | --- | --- | --- | --- | --- |
 | S01 | Pull request review | Once per gateway | Gateway documents and artifacts | MIL-001 to MIL-006 |
-| S02 | To be agreed | At contract decisions | Input and result contract decisions for confirmation | MIL-003 |
-| S03 | To be agreed | At data-quality rules | Data-quality rules and example findings | MIL-002, MIL-003 |
+| S02 | Comment on the pull request or issue for the contract decisions in the project's GitHub repository (proposed; S02 to confirm) | At contract decisions | Input and result contract decisions for confirmation | MIL-003 |
+| S03 | Comment on the pull request or issue for the stories and decisions in the project's GitHub repository (proposed; S03 to confirm) | At data-quality rules | Data-quality rules and example findings | MIL-002, MIL-003 |
 | S04 | Review record (RC) | Once per reviewed artifact | Completed review records | MIL-001 to MIL-003 |
-| S05 | To be agreed | At UI acceptance | marimo demonstration | MIL-006 |
+| S05 | Live walkthrough of the marimo notebook, with feedback recorded as a GitHub issue (proposed; S05 to confirm) | At UI acceptance | marimo demonstration | MIL-006 |
 
 ## Conflicting Interests and Mitigations
 
@@ -64,7 +64,7 @@ Only one person is known by name. The other stakeholders are roles taken from th
 | --- | --- | --- |
 | The caller wants a fast, fixed result contract while analyses may need to grow | S02, S01 | Version the result envelope in ADR-0002 so fields can be added without breaking the caller |
 | Full raw records help the analyst, but results should stay small and avoid exposing booking data | S05, S03 | Exclude raw records from results by default; add fields only through a documented need |
-| One person may be author and reviewer, which weakens review independence | S01, S04 | Name S04 as a different person before any review record is issued |
+| One person may be author and reviewer, which weakens review independence | S01, S04 | S04 (Team2) is a different person from S01; review records are issued as drafts until S04 confirms them, and S04's organization is still to be confirmed |
 
 ## Traceability Analysis
 
@@ -80,7 +80,7 @@ Only one person is known by name. The other stakeholders are roles taken from th
 
 ## Sign-Off
 
-Not signed. All five stakeholders are now named (S02 Valdemar, S03 and S04 Team2, S05 PO). Pending: confirmation by each named person that their entry is correct, S01's confirmation of their own role, and the communication channels for S02, S03 and S05.
+Not signed. All five stakeholders are now named (S02 Valdemar, S03 and S04 Team2, S05 PO). Pending: confirmation by each named person that their entry and their proposed communication channel are correct, and S01's confirmation of their own role.
 
 ---
 
