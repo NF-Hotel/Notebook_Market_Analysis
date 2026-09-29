@@ -17,6 +17,7 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -39,6 +40,11 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [MIL-005] | Milestone / Gateway | [PP-001] | - | [RC-008] |
 | [MIL-006] | Milestone / Gateway | [PP-001] | - | [RC-009] |
 | [MIL-007] | Milestone / Gateway | [PP-001] | - | - |
+| [MIL-008] | Milestone / Gateway | [PP-001] | - | - |
+| [MIL-009] | Milestone / Gateway | [PP-001] | - | - |
+| [MIL-010] | Milestone / Gateway | [PP-001] | - | - |
+| [MIL-011] | Milestone / Gateway | [PP-001] | - | - |
+| [MIL-012] | Milestone / Gateway | [PP-001] | - | - |
 | [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | [RC-010] |
 | [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-011] |
 | [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-012] |
@@ -106,3 +112,8 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [RC-015]: ./reviews/rc-015-operation-contracts.md
 [RC-016]: ./reviews/rc-016-sequence-diagrams.md
 [RC-017]: ./reviews/rc-017-dcd.md
+[MIL-008]: ./../milestones/mil-008-requirements-holidays-llm-and-ai-insights.md
+[MIL-009]: ./../milestones/mil-009-design-holidays-llm-and-ai-insights.md
+[MIL-010]: ./../milestones/mil-010-implementation-holidays-and-llm-discovery.md
+[MIL-011]: ./../milestones/mil-011-implementation-ai-insights.md
+[MIL-012]: ./../milestones/mil-012-conditional-http-api-fastapi.md

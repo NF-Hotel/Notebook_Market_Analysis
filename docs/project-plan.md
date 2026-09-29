@@ -4,7 +4,7 @@
 | Key | Value |
 | --- | --- |
 | ID | PP-001 |
-| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006], [BC-001], [SA-001], [US-001], [MIL-007] |
+| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006], [BC-001], [SA-001], [US-001], [MIL-007], [MIL-008], [MIL-009], [MIL-010], [MIL-011], [MIL-012] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
@@ -16,6 +16,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -46,6 +47,11 @@ Schedule the phases (gateways) that take the hotel-booking analysis application 
 | G5 Analyses (coding) | [MIL-005] | TBD | TBD | S01 | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
 | G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | S01 | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
 | G7 Behavior and design artifacts | [MIL-007] | TBD | TBD | S01 | US-001.01 to US-001.10 | SSD-001, OC-001, SD-001, DCD-001 and reviews |  [Milestone-7] |
+| G8 Requirements: holidays, LLM discovery, AI insights | [MIL-008] | TBD | TBD | S01 | US-001.11 to US-001.14 | Revised BC, UCD, US, UC-002; new UC-003 to UC-005; reviews | |
+| G9 Design: holidays, LLM discovery, AI insights | [MIL-009] | TBD | TBD | S01 | US-001.11 to US-001.14 | DM revision, ADR-0008 to ADR-0012, SSD, OC, SD, DCD revisions, reviews | |
+| G10 Holiday listing and LLM discovery (coding) | [MIL-010] | TBD | TBD | S01 | US-001.11, US-001.12 | Two standalone commands with tests | |
+| G11 AI insights (coding) | [MIL-011] | TBD | TBD | S01 | US-001.13, US-001.14 | Optional per-analysis insights, result 1.1, marimo view | |
+| G12 HTTP API with FastAPI (conditional, coding) | [MIL-012] | TBD | TBD | S01 | US-001.11 to US-001.14 | FastAPI adapter, only if ADR-0008 selects HTTP | |
 
 ```mermaid
 flowchart LR
@@ -55,6 +61,11 @@ flowchart LR
     G4 --> G5["G5 MIL-005<br/>Analyses"]
     G5 --> G6["G6 MIL-006<br/>marimo UI and acceptance"]
     G6 --> G7["G7 MIL-007<br/>Behavior and design artifacts"]
+    G7 --> G8["G8 MIL-008<br/>Requirements for the new capabilities"]
+    G8 --> G9["G9 MIL-009<br/>Design of the new capabilities"]
+    G9 --> G10["G10 MIL-010<br/>Holiday listing and LLM discovery"]
+    G10 --> G11["G11 MIL-011<br/>AI insights"]
+    G11 -.-> G12["G12 MIL-012<br/>HTTP API, only if ADR-0008 selects it"]
 ```
 
 The Mermaid `gantt` chart recommended by the PP reference is deferred until dates exist (OI-01); the chart above shows order only.
@@ -72,16 +83,21 @@ The Mermaid `gantt` chart recommended by the PP reference is deferred until date
 | Visible data limitations and association-not-causation wording | G3 ADR-0007, G5 code, G6 notice component |
 | Development-only CSV fallback | G3 ADR-0001, G4 code, G6 docs |
 | Behavior and design of every use case (system sequence diagram, operation contracts, sequence diagrams, design class diagram) | G7, written as built |
+| Return the Cambodian holidays as JSON without running an analysis | G8 story and UC-003, G9 ADR-0011, G10 code |
+| Return the reachable LLM providers (Ollama, LM Studio) as JSON without running an analysis | G8 story and UC-004, G9 ADR-0009 and ADR-0011, G10 code |
+| AI executive summary and improvement suggestions per analysis for a market analyst, kept as hypotheses | G8 stories and UC-005, G9 ADR-0010 and ADR-0011, G11 code |
+| Full behavior and design artifacts (SSD, OC, SD, DCD) for every new use case, designed before the code | G9 |
+| How the calling system invokes the app (command line or FastAPI) | G9 ADR-0008, G12 (conditional) |
 
 No KPI document is planned, because no measurable success targets or baselines are supplied; gateways trace to BC-001 objectives instead.
 
 ## Dependencies
 
 ```
-MIL-001 → MIL-002 → MIL-003 → MIL-004 → MIL-005 → MIL-006 → MIL-007
+MIL-001 → MIL-002 → MIL-003 → MIL-004 → MIL-005 → MIL-006 → MIL-007 → MIL-008 → MIL-009 → MIL-010 → MIL-011 ⇢ MIL-012 (conditional)
 ```
 
-A No-Go at a gateway pauses every later gateway; dates cannot be stated until OI-01 is resolved. Coding gateways (MIL-004 to MIL-006) may not start before MIL-001 to MIL-003 are Go. MIL-007 documents the built design and follows MIL-006.
+A No-Go at a gateway pauses every later gateway; dates cannot be stated until OI-01 is resolved. Coding gateways (MIL-004 to MIL-006) may not start before MIL-001 to MIL-003 are Go. MIL-007 documents the built design and follows MIL-006. MIL-010 to MIL-012 (coding) may not start before MIL-008 and MIL-009 are Go; MIL-012 is built only if ADR-0008 selects an HTTP interface, otherwise it is closed as not needed.
 
 ## Artifact Selection
 
@@ -115,12 +131,26 @@ Each selected artifact has exactly one task. Review records (RC) are separate ar
 | SD-001 Sequence Diagrams | How the built objects realize each contract | MIL-007 task 3 | OC-001 |
 | DCD-001 Design Class Diagram | The built classes, ports and relationships per layer | MIL-007 task 4 | SD-001, DM-001 |
 | RC records for SSD-001, OC-001, SD-001, DCD-001 | Review evidence for the behavior and design artifacts | MIL-007 tasks 5 to 8 | the reviewed artifact |
+| BC-001, UCD-001, US-001 (revisions) | Add objectives 8 to 10, the new use cases and stories US-001.11 to US-001.14 | MIL-008 tasks 1 to 3 | existing artifacts |
+| UC-003 Get Holiday Calendar | Actor goal: holidays as JSON without an analysis | MIL-008 task 4 | UCD-001, US-001 |
+| UC-004 Get Available LLM Providers | Actor goal: reachable providers and models as JSON without an analysis | MIL-008 task 5 | UCD-001, US-001 |
+| UC-005 Get AI Insights for Analyses | Actor goal: executive summary and improvement suggestions per analysis (fully dressed, extends UC-001) | MIL-008 task 6 | UCD-001, US-001, UC-001 |
+| UC-002 (revision) | Show AI insights in the history view | MIL-008 task 7 | UC-002 |
+| RC records for BC-001, UCD-001, US-001, UC-003, UC-004, UC-005, UC-002 (revisions) | Review evidence for the requirements | MIL-008 tasks 8 to 14 | the reviewed artifact |
+| DM-001 (revision) | Concepts: language model provider, language model, AI insight, executive summary, improvement suggestion, holiday calendar listing | MIL-009 task 1 | UC-003 to UC-005 |
+| ADR-0008 Invocation interface | Command-line subcommands or FastAPI; resolves OI-17 and OI-04 | MIL-009 task 2 | UC-003 to UC-005 |
+| ADR-0009 LLM provider discovery and connection | Ollama and LM Studio endpoints, timeouts, model choice | MIL-009 task 3 | ADR-0008 |
+| ADR-0010 AI insight generation and guardrails | What the model sees, answer structure, hypothesis wording, failure behavior | MIL-009 task 4 | ADR-0009 |
+| ADR-0011 Output contracts and result 1.1 | Holiday and provider listing JSON, insights in the result | MIL-009 task 5 | ADR-0002, ADR-0010 |
+| ADR-0012 Configuration extension | Provider, model, timeout and insight keys with defaults | MIL-009 task 6 | ADR-0004 |
+| SSD-001, OC-001, SD-001, DCD-001 (revisions) | Full behavior and design set for UC-003 to UC-005, designed before the code | MIL-009 tasks 7 to 10 | the new use cases |
+| RC records for DM-001, SSD-001, OC-001, SD-001, DCD-001 (revisions) | Review evidence for the design | MIL-009 tasks 11 to 15 | the reviewed artifact |
 
 Types assessed and not selected: BMC, BPMN and RA (no business-model, process or risk questions that block implementation; risks are in this plan and BC-001); KPI (no measurable targets supplied); ERD (there is no relational store); GOV (no approval workflow information); a separate data-contract type does not exist in the catalog, so contracts are ADRs (OI-07).
 
 ## Planning Coverage Check
 
-- Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) 8 (G6) and 8 (G7) tasks.
+- Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) 8 (G6), 8 (G7), 14 (G8), 15 (G9), 6 (G10), 10 (G11) and 6 (G12, conditional) tasks.
 - Every user story traces to UC-001, UC-002 or a gateway: US-001.01 to .07 to UC-001 and MIL-002, US-001.08 and .09 to UC-001, US-001.10 to UC-002.
 - Every coding task cites the ADR, story or use case it implements, and no coding task appears before MIL-004.
 - Every gateway has a deliverable and numbered Go/No-Go criteria.
@@ -137,6 +167,11 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 | `holidays` lacks a needed KH year | Holiday analysis incomplete | Report the analysis unavailable rather than invent dates |
 | Review effort (many RC records) slows the gateways | Schedule slip | Reviews are small and per artifact; batch reviewer time per gateway |
 | Design artifacts written after the code (MIL-007) drift from it or hide design flaws | The diagrams describe what was built, not what was intended | Check every class and method against `src/`; list differences from the ADRs; turn flaws into new coding tasks |
+| AI text states causes or promises earnings, contradicting the association-only rule | Misleading advice to the market analyst | ADR-0010 guardrails: hypothesis wording, sample sizes, a validator that rejects unsuitable answers, an AI-generated label |
+| The model receives raw or identifying data | Data exposure | Aggregate findings only; a test scans every prompt for raw records and booking identifiers (MIL-011) |
+| A slow or unavailable model makes a run fail or hang | Caller blocked; lost analysis | Insights are optional and off by default; timeouts; failure leaves the analysis intact (ADR-0010) |
+| AI text differs on every run | Results cannot be reproduced or compared | The generating model and provider are stored with each insight; the analysis itself stays deterministic |
+| FastAPI added without need | More code, a server to run and secure | Decide in ADR-0008 with S02; MIL-012 is conditional |
 
 ## Review Notes
 
@@ -169,6 +204,14 @@ Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are
 - **OI-10:** Retained-result semantics, retention timing and concurrency: proposed in ADR-0003 (one valid line is one result, retention after append, lock file); awaiting acceptance.
 - **OI-11:** `marimo`, `polars`, `holidays` and `pytest` are not installed and KH holiday coverage for the data's years is unverified. Verify at the start of G4 (MIL-004 task 1).
 - **OI-12:** The input carries no currency, so estimated room values are labeled in the price units of the input (ADR-0007). Confirm the currency with S02 or S03.
+- **OI-13:** Which models are acceptable (minimum size or quality, hardware) and how the default model is chosen when a provider offers several. Resolve in G9 (ADR-0009). Owner S01.
+- **OI-14:** Whether models may run only locally (Ollama, LM Studio on the same machine) or also remote, and whether aggregate findings may leave the machine. Assumed local only. Resolve in G8 (BC-001) and G9 (ADR-0010). Owner S03.
+- **OI-15:** Language of the summaries and suggestions (English assumed). Resolve in G8. Owner S05.
+- **OI-16:** Whether the insights belong inside the result and history (assumed, result 1.1) or in a separate output. Resolve in G9 (ADR-0011). Owner S02.
+- **OI-17:** How the calling system invokes the app once it has three operations and slow model calls: command-line subcommands (proposed) or a FastAPI service. Extends OI-04. Resolve in G9 (ADR-0008). Owner S02.
+- **OI-18:** Parameters of the holiday listing: which years (the years in the data, a given range, or the current year) and whether Cambodia only. Resolve in G8 and G9 (ADR-0011). Owner S02.
+- **OI-19:** Whether insights are cached or regenerated, and how latency and model cost are limited. Resolve in G9 (ADR-0010, ADR-0012). Owner S01.
+- **OI-20:** The request says marked analyst, read here as market analyst, the Analyst actor S05; confirm, and confirm whether the Calling system also consumes the suggestions. Resolve in G8. Owner S01.
 
 ---
 
@@ -179,6 +222,11 @@ Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are
 [MIL-005]: ./milestones/mil-005-analyses-implementation.md
 [MIL-006]: ./milestones/mil-006-marimo-ui-and-acceptance.md
 [MIL-007]: ./milestones/mil-007-behavior-and-design-artifacts.md
+[MIL-008]: ./milestones/mil-008-requirements-holidays-llm-and-ai-insights.md
+[MIL-009]: ./milestones/mil-009-design-holidays-llm-and-ai-insights.md
+[MIL-010]: ./milestones/mil-010-implementation-holidays-and-llm-discovery.md
+[MIL-011]: ./milestones/mil-011-implementation-ai-insights.md
+[MIL-012]: ./milestones/mil-012-conditional-http-api-fastapi.md
 [Milestone-7]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/7
 [Milestone-1]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/1
 [Milestone-2]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/2
