@@ -1,20 +1,32 @@
 """Tests for the shared analysis rules (ADR-0007 common rules and lead time, ADR-0002)."""
 
 from datetime import date
+from decimal import Decimal
 
 import pytest
 
 from hotel_booking_analysis.domain.analysis import GroupStatistic
 from hotel_booking_analysis.domain.analysis_rules import (
+    BOOKING_CHANGE_CAP,
     LEAD_TIME_BANDS,
+    SPECIAL_REQUEST_CAP,
+    STAY_BUCKETS,
+    capped_label,
+    capped_labels,
     count_statistic,
+    decimal_string,
     figure_to_json,
+    is_partial_iso_week,
+    is_partial_month,
     is_partial_period,
     is_small_sample,
+    iso_week_bounds,
     lead_time_band,
+    mean_decimal_string,
     missing_field_reason,
     month_bounds,
     rate_statistic,
+    stay_bucket,
     unavailable_marker,
 )
 
@@ -102,3 +114,67 @@ def test_missing_field_reason_names_every_field() -> None:
 
     assert "'lead_time'" in reason
     assert "'is_canceled'" in reason
+
+
+@pytest.mark.parametrize(
+    ("nights", "bucket"),
+    [(1, "1"), (2, "2"), (3, "3"), (4, "4-7"), (7, "4-7"), (8, "8+"), (30, "8+")],
+)
+def test_stay_bucket_puts_edges_in_the_adr_buckets(nights: int, bucket: str) -> None:
+    assert stay_bucket(nights) == bucket
+
+
+def test_stay_bucket_rejects_zero_nights() -> None:
+    with pytest.raises(ValueError, match="at least one night"):
+        stay_bucket(0)
+
+
+def test_stay_buckets_are_the_five_adr_buckets() -> None:
+    assert [b.label for b in STAY_BUCKETS] == ["1", "2", "3", "4-7", "8+"]
+
+
+@pytest.mark.parametrize(
+    ("value", "cap", "label"),
+    [(0, 3, "0"), (2, 3, "2"), (3, 3, "3+"), (9, 3, "3+"), (1, 2, "1"), (2, 2, "2+")],
+)
+def test_capped_label_groups_the_cap_and_more(value: int, cap: int, label: str) -> None:
+    assert capped_label(value, cap) == label
+
+
+def test_capped_labels_follow_the_adr_groups() -> None:
+    assert capped_labels(SPECIAL_REQUEST_CAP) == ("0", "1", "2", "3+")
+    assert capped_labels(BOOKING_CHANGE_CAP) == ("0", "1", "2+")
+
+
+def test_capped_label_rejects_negative_counts() -> None:
+    with pytest.raises(ValueError, match="negative"):
+        capped_label(-1, 3)
+
+
+def test_iso_week_bounds_of_week_53_span_the_year_end() -> None:
+    assert iso_week_bounds(2020, 53) == (date(2020, 12, 28), date(2021, 1, 3))
+
+
+def test_is_partial_month_when_observed_dates_start_or_stop_inside_it() -> None:
+    assert is_partial_month("2021-03", date(2021, 3, 8), date(2021, 5, 31)) is True
+    assert is_partial_month("2021-05", date(2021, 3, 8), date(2021, 5, 30)) is True
+    assert is_partial_month("2021-04", date(2021, 3, 8), date(2021, 5, 30)) is False
+
+
+def test_is_partial_iso_week_when_observed_dates_cut_the_week() -> None:
+    assert is_partial_iso_week("2021-W01", date(2021, 1, 5), date(2021, 2, 1)) is True
+    assert is_partial_iso_week("2021-W01", date(2021, 1, 4), date(2021, 2, 1)) is False
+    assert is_partial_iso_week("2021-W05", date(2021, 1, 4), date(2021, 2, 1)) is True
+
+
+def test_decimal_string_drops_trailing_zeros() -> None:
+    assert decimal_string(Decimal("38.000")) == "38"
+    assert decimal_string(Decimal("46.310")) == "46.31"
+    assert decimal_string(Decimal("100")) == "100"
+    assert decimal_string(Decimal("0.000")) == "0"
+
+
+def test_mean_decimal_string_rounds_half_up_to_four_places() -> None:
+    assert mean_decimal_string(Decimal("150.5"), 3) == "50.1667"
+    assert mean_decimal_string(Decimal("27.31"), 2) == "13.655"
+    assert mean_decimal_string(Decimal("0.00005"), 1) == "0.0001"

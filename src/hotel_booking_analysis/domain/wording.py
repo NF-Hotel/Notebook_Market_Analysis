@@ -47,6 +47,44 @@ HOLIDAY_ASSOCIATION_NOTE = (
     "not considered."
 )
 
+SEASONALITY_NOTE = (
+    "Bookings are counted by booking date and arrivals by arrival date, as separate series. "
+    "Figures describe observed counts per period; no seasons are defined, and a partial period "
+    "is not fully covered by the observed dates."
+)
+SEASONALITY_SERIES_SUMMARY = (
+    "{count} {measure} were observed from {first} to {last}, in {months} months and {weeks} "
+    "ISO weeks; {partial} of these periods are partial. This describes the observed data only."
+)
+CANCELLATION_NOTE = (
+    "Cancellation shares are observed associations between a booking attribute and "
+    "cancellation status; other factors are not adjusted for, and nothing is predicted."
+)
+CANCELLATION_SPLIT_SUMMARY = (
+    "Cancellation share by {split}: {canceled} of {total} bookings were cancelled overall; "
+    "groups are shown with their counts and small groups are flagged."
+)
+ROOM_VALUE_LABEL = (
+    "Estimate in the price units of the input: price per night times total nights. "
+    "It is not realized revenue; payments, taxes, discounts and adjustments are not supplied."
+)
+ROOM_VALUE_GROUP_SUMMARY = (
+    "Estimated value of {count} {status} bookings: total {total}, mean {mean} "
+    "in the price units of the input (an estimate, not realized revenue)."
+)
+CANCELLATION_STATUS_UNKNOWN = "cancellation status unknown"
+ROOM_VALUE_STATUS_UNKNOWN_NOTE = (
+    "Cancellation status is not available, so one group labelled 'cancellation status unknown' "
+    "is reported; cancelled and other bookings are never combined into one figure."
+)
+GUEST_MIX_NOTE = (
+    "Distributions show how bookings are spread over each attribute. A comparison is stated "
+    "only for groups that are not small samples; it describes an observed association only."
+)
+GUEST_MIX_COMPARISON_OMITTED = (
+    "No comparison is stated for group '{group}'; it is a small sample of {count} records."
+)
+
 
 def forbidden_words_in(text: str) -> tuple[str, ...]:
     """Return the forbidden words found in a text, ignoring case."""

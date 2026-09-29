@@ -10,6 +10,7 @@ from typing import Any
 
 import polars as pl
 
+from hotel_booking_analysis.adapters.analysis_frames import band_expression
 from hotel_booking_analysis.application.configuration import AppConfiguration
 from hotel_booking_analysis.application.validate_bookings import ValidatedBookings
 from hotel_booking_analysis.domain.analysis import (
@@ -40,12 +41,7 @@ _MEDIAN = "median_days"
 
 def _band_column() -> pl.Expr:
     """Assign each lead time to its ADR-0007 band, built from the domain band table."""
-    lead = pl.col("lead_time")
-    expression = pl.lit("")
-    for band in reversed(LEAD_TIME_BANDS):
-        condition = lead >= band.lower if band.upper is None else lead <= band.upper
-        expression = pl.when(condition).then(pl.lit(band.label)).otherwise(expression)
-    return expression.alias("band")
+    return band_expression("lead_time", LEAD_TIME_BANDS).alias("band")
 
 
 def _number(value: float | None) -> int | float | None:

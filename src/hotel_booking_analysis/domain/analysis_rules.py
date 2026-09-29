@@ -6,6 +6,7 @@ Pure rules from ADR-0007 common rules and ADR-0002 group figures; no library is 
 import calendar
 from dataclasses import dataclass
 from datetime import date
+from decimal import ROUND_HALF_UP, Decimal
 
 from hotel_booking_analysis.domain.analysis import GroupStatistic, JsonValue
 
@@ -42,6 +43,47 @@ def lead_time_band(days: int) -> str:
         if band.upper is None or days <= band.upper:
             return band.label
     raise AssertionError("The last band is open-ended.")  # pragma: no cover
+
+
+@dataclass(frozen=True, slots=True)
+class Bucket:
+    """A whole-number bucket; `upper` is None for the open-ended last bucket."""
+
+    label: str
+    lower: int
+    upper: int | None
+
+
+STAY_BUCKETS: tuple[Bucket, ...] = (
+    Bucket("1", 1, 1),
+    Bucket("2", 2, 2),
+    Bucket("3", 3, 3),
+    Bucket("4-7", 4, 7),
+    Bucket("8+", 8, None),
+)
+"""Length-of-stay buckets in nights (ADR-0007): 1, 2, 3, 4 to 7, 8 or more."""
+
+SPECIAL_REQUEST_CAP = 3
+BOOKING_CHANGE_CAP = 2
+
+
+def stay_bucket(nights: int) -> str:
+    """Return the label of the stay bucket holding a length of stay of one night or more."""
+    if nights < 1:
+        raise ValueError("A stay bucket needs at least one night.")
+    return next(b.label for b in STAY_BUCKETS if b.upper is None or nights <= b.upper)
+
+
+def capped_label(value: int, cap: int) -> str:
+    """Label a count, with `cap` and more written as `cap+` (special requests, changes)."""
+    if value < 0:
+        raise ValueError("A count cannot be negative.")
+    return f"{cap}+" if value >= cap else str(value)
+
+
+def capped_labels(cap: int) -> tuple[str, ...]:
+    """Return the labels `0`, `1`, ..., `cap+` in order."""
+    return (*(str(n) for n in range(cap)), f"{cap}+")
 
 
 def is_small_sample(group_size: int, min_group_size: int) -> bool:
@@ -83,6 +125,38 @@ def is_partial_period(
 ) -> bool:
     """Tell whether observed dates fail to cover the whole period (ADR-0007 coverage rule)."""
     return first_observed > period_start or last_observed < period_end
+
+
+def iso_week_bounds(iso_year: int, iso_week: int) -> tuple[date, date]:
+    """Return the Monday and Sunday of an ISO week."""
+    return date.fromisocalendar(iso_year, iso_week, 1), date.fromisocalendar(iso_year, iso_week, 7)
+
+
+def is_partial_month(label: str, first_observed: date, last_observed: date) -> bool:
+    """Tell whether a `YYYY-MM` month is only partly covered by the observed dates."""
+    year, month = label.split("-")
+    start, end = month_bounds(int(year), int(month))
+    return is_partial_period(start, end, first_observed, last_observed)
+
+
+def is_partial_iso_week(label: str, first_observed: date, last_observed: date) -> bool:
+    """Tell whether a `YYYY-Www` ISO week is only partly covered by the observed dates."""
+    year, week = label.split("-W")
+    start, end = iso_week_bounds(int(year), int(week))
+    return is_partial_period(start, end, first_observed, last_observed)
+
+
+def decimal_string(value: Decimal) -> str:
+    """Write an exact decimal as a plain string without trailing zeros (money, ADR-0002)."""
+    return format(value.normalize(), "f")
+
+
+MEAN_PLACES = Decimal("0.0001")
+
+
+def mean_decimal_string(total: Decimal, count: int) -> str:
+    """Write the mean of `count` values, rounded half up to four places, as a decimal string."""
+    return decimal_string((total / Decimal(count)).quantize(MEAN_PLACES, rounding=ROUND_HALF_UP))
 
 
 def unavailable_marker(reason: str) -> dict[str, JsonValue]:

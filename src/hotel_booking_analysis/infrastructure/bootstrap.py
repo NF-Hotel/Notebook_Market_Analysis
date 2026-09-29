@@ -4,12 +4,16 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import BinaryIO
 
+from hotel_booking_analysis.adapters.cancellation_analyzer import CancellationAnalyzer
 from hotel_booking_analysis.adapters.csv_reader import DevelopmentCsvReader
+from hotel_booking_analysis.adapters.guest_mix_analyzer import GuestMixAnalyzer
 from hotel_booking_analysis.adapters.holiday_analyzer import HolidayAnalyzer
 from hotel_booking_analysis.adapters.json_reader import JsonBookingReader
 from hotel_booking_analysis.adapters.json_result_serializer import JsonResultSerializer
 from hotel_booking_analysis.adapters.khmer_holiday_calendar import KhmerHolidayCalendar
 from hotel_booking_analysis.adapters.lead_time_analyzer import LeadTimeAnalyzer
+from hotel_booking_analysis.adapters.room_value_analyzer import RoomValueAnalyzer
+from hotel_booking_analysis.adapters.seasonality_analyzer import SeasonalityAnalyzer
 from hotel_booking_analysis.adapters.toml_configuration import TomlConfigurationLoader
 from hotel_booking_analysis.application.analyze_bookings import AnalyzeBookings
 from hotel_booking_analysis.application.load_bookings import BookingLoader
@@ -51,5 +55,12 @@ def build_analyze_bookings(
 
 
 def build_analyzers() -> tuple[Analyzer, ...]:
-    """Create the implemented analyzers; analyses without one are reported as placeholders."""
-    return (LeadTimeAnalyzer(), HolidayAnalyzer(KhmerHolidayCalendar()))
+    """Create the analyzers of all six analyses."""
+    return (
+        LeadTimeAnalyzer(),
+        HolidayAnalyzer(KhmerHolidayCalendar()),
+        SeasonalityAnalyzer(),
+        CancellationAnalyzer(),
+        RoomValueAnalyzer(),
+        GuestMixAnalyzer(),
+    )

@@ -138,7 +138,7 @@ def test_analyze_result_contains_no_raw_booking_records(tmp_path: Path) -> None:
     text = run.stdout.decode()
     assert '"booking_id":"' not in text
     assert '"lead_time":40' not in text
-    assert "27.31" not in text
+    assert '"price_per_night":27.31' not in text  # a period mean may equal a price, as a string
     assert "records" not in run.document
 
 
