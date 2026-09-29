@@ -15,8 +15,8 @@ each document lives in *this* project and the next version to use.
 | US | User Story | docs/user-stories.md | 002 |
 | UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 003 |
 | DM | Domain Model | docs/domain-model.md | 002 |
-| SSD | System Sequence Diagram | docs/ssd.md | 001 |
-| OC | Operation Contract | docs/operation-contracts.md | 001 |
+| SSD | System Sequence Diagram | docs/ssd.md | 002 |
+| OC | Operation Contract | docs/operation-contracts.md | 002 |
 | SD | Sequence Diagram | docs/sequence-diagrams.md | 001 |
 | DCD | Design Class Diagram | docs/dcd.md | 001 |
 | ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0008 |
