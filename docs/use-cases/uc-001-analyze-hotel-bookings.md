@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -57,7 +58,7 @@
   1. The system reports the invalid values in the data-quality summary and continues with the valid records, or stops if none remain.
 - 4a. A required field is missing for an analysis:
   1. The system marks that analysis unavailable with the missing field, and does not fabricate values.
-- 4b. The `holidays` package has no data for a year in the data:
+- 4b. The holiday calendar has no data for a year in the data:
   1. The system marks the holiday analysis unavailable for that year, and does not invent holidays.
 - 6a. The history cannot be written or a line is malformed or partly written:
   1. The system reports the failure in the outcome and does not claim the history was updated; the remaining readable results stay intact.

@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -54,9 +55,9 @@ Stories for the epic in [MIL-002]: analyze hotel bookings supplied as JSON by th
 
 **Acceptance Criteria**
 
-- Given bookings spanning some years, when the analysis runs, then holidays for `KH` come from the `holidays` package for exactly the years present in the data.
+- Given bookings spanning some years, when the analysis runs, then Cambodian public holidays come from a maintained holiday calendar (the source is fixed in ADR-0007) for exactly the years present in the data.
 - Given holiday dates, when the analysis runs, then booking-date behavior and arrival-date behavior are reported separately, each compared for the holiday itself and for configurable windows before and after it with non-holiday periods.
-- Given the package has no data for a year, when the analysis runs, then that year is reported as unavailable and no holiday is invented.
+- Given the calendar has no data for a year, when the analysis runs, then that year is reported as unavailable and no holiday is invented.
 - Given results are shown, then each comparison shows its counts, and the wording states an association and does not state a cause.
 
 | Traces to | Size | INVEST exceptions |
