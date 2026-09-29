@@ -10,9 +10,9 @@
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
