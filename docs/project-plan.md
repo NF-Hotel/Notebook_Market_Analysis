@@ -131,14 +131,15 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 - **OI-01:** No start date, deadline or gateway target dates are supplied. Resolve in G1.
 - **OI-02:** Stakeholders, owners and approving reviewers: SA-001 now defines S01 to S05, but only S01 is named (assumed project owner); S02 to S05 are roles still to be named, and gateway owners and reviewers are still TBD. Resolve in G1.
 - **OI-03:** Who views history in marimo is unspecified; the prompt names only the Calling system as actor. UCD-001 provisionally adds an Analyst actor (S05) that S01 must confirm. Resolve in G1.
-- **OI-04:** How the calling system invokes the app and receives the JSON (function call, command line with stdout or output file, HTTP) is unspecified. Resolve in G3 (ADR-0006).
-- **OI-05:** Production input JSON schema is unspecified (array or wrapper object, field names, types, date format, timezone, nulls). Resolve in G3 (ADR-0001).
-- **OI-06:** Result envelope, history file location and configuration file format and location are unspecified. Resolve in G3 (ADR-0002, ADR-0003, ADR-0004).
+- **OI-04:** Invocation mechanism: proposed in ADR-0006 as a command-line entry writing JSON to standard output (exit codes in ADR-0005); awaiting confirmation by S02 and acceptance.
+- **OI-05:** Production input schema: proposed in ADR-0001 (top-level array, sample field names, ISO dates); awaiting confirmation by S02 and acceptance.
+- **OI-06:** Result envelope, history location and configuration: proposed in ADR-0002, ADR-0003 (`output/analysis_history.jsonl`) and ADR-0004 (`hotel_analysis.toml`); awaiting acceptance.
 - **OI-07:** The catalog has no data-contract type, no QC checklist for ADR, PP or TM. Contracts are ADRs and their review is a stakeholder approval. Propose upstream changes to the framework rather than edit `framework/`.
 - **OI-08:** The repository is not a Git repository and has no remote or issue host; `sync-project.sh` is not run. Milestone links in the schedule stay blank.
-- **OI-09:** Sensitivity of booking data (country, agent) in results and history is unassessed; the plan excludes raw records from results. Resolve in G3 (ADR-0002).
-- **OI-10:** What counts as one retained result, whether retention runs before or after the append, and behavior with concurrent callers are unspecified. Resolve in G3 (ADR-0003).
+- **OI-09:** Sensitivity of booking data: ADR-0002 excludes raw records and person-level data from results; the sample has no guest names, but the production feed is unconfirmed. Awaiting S03.
+- **OI-10:** Retained-result semantics, retention timing and concurrency: proposed in ADR-0003 (one valid line is one result, retention after append, lock file); awaiting acceptance.
 - **OI-11:** `marimo`, `polars`, `holidays` and `pytest` are not installed and KH holiday coverage for the data's years is unverified. Verify at the start of G4 (MIL-004 task 1).
+- **OI-12:** The input carries no currency, so estimated room values are labeled in the price units of the input (ADR-0007). Confirm the currency with S02 or S03.
 
 ---
 
