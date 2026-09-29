@@ -10,9 +10,8 @@
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -47,14 +46,14 @@ A marimo notebook that displays the data-quality summary, the six analyses and p
 
 | Business Case objective / KPI / user story | Reference |
 | --- | --- |
-| Interactive, understandable presentation and history display objectives (BC-001) | US-001.10, US-001.01 to US-001.07; UC-002 |
+| BC-001 objectives 1 to 3 and 6 (presentation and history display) | US-001.10, US-001.01 to US-001.07; UC-002 |
 
 ## Ownership
 
 | Role | Stakeholder ID (SA) |
 | --- | --- |
-| Owner | TBD, pending SA-001 (open issue OI-02) |
-| Approving reviewer | TBD, pending SA-001 (open issue OI-02) |
+| Owner | S01 |
+| Approving reviewer | S04 |
 
 ## Target Date
 

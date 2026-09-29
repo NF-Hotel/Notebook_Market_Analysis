@@ -10,9 +10,8 @@
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -46,14 +45,14 @@ One User Story document (US-001) with stories US-001.01 to US-001.10, two Use Ca
 
 | Business Case objective / KPI / user story | Reference |
 | --- | --- |
-| BC-001 objectives on analysis, result delivery and history (planned in MIL-001) | US-001.01 to US-001.10 |
+| BC-001 objectives 1 to 6 | US-001.01 to US-001.10 |
 
 ## Ownership
 
 | Role | Stakeholder ID (SA) |
 | --- | --- |
-| Owner | TBD, pending SA-001 (open issue OI-02) |
-| Approving reviewer | TBD, pending SA-001 (open issue OI-02) |
+| Owner | S01 |
+| Approving reviewer | S04 |
 
 ## Target Date
 

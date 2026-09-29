@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -19,7 +20,7 @@
 
 Identify who influences or is affected by the hotel-booking analysis application, so that every later artifact can name owners, reviewers and actors by stable ID. The analysis follows the Power/Interest grid; concerns are mapped to FURPS+.
 
-Only one person is known by name. The other stakeholders are roles taken from the project brief, with the person still to be named. A row whose name reads "To be named" is a placeholder for a real person and must be filled before the gateway that needs it (see open issue OI-02 in [PP-001]).
+Only one person is known by name. The other stakeholders are roles taken from the project brief, with the person still to be named. Rows S02 to S05 were named after the first draft; each named person still has to confirm their entry (open issue OI-02 in [PP-001]).
 
 ## Stakeholder Summary Table
 
@@ -79,7 +80,7 @@ Only one person is known by name. The other stakeholders are roles taken from th
 
 ## Sign-Off
 
-Not signed. Pending: names for S02 to S05, and confirmation of S01's role by S01.
+Not signed. All five stakeholders are now named (S02 Valdemar, S03 and S04 Team2, S05 PO). Pending: confirmation by each named person that their entry is correct, S01's confirmation of their own role, and the communication channels for S02, S03 and S05.
 
 ---
 

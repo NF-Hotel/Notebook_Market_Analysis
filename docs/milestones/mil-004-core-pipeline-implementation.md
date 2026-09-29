@@ -10,9 +10,8 @@
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -47,14 +46,14 @@ A working core in `src/` and `tests/` that loads a JSON booking file (or the dev
 
 | Business Case objective / KPI / user story | Reference |
 | --- | --- |
-| Data understanding, JSON delivery and bounded history objectives (BC-001) | US-001.01, US-001.08, US-001.09; UC-001 |
+| BC-001 objectives 1, 4 and 5 (data quality, JSON delivery, bounded history) | US-001.01, US-001.08, US-001.09; UC-001 |
 
 ## Ownership
 
 | Role | Stakeholder ID (SA) |
 | --- | --- |
-| Owner | TBD, pending SA-001 (open issue OI-02) |
-| Approving reviewer | TBD, pending SA-001 (open issue OI-02) |
+| Owner | S01 |
+| Approving reviewer | S04 |
 
 ## Target Date
 

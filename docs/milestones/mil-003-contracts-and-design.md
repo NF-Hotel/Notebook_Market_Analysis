@@ -10,9 +10,8 @@
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -48,15 +47,15 @@ A Domain Model (DM-001) and seven Architecture Decision Records (ADR-0001 to ADR
 
 | Business Case objective / KPI / user story | Reference |
 | --- | --- |
-| Result delivery, history and retention objectives (BC-001) | US-001.08, US-001.09, US-001.10, UC-001, UC-002 |
-| Analysis objectives (BC-001) | US-001.01 to US-001.07 |
+| BC-001 objectives 4 to 6 (delivery, history, retention) | US-001.08, US-001.09, US-001.10, UC-001, UC-002 |
+| BC-001 objectives 1 to 3 (analyses) | US-001.01 to US-001.07 |
 
 ## Ownership
 
 | Role | Stakeholder ID (SA) |
 | --- | --- |
-| Owner | TBD, pending SA-001 (open issue OI-02) |
-| Approving reviewer | TBD, pending SA-001 (open issue OI-02) |
+| Owner | S01 |
+| Approving reviewer | S04 |
 
 ## Target Date
 

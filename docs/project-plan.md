@@ -13,6 +13,8 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -20,7 +22,7 @@
 
 Schedule the phases (gateways) that take the hotel-booking analysis application from an empty repository to a marimo app. A calling system supplies a JSON file of booking records and receives an analysis result as JSON. Each result is also appended to a local JSONL history that marimo can display, and only the latest N results are kept (N from a configuration file, default 10). No deadline is known, so the plan orders phases by dependency and leaves dates open (OI-01).
 
-**Status of this activity:** planning only. This activity creates and revises planning artifacts (`docs/`) and defines future coding tasks. No marimo app, Python module, test, configuration file, dependency installation or `.venv` change is made until the required artifacts are completed and reviewed and the coding gateway (MIL-004) is authorized to start. No Git host synchronization, commit, push or pull request has been done.
+**Status of this activity:** planning only. This activity creates and revises planning artifacts (`docs/`) and defines future coding tasks. No marimo app, Python module, test, configuration file, dependency installation or `.venv` change is made until the required artifacts are completed and reviewed and the coding gateway (MIL-004) is authorized to start. The gateways and tasks were synced to GitHub as milestones and issues on 2026-09-29 (55 issues); planning artifacts are committed through pull requests.
 
 ## Planning Assumptions
 
@@ -28,20 +30,20 @@ Schedule the phases (gateways) that take the hotel-booking analysis application 
 - Phase length is not fixed; a phase ends when its Go/No-Go criteria are met.
 - The Calling system is the primary actor. The person viewing history in marimo is not identified (OI-03).
 - The production input is JSON. The example CSV `./data/example/nf_hotel_bookings.csv` (semicolon-delimited, 8538 data rows, columns listed in the prompt, dates such as `08-03-2021`) is development context only, not a production schema.
-- Stakeholder IDs do not exist yet; owners and reviewers are recorded as pending SA-001 (OI-02).
-- The repository is not yet a Git repository and no remote is known, so no sync to a git host can occur (OI-08).
+- Stakeholder IDs come from SA-001: S01 owns every gateway and S04 is the approving reviewer (OI-02 remains open until S02 to S05 are confirmed as named people).
+- The repository is a Git repository with the GitHub remote `NF-Hotel/Notebook_Market_Analysis`; the milestone links below point to it.
 - The Python environment `.venv` has none of marimo, polars, holidays or pytest installed; installing them is a MIL-004 task, not part of this activity.
 
 ## Gateway Schedule
 
 | Gateway | Document | Window | Decision date | Owner | Stories | Main deliverable | Milestone |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| G1 Inception baseline | [MIL-001] | TBD (OI-01) | TBD | TBD (OI-02) | none | SA, BC, UCD, TM, plan and gateway reviews | [Milestone-1] |
-| G2 Requirements | [MIL-002] | TBD | TBD | TBD | US-001.01 to US-001.10 | US-001, UC-001, UC-002 and reviews | [Milestone-2] |
-| G3 Contracts and design | [MIL-003] | TBD | TBD | TBD | US-001.01 to US-001.10 | DM-001, ADR-0001 to ADR-0007 | [Milestone-3] |
-| G4 Core pipeline (coding) | [MIL-004] | TBD | TBD | TBD | US-001.01, .08, .09 | Working input, result, history, retention, delivery | [Milestone-4] |
-| G5 Analyses (coding) | [MIL-005] | TBD | TBD | TBD | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
-| G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | TBD | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
+| G1 Inception baseline | [MIL-001] | TBD (OI-01) | TBD | S01 | none | SA, BC, UCD, TM, plan and gateway reviews | [Milestone-1] |
+| G2 Requirements | [MIL-002] | TBD | TBD | S01 | US-001.01 to US-001.10 | US-001, UC-001, UC-002 and reviews | [Milestone-2] |
+| G3 Contracts and design | [MIL-003] | TBD | TBD | S01 | US-001.01 to US-001.10 | DM-001, ADR-0001 to ADR-0007 | [Milestone-3] |
+| G4 Core pipeline (coding) | [MIL-004] | TBD | TBD | S01 | US-001.01, .08, .09 | Working input, result, history, retention, delivery | [Milestone-4] |
+| G5 Analyses (coding) | [MIL-005] | TBD | TBD | S01 | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
+| G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | S01 | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
 
 ```mermaid
 flowchart LR
@@ -126,16 +128,33 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 | `holidays` lacks a needed KH year | Holiday analysis incomplete | Report the analysis unavailable rather than invent dates |
 | Review effort (many RC records) slows the gateways | Schedule slip | Reviews are small and per artifact; batch reviewer time per gateway |
 
+## Review Notes
+
+No QC checklist exists for the Project Plan, so it is checked against the Business Case constraints and each gateway's Go/No-Go criteria, as the PP reference prescribes. AI-assisted draft check, 2026-09-29; the approving reviewer S04 has not yet confirmed it.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | Every gateway MIL-001 to MIL-006 appears in the Gateway Schedule with document, owner and deliverable | Pass |
+| 2 | Owner is a stakeholder ID from SA-001 | Pass (S01) |
+| 3 | The dependency chain matches the Dependencies section of each MIL document | Pass |
+| 4 | Task counts stated in the coverage check match the MIL documents (14, 6, 9, 10, 8, 8) | Pass |
+| 5 | Business Case constraints respected: coding gateways come after the requirement, contract and design gateways | Pass |
+| 6 | Window and decision dates present | Fail: all TBD, because BC-001 states no deadline (OI-01) |
+| 7 | Milestone links point to the GitHub milestones | Pass |
+| 8 | Statements about repository state are current | Fixed in this review (Git status, sync status, OI-08) |
+
+Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are required (OI-01); S04 confirms this check.
+
 ## Open Issues
 
 - **OI-01:** No start date, deadline or gateway target dates are supplied. Resolve in G1.
-- **OI-02:** Stakeholders, owners and approving reviewers: SA-001 now defines S01 to S05, but only S01 is named (assumed project owner); S02 to S05 are roles still to be named, and gateway owners and reviewers are still TBD. Resolve in G1.
+- **OI-02:** Stakeholders: SA-001 defines S01 to S05 and all are now named (S02 Valdemar, S03 and S04 Team2, S05 PO). S01 owns every gateway and S04 is the approving reviewer. Still open: each named person confirming their entry, and the communication channels for S02, S03 and S05.
 - **OI-03:** Who views history in marimo is unspecified; the prompt names only the Calling system as actor. UCD-001 provisionally adds an Analyst actor (S05) that S01 must confirm. Resolve in G1.
 - **OI-04:** Invocation mechanism: proposed in ADR-0006 as a command-line entry writing JSON to standard output (exit codes in ADR-0005); awaiting confirmation by S02 and acceptance.
 - **OI-05:** Production input schema: proposed in ADR-0001 (top-level array, sample field names, ISO dates); awaiting confirmation by S02 and acceptance.
 - **OI-06:** Result envelope, history location and configuration: proposed in ADR-0002, ADR-0003 (`output/analysis_history.jsonl`) and ADR-0004 (`hotel_analysis.toml`); awaiting acceptance.
 - **OI-07:** The catalog has no data-contract type, no QC checklist for ADR, PP or TM. Contracts are ADRs and their review is a stakeholder approval. Propose upstream changes to the framework rather than edit `framework/`.
-- **OI-08:** The repository is not a Git repository and has no remote or issue host; `sync-project.sh` is not run. Milestone links in the schedule stay blank.
+- **OI-08:** `sync-project.sh` cannot create milestones while a gateway's Target Date is 'TBD' (it mistakes the Purpose text for a due date), so the six milestones were created by hand; each re-sync prints a harmless update warning. Resolved once target dates exist (OI-01) or the script is fixed upstream.
 - **OI-09:** Sensitivity of booking data: ADR-0002 excludes raw records and person-level data from results; the sample has no guest names, but the production feed is unconfirmed. Awaiting S03.
 - **OI-10:** Retained-result semantics, retention timing and concurrency: proposed in ADR-0003 (one valid line is one result, retention after append, lock file); awaiting acceptance.
 - **OI-11:** `marimo`, `polars`, `holidays` and `pytest` are not installed and KH holiday coverage for the data's years is unverified. Verify at the start of G4 (MIL-004 task 1).
