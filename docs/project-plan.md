@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | PP-001 |
-| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006] |
+| CrossReference | [MIL-001], [MIL-002], [MIL-003], [MIL-004], [MIL-005], [MIL-006], [BC-001], [SA-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -127,8 +128,8 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 ## Open Issues
 
 - **OI-01:** No start date, deadline or gateway target dates are supplied. Resolve in G1.
-- **OI-02:** Stakeholders, owners and approving reviewers are unknown; no S-IDs exist. Resolve in G1 (SA-001).
-- **OI-03:** Who views history in marimo (a human analyst, the caller, or both) is unspecified; the prompt names only the Calling system as actor. Resolve in G1 (UCD-001).
+- **OI-02:** Stakeholders, owners and approving reviewers: SA-001 now defines S01 to S05, but only S01 is named (assumed project owner); S02 to S05 are roles still to be named, and gateway owners and reviewers are still TBD. Resolve in G1.
+- **OI-03:** Who views history in marimo is unspecified; the prompt names only the Calling system as actor. UCD-001 provisionally adds an Analyst actor (S05) that S01 must confirm. Resolve in G1.
 - **OI-04:** How the calling system invokes the app and receives the JSON (function call, command line with stdout or output file, HTTP) is unspecified. Resolve in G3 (ADR-0006).
 - **OI-05:** Production input JSON schema is unspecified (array or wrapper object, field names, types, date format, timezone, nulls). Resolve in G3 (ADR-0001).
 - **OI-06:** Result envelope, history file location and configuration file format and location are unspecified. Resolve in G3 (ADR-0002, ADR-0003, ADR-0004).
@@ -152,3 +153,5 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 [Milestone-4]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/4
 [Milestone-5]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/5
 [Milestone-6]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/6
+[BC-001]: ./business-case.md
+[SA-001]: ./stakeholder-analysis.md

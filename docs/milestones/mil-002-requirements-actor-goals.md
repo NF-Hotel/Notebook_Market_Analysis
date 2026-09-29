@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | MIL-002 |
-| CrossReference | |
+| CrossReference | [BC-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -67,3 +68,7 @@ TBD, open issue OI-01 in PP-001.
 | 4 | Review US-001 | Produce the RC record against QC-US-001 checking INVEST, acceptance criteria and actor match. | No | US-001, QC-US-001 |
 | 5 | Review UC-001 | Produce the RC record against QC-UC-001 for the primary use case. | No | UC-001, QC-UC-001 |
 | 6 | Review UC-002 | Produce the RC record against QC-UC-001 for the history-review use case. | No | UC-002, QC-UC-001 |
+
+---
+
+[BC-001]: ../business-case.md

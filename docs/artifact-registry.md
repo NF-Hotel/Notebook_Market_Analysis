@@ -7,17 +7,17 @@ each document lives in *this* project and the next version to use.
 
 | Short Name | Artifact Type | Primary File | Next Available Version |
 | --- | --- | --- | --- |
-| BC | Business Case | docs/business-case.md | 001 |
-| SA | Stakeholder Analysis | docs/stakeholder-analysis.md | 001 |
+| BC | Business Case | docs/business-case.md | 002 |
+| SA | Stakeholder Analysis | docs/stakeholder-analysis.md | 002 |
 | PP | Project Plan | docs/project-plan.md | 002 |
 | MIL | Milestone / Gateway | docs/milestones/*.md | 007 |
-| UCD | Use Case Diagram | docs/use-case-diagram.md | 001 |
+| UCD | Use Case Diagram | docs/use-case-diagram.md | 002 |
 | US | User Story | docs/user-stories.md | 001 |
 | UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 001 |
 | DM | Domain Model | docs/domain-model.md | 001 |
 | ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0001 |
 | RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 001 |
-| TM | Traceability Matrix | docs/sqa/traceability-matrix.md | 001 |
+| TM | Traceability Matrix | docs/sqa/traceability-matrix.md | 002 |
 
 ## Notes
 

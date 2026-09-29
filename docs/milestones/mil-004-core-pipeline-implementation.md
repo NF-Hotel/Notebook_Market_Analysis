@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | MIL-004 |
-| CrossReference | |
+| CrossReference | [BC-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -72,3 +73,7 @@ TBD, open issue OI-01 in PP-001.
 | 8 | Implement retention enforcement | Trim the history to the latest N results at the time ADR-0003 fixes, deleting no more than required. | Yes | ADR-0003, ADR-0004, US-001.09 |
 | 9 | Implement analyze-bookings use case and entry point | Orchestrate read, validate, analyze, return and append in the order ADR-0005 defines, expose the invocation mechanism from ADR-0006, and never report success when delivery or the history write failed. | Yes | UC-001, ADR-0005, ADR-0006, US-001.08 |
 | 10 | Add core contract and integration tests | Test the schema validity, return and history consistency, retention counts, malformed lines, interrupted writes and failure behavior with `tmp_path` and port fakes. | No | ADR-0002, ADR-0003, ADR-0005 |
+
+---
+
+[BC-001]: ../business-case.md

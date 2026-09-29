@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | MIL-006 |
-| CrossReference | |
+| CrossReference | [BC-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -70,3 +71,7 @@ TBD, open issue OI-01 in PP-001.
 | 6 | Implement limitations and association notice component | Provide one shared component that states data limitations, small-sample flags and that findings are associations, not causes, reused by every view. | No | ADR-0007 |
 | 7 | Add end-to-end acceptance test | Run a sample JSON file through the caller entry point and check the returned JSON, the history line and the notebook loading of the same result. | No | UC-001, UC-002, ADR-0005 |
 | 8 | Write run instructions and development fallback notes | Document how the caller invokes the app, how the configuration file is set and how to demo with the example CSV in development. | No | ADR-0006, ADR-0004 |
+
+---
+
+[BC-001]: ../business-case.md

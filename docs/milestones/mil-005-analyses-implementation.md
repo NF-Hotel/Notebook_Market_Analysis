@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | MIL-005 |
-| CrossReference | |
+| CrossReference | [BC-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -70,3 +71,7 @@ TBD, open issue OI-01 in PP-001.
 | 6 | Implement room value and stay analysis | Derive length of stay from weekend and weekday nights and estimate booking value as price per night times total nights using `Decimal`, separating cancelled bookings and labeling the result an estimate. | Yes | US-001.06, ADR-0007 |
 | 7 | Implement guest and booking mix analysis | Inspect guest composition, country, meal, room type, repeat-guest status, parking and special requests, compared with stay length, cancellation or price when meaningful. | Yes | US-001.07, ADR-0007 |
 | 8 | Wire analyses into result and add tests | Include all analyses in the result envelope and add fixture tests for each analysis plus a schema test for the full result. | No | ADR-0002, ADR-0007 |
+
+---
+
+[BC-001]: ../business-case.md

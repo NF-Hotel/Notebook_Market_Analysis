@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | MIL-003 |
-| CrossReference | |
+| CrossReference | [BC-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
 
@@ -73,3 +74,7 @@ TBD, open issue OI-01 in PP-001.
 | 7 | Write ADR-0006 architecture and invocation | Decide layering per the clean-architecture rules, how marimo sits at the edge, how the calling system invokes the app and receives the JSON, and which dependencies are approved (marimo, polars, holidays). Resolves open issue OI-04. | No | ADR-0006, UC-001, UC-002 |
 | 8 | Write ADR-0007 analysis methods | Decide lead-time bands, holiday window sizes and comparison baselines using the `holidays` package for KH, sample-size flags, partial-year handling, and estimate and association wording. This makes the analyses reproducible and honest about limits. | No | ADR-0007, US-001.02 to US-001.07 |
 | 9 | Review DM-001 | Produce the RC record for DM-001 against QC-DM-001. | No | DM-001, QC-DM-001 |
+
+---
+
+[BC-001]: ../business-case.md
