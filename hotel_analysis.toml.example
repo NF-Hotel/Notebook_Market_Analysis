@@ -1,0 +1,20 @@
+# Copy to hotel_analysis.toml in the working directory (ADR-0004).
+# Every key is optional; the values below are the defaults, except where noted.
+# Point to another file with `--config <path>` or the HOTEL_ANALYSIS_CONFIG variable.
+
+# "production" or "development". Only "development" allows the example-CSV fallback when
+# no --input is given. Default: "production".
+environment = "production"
+
+[history]
+# How many results the history keeps; older ones are dropped. Default: 10.
+retention = 10
+# Where the JSONL history is written and read. Default: output/analysis_history.jsonl
+# (relative to the working directory).
+path = "output/analysis_history.jsonl"
+
+[analysis]
+# Window sizes in days before and after a holiday (distinct integers, at least 1).
+holiday_windows_days = [1, 3, 7]
+# Groups with fewer records than this are flagged as small samples (integer, at least 1).
+min_group_size = 30
