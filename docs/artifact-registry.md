@@ -12,8 +12,8 @@ each document lives in *this* project and the next version to use.
 | PP | Project Plan | docs/project-plan.md | 002 |
 | MIL | Milestone / Gateway | docs/milestones/*.md | 007 |
 | UCD | Use Case Diagram | docs/use-case-diagram.md | 002 |
-| US | User Story | docs/user-stories.md | 001 |
-| UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 001 |
+| US | User Story | docs/user-stories.md | 002 |
+| UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 003 |
 | DM | Domain Model | docs/domain-model.md | 001 |
 | ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0001 |
 | RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 001 |

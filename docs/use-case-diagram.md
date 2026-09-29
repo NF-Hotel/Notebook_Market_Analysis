@@ -4,12 +4,13 @@
 | Key | Value |
 | --- | --- |
 | ID | UCD-001 |
-| CrossReference | [SA-001], [BC-001] |
+| CrossReference | [SA-001], [BC-001], [US-001], [UC-001], [UC-002] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
@@ -60,3 +61,6 @@ flowchart LR
 [PP-001]: ./project-plan.md
 [SA-001]: ./stakeholder-analysis.md
 [BC-001]: ./business-case.md
+[US-001]: ./user-stories.md
+[UC-001]: ./use-cases/uc-001-analyze-hotel-bookings.md
+[UC-002]: ./use-cases/uc-002-review-analysis-history.md

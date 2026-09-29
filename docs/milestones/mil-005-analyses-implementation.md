@@ -4,13 +4,14 @@
 | Key | Value |
 | --- | --- |
 | ID | MIL-005 |
-| CrossReference | [BC-001] |
+| CrossReference | [BC-001], [US-001] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S-ID pending SA-001) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 
 ---
@@ -75,3 +76,4 @@ TBD, open issue OI-01 in PP-001.
 ---
 
 [BC-001]: ../business-case.md
+[US-001]: ../user-stories.md

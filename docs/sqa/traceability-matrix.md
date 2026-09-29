@@ -24,7 +24,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | --- | --- | --- | --- | --- |
 | [SA-001] | Stakeholder Analysis | - | [BC-001], [UCD-001] | - |
 | [BC-001] | Business Case | [SA-001] | [UCD-001], [PP-001] | - |
-| [UCD-001] | Use Case Diagram | [SA-001], [BC-001] | - | - |
+| [UCD-001] | Use Case Diagram | [SA-001], [BC-001] | [US-001], [UC-001], [UC-002] | - |
 | [PP-001] | Project Plan | [BC-001] | [MIL-001] to [MIL-006] | - |
 | [MIL-001] | Milestone / Gateway | [PP-001] | - | - |
 | [MIL-002] | Milestone / Gateway | [PP-001] | - | - |
@@ -32,10 +32,13 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [MIL-004] | Milestone / Gateway | [PP-001] | - | - |
 | [MIL-005] | Milestone / Gateway | [PP-001] | - | - |
 | [MIL-006] | Milestone / Gateway | [PP-001] | - | - |
+| [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | - |
+| [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | - | - |
+| [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | - | - |
 
 ## Coverage Notes
 
-- No type beyond those listed has an instance yet: US, UC, DM and ADR are planned in MIL-002 and MIL-003.
+- No type beyond those listed has an instance yet: DM and ADR are planned in MIL-003.
 - `-` in Upstream means foundational, in Downstream means nothing is built on it yet, and in Last Reviewed means no `RC-*` record exists yet.
 - No review record has been issued because no independent reviewer (S04) has been named.
 
@@ -51,3 +54,6 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [MIL-004]: ./../milestones/mil-004-core-pipeline-implementation.md
 [MIL-005]: ./../milestones/mil-005-analyses-implementation.md
 [MIL-006]: ./../milestones/mil-006-marimo-ui-and-acceptance.md
+[US-001]: ./../user-stories.md
+[UC-001]: ./../use-cases/uc-001-analyze-hotel-bookings.md
+[UC-002]: ./../use-cases/uc-002-review-analysis-history.md
