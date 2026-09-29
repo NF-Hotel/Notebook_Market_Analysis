@@ -16,6 +16,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-cov",
     "import-linter",
     "jsonschema",
     "mypy",
@@ -30,7 +31,24 @@ hotel_booking_analysis = ["py.typed", "adapters/schemas/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra --cov --cov-report=term-missing:skip-covered --cov-report=html"
+
+[tool.coverage.run]
+source = ["hotel_booking_analysis"]
+branch = true
+# Also measure code run by the subprocess tests (the command line). Marimo notebook cells are not attributed.
+patch = ["subprocess"]
+
+[tool.coverage.report]
+skip_empty = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    '^\s*\.\.\.$',
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
 
 [tool.ruff]
 line-length = 100
