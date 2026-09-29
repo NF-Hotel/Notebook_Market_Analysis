@@ -14,6 +14,7 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -21,7 +22,7 @@
 
 Identify who influences or is affected by the hotel-booking analysis application, so that every later artifact can name owners, reviewers and actors by stable ID. The analysis follows the Power/Interest grid; concerns are mapped to FURPS+.
 
-Only one person is known by name. The other stakeholders are roles taken from the project brief, with the person still to be named. Rows S02 to S05 were named after the first draft; each named person still has to confirm their entry (open issue OI-02 in [PP-001]).
+All five stakeholders are named: S01 is the project owner and author, S02 to S05 were named after the first draft. Each named person still has to confirm their entry (open issue OI-02 in [PP-001]). S01's role and S04's organization are assumptions to be confirmed.
 
 ## Stakeholder Summary Table
 
@@ -65,7 +66,7 @@ Only one person is known by name. The other stakeholders are roles taken from th
 | --- | --- | --- |
 | The caller wants a fast, fixed result contract while analyses may need to grow | S02, S01 | Version the result envelope in ADR-0002 so fields can be added without breaking the caller |
 | Full raw records help the analyst, but results should stay small and avoid exposing booking data | S05, S03 | Exclude raw records from results by default; add fields only through a documented need |
-| One person may be author and reviewer, which weakens review independence | S01, S04 | Name S04 as a different person before any review record is issued |
+| One person may be author and reviewer, which weakens review independence | S01, S04 | S04 (Team2) is a different person from S01; review records are issued as drafts until S04 confirms them, and S04's organization is still to be confirmed |
 
 ## Traceability Analysis
 
