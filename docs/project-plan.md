@@ -45,7 +45,7 @@ Schedule the phases (gateways) that take the hotel-booking analysis application 
 | G4 Core pipeline (coding) | [MIL-004] | TBD | TBD | S01 | US-001.01, .08, .09 | Working input, result, history, retention, delivery | [Milestone-4] |
 | G5 Analyses (coding) | [MIL-005] | TBD | TBD | S01 | US-001.02 to .07 | Six analyses in the result | [Milestone-5] |
 | G6 marimo UI and acceptance (coding) | [MIL-006] | TBD | TBD | S01 | US-001.10, .01 to .07 | marimo notebook, history viewer, end-to-end test | [Milestone-6] |
-| G7 Behavior and design artifacts | [MIL-007] | TBD | TBD | S01 | US-001.01 to US-001.10 | SSD-001, OC-001, SD-001, DCD-001 and reviews | |
+| G7 Behavior and design artifacts | [MIL-007] | TBD | TBD | S01 | US-001.01 to US-001.10 | SSD-001, OC-001, SD-001, DCD-001 and reviews |  [Milestone-7] |
 
 ```mermaid
 flowchart LR
@@ -179,6 +179,7 @@ Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are
 [MIL-005]: ./milestones/mil-005-analyses-implementation.md
 [MIL-006]: ./milestones/mil-006-marimo-ui-and-acceptance.md
 [MIL-007]: ./milestones/mil-007-behavior-and-design-artifacts.md
+[Milestone-7]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/7
 [Milestone-1]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/1
 [Milestone-2]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/2
 [Milestone-3]: https://github.com/NF-Hotel/Notebook_Market_Analysis/milestone/3
