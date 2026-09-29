@@ -1,0 +1,514 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nf-hotel.example/schemas/analysis-result-1.0.json",
+  "title": "Hotel booking analysis result, schema_version 1.0 (ADR-0002)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "result_id",
+    "generated_at",
+    "status",
+    "analyses",
+    "notices"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "result_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "generated_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "completed_with_warnings",
+        "failed"
+      ]
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "reference",
+        "record_count",
+        "content_sha256"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "supplied",
+            "development_sample"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\]+$"
+        },
+        "record_count": {
+          "$ref": "#/$defs/count"
+        },
+        "content_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "data_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_count",
+        "earliest_booking_date",
+        "latest_booking_date",
+        "earliest_arrival_date",
+        "latest_arrival_date",
+        "duplicate_booking_id_count",
+        "missing_counts",
+        "invalid_counts",
+        "zero_price_count",
+        "unknown_fields"
+      ],
+      "properties": {
+        "record_count": {
+          "$ref": "#/$defs/count"
+        },
+        "earliest_booking_date": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "latest_booking_date": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "earliest_arrival_date": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "latest_arrival_date": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duplicate_booking_id_count": {
+          "$ref": "#/$defs/count"
+        },
+        "missing_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "booking_id",
+            "hotel",
+            "meal",
+            "country",
+            "market_segment",
+            "assigned_room_type",
+            "deposit_type",
+            "agent",
+            "customer_type",
+            "lead_time",
+            "stays_in_weekend_nights",
+            "stays_in_week_nights",
+            "adults",
+            "children",
+            "babies",
+            "previous_cancellations",
+            "booking_changes",
+            "required_car_parking_spaces",
+            "total_of_special_requests",
+            "is_canceled",
+            "is_repeated_guest",
+            "booking_date",
+            "arrival_date",
+            "price_per_night"
+          ],
+          "properties": {
+            "booking_id": {
+              "$ref": "#/$defs/count"
+            },
+            "hotel": {
+              "$ref": "#/$defs/count"
+            },
+            "meal": {
+              "$ref": "#/$defs/count"
+            },
+            "country": {
+              "$ref": "#/$defs/count"
+            },
+            "market_segment": {
+              "$ref": "#/$defs/count"
+            },
+            "assigned_room_type": {
+              "$ref": "#/$defs/count"
+            },
+            "deposit_type": {
+              "$ref": "#/$defs/count"
+            },
+            "agent": {
+              "$ref": "#/$defs/count"
+            },
+            "customer_type": {
+              "$ref": "#/$defs/count"
+            },
+            "lead_time": {
+              "$ref": "#/$defs/count"
+            },
+            "stays_in_weekend_nights": {
+              "$ref": "#/$defs/count"
+            },
+            "stays_in_week_nights": {
+              "$ref": "#/$defs/count"
+            },
+            "adults": {
+              "$ref": "#/$defs/count"
+            },
+            "children": {
+              "$ref": "#/$defs/count"
+            },
+            "babies": {
+              "$ref": "#/$defs/count"
+            },
+            "previous_cancellations": {
+              "$ref": "#/$defs/count"
+            },
+            "booking_changes": {
+              "$ref": "#/$defs/count"
+            },
+            "required_car_parking_spaces": {
+              "$ref": "#/$defs/count"
+            },
+            "total_of_special_requests": {
+              "$ref": "#/$defs/count"
+            },
+            "is_canceled": {
+              "$ref": "#/$defs/count"
+            },
+            "is_repeated_guest": {
+              "$ref": "#/$defs/count"
+            },
+            "booking_date": {
+              "$ref": "#/$defs/count"
+            },
+            "arrival_date": {
+              "$ref": "#/$defs/count"
+            },
+            "price_per_night": {
+              "$ref": "#/$defs/count"
+            }
+          }
+        },
+        "invalid_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "booking_id",
+            "hotel",
+            "meal",
+            "country",
+            "market_segment",
+            "assigned_room_type",
+            "deposit_type",
+            "agent",
+            "customer_type",
+            "lead_time",
+            "stays_in_weekend_nights",
+            "stays_in_week_nights",
+            "adults",
+            "children",
+            "babies",
+            "previous_cancellations",
+            "booking_changes",
+            "required_car_parking_spaces",
+            "total_of_special_requests",
+            "is_canceled",
+            "is_repeated_guest",
+            "booking_date",
+            "arrival_date",
+            "price_per_night"
+          ],
+          "properties": {
+            "booking_id": {
+              "$ref": "#/$defs/count"
+            },
+            "hotel": {
+              "$ref": "#/$defs/count"
+            },
+            "meal": {
+              "$ref": "#/$defs/count"
+            },
+            "country": {
+              "$ref": "#/$defs/count"
+            },
+            "market_segment": {
+              "$ref": "#/$defs/count"
+            },
+            "assigned_room_type": {
+              "$ref": "#/$defs/count"
+            },
+            "deposit_type": {
+              "$ref": "#/$defs/count"
+            },
+            "agent": {
+              "$ref": "#/$defs/count"
+            },
+            "customer_type": {
+              "$ref": "#/$defs/count"
+            },
+            "lead_time": {
+              "$ref": "#/$defs/count"
+            },
+            "stays_in_weekend_nights": {
+              "$ref": "#/$defs/count"
+            },
+            "stays_in_week_nights": {
+              "$ref": "#/$defs/count"
+            },
+            "adults": {
+              "$ref": "#/$defs/count"
+            },
+            "children": {
+              "$ref": "#/$defs/count"
+            },
+            "babies": {
+              "$ref": "#/$defs/count"
+            },
+            "previous_cancellations": {
+              "$ref": "#/$defs/count"
+            },
+            "booking_changes": {
+              "$ref": "#/$defs/count"
+            },
+            "required_car_parking_spaces": {
+              "$ref": "#/$defs/count"
+            },
+            "total_of_special_requests": {
+              "$ref": "#/$defs/count"
+            },
+            "is_canceled": {
+              "$ref": "#/$defs/count"
+            },
+            "is_repeated_guest": {
+              "$ref": "#/$defs/count"
+            },
+            "booking_date": {
+              "$ref": "#/$defs/count"
+            },
+            "arrival_date": {
+              "$ref": "#/$defs/count"
+            },
+            "price_per_night": {
+              "$ref": "#/$defs/count"
+            }
+          }
+        },
+        "zero_price_count": {
+          "$ref": "#/$defs/count"
+        },
+        "unknown_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "analyses": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lead_time": {
+          "$ref": "#/$defs/analysis"
+        },
+        "holidays": {
+          "$ref": "#/$defs/analysis"
+        },
+        "seasonality": {
+          "$ref": "#/$defs/analysis"
+        },
+        "cancellations": {
+          "$ref": "#/$defs/analysis"
+        },
+        "room_value": {
+          "$ref": "#/$defs/analysis"
+        },
+        "guest_mix": {
+          "$ref": "#/$defs/analysis"
+        }
+      }
+    },
+    "notices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/notice"
+      }
+    },
+    "error": {
+      "$ref": "#/$defs/notice"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "analyses": {
+            "maxProperties": 0
+          }
+        }
+      },
+      "else": {
+        "required": [
+          "input",
+          "data_quality"
+        ],
+        "not": {
+          "required": [
+            "error"
+          ]
+        },
+        "properties": {
+          "analyses": {
+            "required": [
+              "lead_time",
+              "holidays",
+              "seasonality",
+              "cancellations",
+              "room_value",
+              "guest_mix"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "group_figure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "group",
+        "numerator",
+        "denominator",
+        "small_sample"
+      ],
+      "properties": {
+        "group": {
+          "type": "string"
+        },
+        "numerator": {
+          "$ref": "#/$defs/count"
+        },
+        "denominator": {
+          "$ref": "#/$defs/count"
+        },
+        "small_sample": {
+          "type": "boolean"
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "findings"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "findings": {
+          "type": "object"
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "unavailable"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "reason"
+        ]
+      }
+    }
+  }
+}

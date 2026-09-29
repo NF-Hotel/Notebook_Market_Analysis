@@ -29,7 +29,7 @@ All five stakeholders are named: S01 is the project owner and author, S02 to S05
 | S01 | Jens Tirsvad Nielsen | Project owner and author (assumed from repository authorship) | NF Hotel project | HIGH | HIGH | Manage Closely | The app gives a clear, honest analysis of booking behavior and is built in a controlled, reviewable way |
 | S02 | Valdemar | Calling-system owner | Owner of the system that calls the app | HIGH | HIGH | Manage Closely | The app accepts the JSON the caller sends and returns a dependable, versioned JSON result |
 | S03 | Team2 | Booking-data owner | NF Hotel | LOW | HIGH | Keep Informed | Booking data is used correctly, and data problems and limits are reported instead of hidden |
-| S04 | Team2 | Independent reviewer (not the author) | To be confirmed | HIGH | LOW | Keep Satisfied | Artifacts are reviewed against the quality checklists before each Go/No-Go decision |
+| S04 | Team2 | Independent reviewer (not the author) | Team collaborator | HIGH | LOW | Keep Satisfied | Artifacts are reviewed against the quality checklists before each Go/No-Go decision |
 | S05 | PO | Analyst who reviews saved results in marimo (provisional, open issue OI-03) | NF Hotel | LOW | HIGH | Keep Informed | Prior analyses are easy to find, and each shows when it was produced and what its limits are |
 
 ## Power/Interest Classification Rationale
