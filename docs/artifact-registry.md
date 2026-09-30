@@ -19,7 +19,7 @@ each document lives in *this* project and the next version to use.
 | OC | Operation Contract | docs/operation-contracts.md | 002 |
 | SD | Sequence Diagram | docs/sequence-diagrams.md | 002 |
 | DCD | Design Class Diagram | docs/dcd.md | 002 |
-| ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0008 |
+| ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0013 |
 | RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 026 |
 | TM | Traceability Matrix | docs/sqa/traceability-matrix.md | 002 |
 
