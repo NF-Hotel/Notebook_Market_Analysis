@@ -28,6 +28,13 @@ class ConfigurationError(InputError):
         self.key = key
 
 
+class InvalidYearsError(InputError):
+    """The `--years` value of the holiday listing is invalid (ADR-0011, exit code 2)."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__("INVALID_YEARS", message)
+
+
 class HistoryError(Exception):
     """The result history could not be updated (ADR-0003, ADR-0005 exit code 3)."""
 

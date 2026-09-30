@@ -27,6 +27,9 @@ class FakeHolidayCalendar:
         self.requested.append(year)
         return tuple(Holiday(day, "fake") for day in self.holidays.get(year, ()))
 
+    def source(self) -> str:
+        return "fake calendar"
+
 
 def _june(day: int) -> date:
     return date(2021, 6, day)

@@ -1,6 +1,7 @@
 """Tests for the Cambodian holiday calendar adapter (ADR-0007, MIL-005 criterion 3)."""
 
 from datetime import date
+from importlib.metadata import version
 
 import pytest
 
@@ -14,6 +15,14 @@ def test_holidays_in_year_has_cambodian_holidays_for_the_sample_years(year: int)
     assert result
     assert all(h.date.year == year for h in result)
     assert [h.date for h in result] == sorted(h.date for h in result)
+
+
+def test_source_names_the_holidays_package_version_and_country() -> None:
+    source = KhmerHolidayCalendar().source()
+
+    assert "holidays" in source
+    assert version("holidays") in source
+    assert "KH" in source
 
 
 def test_holidays_in_year_includes_khmer_new_year_and_new_years_day() -> None:
