@@ -39,6 +39,11 @@ def build_parser() -> argparse.ArgumentParser:
     analyze = commands.add_parser("analyze", help="Analyze a JSON file of hotel bookings.")
     analyze.add_argument("--input", type=Path, help="JSON file of booking records.")
     analyze.add_argument("--config", type=Path, help="TOML configuration file.")
+    analyze.add_argument(
+        "--insights",
+        action="store_true",
+        help="Also ask a local language model for an AI-generated summary of each analysis.",
+    )
     holidays = commands.add_parser(
         "holidays", help="List the Cambodian public holidays of the requested years."
     )
@@ -71,7 +76,7 @@ def main(
             return _list_llm_providers(arguments, stdout, working_directory, environ)
         use_case = build_analyze_bookings(stdout, working_directory, environ, lock_wait_seconds)
         _LOGGER.info("Analysis started.")
-        outcome = use_case.run(arguments.input, arguments.config)
+        outcome = use_case.run(arguments.input, arguments.config, arguments.insights)
         _report(outcome)
         return _EXIT_CODES[outcome.status]
     finally:
@@ -116,6 +121,12 @@ def _report(outcome: AnalyzeOutcome) -> None:
         _LOGGER.warning(
             "The history holds %d malformed line(s); they were skipped and kept.",
             outcome.malformed_history_lines,
+        )
+    if outcome.insights_unavailable:
+        _LOGGER.warning(
+            "AI insights are unavailable for %d analysis(es); the analyses are unchanged. "
+            "See the INSIGHTS_UNAVAILABLE notice and the insight reasons in the result.",
+            outcome.insights_unavailable,
         )
     if outcome.status is RunStatus.SUCCEEDED:
         _LOGGER.info("Analysis %s completed, saved and delivered.", outcome.result_id)

@@ -4,6 +4,9 @@ This module and the notebook are the only code that imports marimo. The helpers 
 models into marimo output and hold no logic of their own.
 """
 
+import html
+from typing import Literal
+
 import marimo as mo
 
 from hotel_booking_analysis.interface.cancellation_view import SPLIT_LABELS as CANCELLATION_SPLITS
@@ -11,6 +14,13 @@ from hotel_booking_analysis.interface.cancellation_view import CancellationView
 from hotel_booking_analysis.interface.figures import Row
 from hotel_booking_analysis.interface.guest_mix_view import ATTRIBUTE_LABELS, GuestMixView
 from hotel_booking_analysis.interface.holiday_view import HolidayView
+from hotel_booking_analysis.interface.insight_view import (
+    HYPOTHESIS_STATEMENT,
+    STATE_AVAILABLE,
+    STATE_NOT_APPLICABLE,
+    STATE_SAVED_WITHOUT,
+    InsightView,
+)
 from hotel_booking_analysis.interface.lead_time_view import SPLIT_LABELS as LEAD_TIME_SPLITS
 from hotel_booking_analysis.interface.lead_time_view import LeadTimeView
 from hotel_booking_analysis.interface.limitations import LimitationsNotice
@@ -167,5 +177,31 @@ def render_guest_mix(view: GuestMixView, attribute: str | None) -> mo.Html:
             mo.md(f"### Distribution of: {ATTRIBUTE_LABELS.get(chosen, chosen)}"),
             _bullets(view.statements(chosen)),
             _table(view.table(chosen)),
+        ]
+    )
+
+
+def _plain(text: str) -> mo.Html:
+    """`text` as a paragraph of plain text: every markup and marimo character is escaped."""
+    return mo.Html(f'<p style="white-space: pre-wrap">{html.escape(text)}</p>')
+
+
+def render_insight(view: InsightView) -> mo.Html:
+    """The AI insight of one analysis, labeled, as plain text and next to its findings."""
+    title = mo.md("### AI insight")
+    if view.state != STATE_AVAILABLE:
+        kind: Literal["info", "warn"] = (
+            "info" if view.state in (STATE_SAVED_WITHOUT, STATE_NOT_APPLICABLE) else "warn"
+        )
+        return mo.vstack([title, mo.callout(_plain(" ".join(view.lines())), kind=kind)])
+    return mo.vstack(
+        [
+            title,
+            mo.callout(_plain(view.attribution()), kind="info"),
+            mo.callout(_plain(HYPOTHESIS_STATEMENT), kind="warn"),
+            mo.md("#### Executive summary (AI-generated)"),
+            _plain(view.executive_summary or "not stated"),
+            mo.md("#### Improvement suggestions (AI-generated hypotheses)"),
+            _table(view.suggestion_table()),
         ]
     )

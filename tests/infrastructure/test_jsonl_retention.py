@@ -118,3 +118,19 @@ def test_writer_keeps_appended_result_when_retention_fails(tmp_path: Path) -> No
 
     assert _ids(path) == ["a", "b", "c"]
     assert not path.with_name("h.jsonl.lock").exists()
+
+
+def test_retention_and_reader_treat_1_0_and_1_1_lines_alike(tmp_path: Path) -> None:
+    path = tmp_path / "h.jsonl"
+    newer = make_line("c").replace('"schema_version":"1.0"', '"schema_version":"1.1"')
+    _write(path, make_line("a"), make_line("b"), newer)
+
+    removed = enforce_retention(path, 2)
+
+    assert removed == 1
+    readout = JsonlHistoryReader().read(path)
+    assert [(r["result_id"], r["schema_version"]) for r in readout.results] == [
+        ("b", "1.0"),
+        ("c", "1.1"),
+    ]
+    assert readout.malformed_line_count == 0

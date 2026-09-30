@@ -1,13 +1,14 @@
-"""One JSON GET with the standard library within a total deadline (ADR-0009 "Deadlines").
+"""One JSON GET or POST with the standard library within a total deadline (ADR-0009).
 
 A socket timeout applies to each connect or read, not to the whole request, so a provider that
-keeps sending a few bytes would never trip it. `get_json` therefore takes the start time, sets the
-socket timeout to the time that remains before every socket operation, reads the answer in small
-chunks and checks the deadline before each read. A timer that shuts the socket down at the
-deadline ends a read that is blocked in the answer headers. Proxies and redirects are not used:
-discovery talks only to the configured address. `http.client` is used because `urllib` gives no
-access to the socket between reads; it is the same standard-library layer, so no dependency is
-added. `post_json` is added with the AI insights (MIL-011).
+keeps sending a few bytes would never trip it. `get_json` and `post_json` therefore take the
+start time, set the socket timeout to the time that remains before every socket operation, read
+the answer in small chunks and check the deadline before each read. A timer that shuts the
+socket down at the deadline ends a read that is blocked in the answer headers. Proxies and
+redirects are not used: the calls talk only to the configured address. `http.client` is used
+because `urllib` gives no access to the socket between reads; it is the same
+standard-library layer, so no dependency is added. `post_json` (the generation request of the
+AI insights) shares all of it with `get_json`.
 """
 
 import contextlib
@@ -16,6 +17,8 @@ import json
 import socket
 import threading
 import time
+from collections.abc import Mapping
+from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 from hotel_booking_analysis.domain.analysis import JsonValue
@@ -48,6 +51,14 @@ class _Deadline:
         return time.monotonic() >= self._end
 
 
+@dataclass(frozen=True, slots=True)
+class _Request:
+    method: str
+    path: str
+    query: str
+    payload: bytes | None
+
+
 def get_json(url: str, timeout_seconds: float) -> JsonValue:
     """GET `url` and return the parsed JSON body; the whole call takes at most the timeout.
 
@@ -55,6 +66,22 @@ def get_json(url: str, timeout_seconds: float) -> JsonValue:
     answer in time), `UNEXPECTED_ANSWER` (status other than 200, body too large, not JSON) or
     `NETWORK_ERROR` (any other failure to connect or read).
     """
+    return _request_json("GET", url, None, timeout_seconds)
+
+
+def post_json(url: str, body: Mapping[str, JsonValue], timeout_seconds: float) -> JsonValue:
+    """POST `body` as JSON to `url` and return the parsed JSON answer, within the timeout.
+
+    The deadline covers connecting, sending and reading the whole answer. Raises `HttpFailure`
+    with the same reasons as `get_json`.
+    """
+    payload = json.dumps(body).encode("utf-8")
+    return _request_json("POST", url, payload, timeout_seconds)
+
+
+def _request_json(
+    method: str, url: str, payload: bytes | None, timeout_seconds: float
+) -> JsonValue:
     deadline = _Deadline(timeout_seconds)
     parts = urlsplit(url)
     if parts.scheme not in ("http", "https") or not parts.hostname:
@@ -64,7 +91,8 @@ def get_json(url: str, timeout_seconds: float) -> JsonValue:
     )
     connection = connection_class(parts.hostname, parts.port, timeout=deadline.remaining())
     try:
-        return _exchange(connection, parts.path or "/", parts.query, deadline)
+        request = _Request(method, parts.path or "/", parts.query, payload)
+        return _exchange(connection, request, deadline)
     except HttpFailure:
         raise
     except TimeoutError as error:
@@ -87,7 +115,7 @@ def _shut_down(sock: socket.socket) -> None:
 
 
 def _exchange(
-    connection: http.client.HTTPConnection, path: str, query: str, deadline: _Deadline
+    connection: http.client.HTTPConnection, request: _Request, deadline: _Deadline
 ) -> JsonValue:
     connection.connect()  # bounded by the socket timeout set from the remaining time
     # `http.client` drops `connection.sock` after the answer of a connection that will close, so
@@ -99,7 +127,7 @@ def _exchange(
     watchdog.daemon = True
     watchdog.start()
     try:
-        return _talk(connection, sock, path, query, deadline)
+        return _talk(connection, sock, request, deadline)
     finally:
         watchdog.cancel()
 
@@ -107,12 +135,15 @@ def _exchange(
 def _talk(
     connection: http.client.HTTPConnection,
     sock: socket.socket,
-    path: str,
-    query: str,
+    request: _Request,
     deadline: _Deadline,
 ) -> JsonValue:
     sock.settimeout(deadline.remaining())
-    connection.request("GET", f"{path}?{query}" if query else path, headers={"Accept": "*/*"})
+    target = f"{request.path}?{request.query}" if request.query else request.path
+    headers = {"Accept": "*/*"}
+    if request.payload is not None:
+        headers["Content-Type"] = "application/json"
+    connection.request(request.method, target, body=request.payload, headers=headers)
     sock.settimeout(deadline.remaining())
     response = connection.getresponse()
     if response.status != 200:

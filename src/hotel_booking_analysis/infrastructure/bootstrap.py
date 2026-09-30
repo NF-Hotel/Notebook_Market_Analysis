@@ -23,6 +23,7 @@ from hotel_booking_analysis.adapters.room_value_analyzer import RoomValueAnalyze
 from hotel_booking_analysis.adapters.seasonality_analyzer import SeasonalityAnalyzer
 from hotel_booking_analysis.adapters.toml_configuration import TomlConfigurationLoader
 from hotel_booking_analysis.application.analyze_bookings import AnalyzeBookings
+from hotel_booking_analysis.application.generate_insights import GenerateInsights
 from hotel_booking_analysis.application.list_holidays import ListHolidays
 from hotel_booking_analysis.application.list_llm_providers import ListLlmProviders
 from hotel_booking_analysis.application.load_bookings import BookingLoader
@@ -48,6 +49,7 @@ def build_analyze_bookings(
     lock_wait_seconds: float = LOCK_WAIT_SECONDS,
 ) -> AnalyzeBookings:
     """Create the analyze-bookings use case with the production adapters."""
+    clock = SystemClock()
     return AnalyzeBookings(
         configuration_loader=TomlConfigurationLoader(working_directory, environ),
         booking_loader=BookingLoader(
@@ -57,9 +59,10 @@ def build_analyze_bookings(
         history_writer=JsonlHistoryWriter(lock_wait_seconds, base_directory=working_directory),
         history_reader=JsonlHistoryReader(working_directory),
         sink=StreamResultSink(stdout),
-        clock=SystemClock(),
+        clock=clock,
         ids=UuidGenerator(),
         analyzers=build_analyzers(),
+        insight_generator=GenerateInsights(build_llm_registry(), clock),
     )
 
 

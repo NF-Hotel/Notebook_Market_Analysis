@@ -17,6 +17,26 @@ FORBIDDEN_WORDS: tuple[str, ...] = (
     "drives",
 )
 
+PROMISE_WORDS: tuple[str, ...] = (
+    "will increase",
+    "will grow",
+    "will raise",
+    "will boost",
+    "guarantee",
+    "ensure",
+    "certainly",
+    "definitely",
+    "forecast",
+    "predict",
+)
+"""Promises and forecasts of earnings that AI text must not contain (ADR-0010 rule 3)."""
+
+HYPOTHESIS_WORDS: tuple[str, ...] = ("may", "might", "could", "suggests", "consider testing")
+"""One of these must appear in every AI suggestion (ADR-0010 rule 7)."""
+
+SMALL_SAMPLE_PHRASE = "small sample"
+"""Required in the evidence of a suggestion that rests on a small sample (ADR-0010 rule 6)."""
+
 LEAD_TIME_MEDIAN = (
     "The median lead time was {median} days across {count} records; "
     "this describes the observed distribution."

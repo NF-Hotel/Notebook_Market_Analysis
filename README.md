@@ -52,7 +52,7 @@ import-linter.
 | MIL-007 | System sequence diagrams, operation contracts, sequence diagrams, design class diagram | Drafted as built, reviews pending |
 | MIL-008, MIL-009 | Requirements and design for holidays, LLM discovery and AI insights | Approved |
 | MIL-010 | `holidays` and `llm-providers` commands, `[llm]` configuration | Implemented |
-| MIL-011 | AI insights (`analyze --insights`) | Not built yet |
+| MIL-011 | AI insights (`analyze --insights`), result schema 1.1, insight view | Implemented |
 
 Not built yet: charts (the notebook shows tables), and real production input, whose schema is a
 proposal until the calling-system owner confirms it (ADR-0001).
@@ -96,6 +96,51 @@ Exit codes (ADR-0005):
 
 The result contract is defined in `docs/adr/adr-0002-result-json-contract.md`; the history and
 retention in `docs/adr/adr-0003-jsonl-history-and-retention.md`.
+
+## AI insights (optional)
+
+```powershell
+.venv\Scripts\python.exe -m hotel_booking_analysis analyze --input bookings.json --insights
+```
+
+`--insights` asks a local language model (Ollama or LM Studio) for an executive summary and up to
+five improvement suggestions per analysis, aimed at a market analyst who looks for ways to raise
+NF Hotel earnings (UC-005, ADR-0010). Without `--insights` (the default) no provider is contacted
+and the result is exactly the result of version 1.0.
+
+- **What the model sees:** only the aggregate findings of one analysis and the data-quality counts.
+  Never a booking record, a booking identifier, the input file name or its hash.
+- **Which model:** `llm.provider` and `llm.model` if set; otherwise the first reachable provider in
+  the order `ollama`, `lmstudio`, with the first model it lists (ADR-0009). Check what is reachable
+  with `llm-providers`. The first listed model may be unsuitable (for example an embedding model);
+  set `llm.model` to choose one.
+- **Result 1.1:** with `--insights` a completed result has `schema_version` `"1.1"`, a top-level
+  `insights` (`requested`, `provider`, `model`, `prompt_version`) and an `insight` in every entry of
+  `analyses` with `status` `available`, `unavailable` or `not_applicable`, and the label
+  `AI-generated` when available. The JSON Schema is
+  `src/hotel_booking_analysis/adapters/schemas/analysis_result_1_1.schema.json`. The returned JSON
+  and the history line are the same bytes, and the history viewer shows the insights.
+- **Guardrails:** an answer is rejected and its text dropped when its structure is wrong, when it
+  uses causal words ("because", "leads to" and so on), promises or forecasts earnings, names a
+  percentage or amount that is not in the findings, names a sample size that is not in the
+  findings, lacks the words "small sample" for a small group, or lacks hypothesis wording ("may",
+  "could" and so on). That insight is then `unavailable` with the reason `BAD_STRUCTURE` or
+  `GUARDRAIL_REJECTED`. Small models are often rejected: in a trial run with `gemma4:e2b`
+  on the development sample, five of six insights were rejected and one timed out. Rejecting is
+  intended (ADR-0010); a larger model, or `llm.model` set to a better one, gives more accepted
+  insights.
+- **Failures never fail the run:** `NO_PROVIDER`, `NO_MODEL`, `TIMEOUT` and `MODEL_ERROR` also make
+  an insight `unavailable`. The analyses stay unchanged, the result `status` becomes
+  `completed_with_warnings` with the notice `INSIGHTS_UNAVAILABLE`, and the exit code stays 0.
+- **Limits:** one request per available analysis, in order, no retry, each within
+  `llm.generation_timeout_seconds` (default 120 s), so a run can take up to 6 x 120 s plus the
+  discovery time. Set the process timeout of the calling system to match. The text is regenerated on
+  every run and differs between runs.
+- **AI text is a hypothesis, not a forecast.** The checks look at form, words and figures, not at
+  truth. A wrong sentence can pass them, so read each suggestion next to its sample size and the
+  analysis it belongs to. The notebook shows the sample size with every suggestion.
+- `[llm]` values are validated when `--insights` is given; an invalid value gives exit code 2 and
+  names the key.
 
 ## Holiday listing
 
@@ -159,13 +204,13 @@ The output shape is `src/hotel_booking_analysis/adapters/schemas/llm_providers_1
 | `llm.ollama_url` | `http://localhost:11434` | base URL of Ollama |
 | `llm.lmstudio_url` | `http://localhost:1234` | base URL of LM Studio |
 | `llm.discovery_timeout_seconds` | `2` | total time limit per provider when listing models (number above 0) |
-| `llm.generation_timeout_seconds` | `120` | total time limit per model request (number above 0; used by insights, MIL-011) |
+| `llm.generation_timeout_seconds` | `120` | total time limit per model request (number above 0; used by `analyze --insights`) |
 | `llm.provider` | `""` | `""` (automatic), `"ollama"` or `"lmstudio"` |
 | `llm.model` | `""` | `""` (automatic) or a model name |
 | `llm.allow_remote` | `false` | `true` allows a base URL that is not on this machine |
 | `llm.temperature` | `0` | model temperature, 0.0 to 1.0 |
 
-The `[llm]` values are validated only by `llm-providers` (and later `analyze --insights`); an
+The `[llm]` values are validated only by `llm-providers` and `analyze --insights`; an
 invalid value names its key and gives exit code 2 there, and is ignored by `analyze` and
 `holidays` (ADR-0012).
 

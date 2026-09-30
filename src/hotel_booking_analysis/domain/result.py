@@ -7,9 +7,11 @@ from enum import StrEnum
 from hotel_booking_analysis.domain.analysis import Analysis
 from hotel_booking_analysis.domain.booking import InputSource
 from hotel_booking_analysis.domain.errors import Notice
+from hotel_booking_analysis.domain.insight import InsightsMetadata
 from hotel_booking_analysis.domain.quality import DataQualitySummary
 
 SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION_WITH_INSIGHTS = "1.1"
 
 
 class AnalysisStatus(StrEnum):
@@ -54,9 +56,18 @@ class AnalysisResult:
     notices: tuple[Notice, ...] = ()
     error: ResultError | None = None
     schema_version: str = SCHEMA_VERSION
+    insights: InsightsMetadata | None = None
 
     def __post_init__(self) -> None:
         if self.generated_at.tzinfo is None:
             raise ValueError("generated_at must be timezone-aware")
         if (self.status is AnalysisStatus.FAILED) != (self.error is not None):
             raise ValueError("error is present exactly when status is failed")
+        if self.insights is not None and self.status is AnalysisStatus.FAILED:
+            raise ValueError("a failed result has no insights")
+        if (self.schema_version == SCHEMA_VERSION_WITH_INSIGHTS) != (self.insights is not None):
+            raise ValueError("schema version 1.1 is used exactly when insights are present")
+
+    def unavailable_insight_count(self) -> int:
+        """How many analyses hold an insight that could not be produced (ADR-0011)."""
+        return sum(1 for a in self.analyses if a.insight is not None and a.insight.is_unavailable())
