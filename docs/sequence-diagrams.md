@@ -940,7 +940,7 @@ sequenceDiagram
     C->>+CLI: 1: python -m hotel_booking_analysis holidays --years 2024-2026 --config file
     CLI->>+LH: 2: run(years_text, config_path)
     LH->>+CL: 3: load(config_path)
-    CL-->>-LH: 4: LoadedConfiguration (the llm values are validated and not used)
+    CL-->>-LH: 4: LoadedConfiguration (the file parsed; the llm values are neither validated nor used, ADR-0012)
     LH->>+CK: 5: now()
     CK-->>-LH: 6: generated_at
     LH->>+YS: 7: parse_years(years_text, generated_at.year)
@@ -1020,30 +1020,30 @@ sequenceDiagram
     C->>+CLI: 1: python -m hotel_booking_analysis holidays --years text --config file
     CLI->>+LH: 2: run(years_text, config_path)
     LH->>+CL: 3: load(config_path)
-    alt the file cannot be parsed or a value is invalid (CONFIGURATION_ERROR)
+    alt the file cannot be parsed (CONFIGURATION_ERROR; the llm values are not validated here, ADR-0012)
         CL--xLH: 4: raise ConfigurationError(message, key)
         LH->>LH: 5: error = ConfigurationError
     else the configuration is valid
         CL-->>LH: 6: LoadedConfiguration
     end
     deactivate CL
+    LH->>+CK: 7: now()
+    CK-->>-LH: 8: generated_at
     opt the configuration was valid
-        LH->>+YS: 7: parse_years(years_text, current_year)
+        LH->>+YS: 9: parse_years(years_text, generated_at.year)
         alt the value is not a valid selection (INVALID_YEARS)
-            YS--xLH: 8: raise InvalidYearsError(message naming the problem)
-            LH->>LH: 9: error = InvalidYearsError
+            YS--xLH: 10: raise InvalidYearsError(message naming the problem)
+            LH->>LH: 11: error = InvalidYearsError
         else the value is valid
-            YS-->>LH: 10: years
+            YS-->>LH: 12: years
         end
         deactivate YS
     end
     alt an error was recorded
-        LH->>+CK: 11: now()
-        CK-->>-LH: 12: generated_at
         LH->>+HS: 13: serialize_failure(ResultError(code, message), notices, generated_at)
-        HS-->>-LH: 14: line, a failed document with no years
+        HS-->>-LH: 14: line, a failed document with no years and no notices
     else the years are valid
-        LH->>LH: 15: the listing is built and serialized as in block 3.1 messages 5 to 18
+        LH->>LH: 15: the listing is built and serialized as in block 3.1 messages 9 to 18 (the clock was read in messages 7 and 8)
     end
     LH->>+SNK: 16: write(line)
     alt standard output accepts the line
@@ -1066,8 +1066,8 @@ sequenceDiagram
 
 | Pattern (GRASP / GoF) | Applied to | Rationale |
 | --- | --- | --- |
-| Controller (GRASP) with exception translation | `ListHolidays.run` (messages 5, 9, 19, 21) | Domain exceptions (`ConfigurationError`, `InvalidYearsError`, `ResultDeliveryError`) are caught at one place and turned into a failed document and a status; none reaches `cli`. Same idea as block 1.3. |
-| Information Expert (GRASP) | `TomlConfigurationLoader` (message 4), `year_selection.parse_years` (message 8) | Each raises the error for the rule it owns. |
+| Controller (GRASP) with exception translation | `ListHolidays.run` (messages 5, 11, 19, 21) | Domain exceptions (`ConfigurationError`, `InvalidYearsError`, `ResultDeliveryError`) are caught at one place and turned into a failed document and a status; none reaches `cli`. Same idea as block 1.3. |
+| Information Expert (GRASP) | `TomlConfigurationLoader` (message 4), `year_selection.parse_years` (message 10) | Each raises the error for the rule it owns. |
 | Adapter (GoF) | `HS`, `SNK` | The failed document is written by the same serializer and sink as the listing; a stream problem appears as `ResultDeliveryError`, not as a library exception. |
 | Exception hierarchy | `InputError`, `ConfigurationError`, `InvalidYearsError` | `InvalidYearsError` is an `InputError` with the code `INVALID_YEARS`, so the controller catches both alike, as `AnalyzeBookings` does. |
 
@@ -1075,8 +1075,8 @@ sequenceDiagram
 
 | Postcondition (from contract, exception row) | Satisfied by message |
 | --- | --- |
-| `INVALID_YEARS`: no listing was created; the Calling system received a failed listing with the code and a message naming the problem, no years, on standard output; exit code 2; the Result History unchanged | 7 to 9 (the error), 11 to 14 (`serialize_failure`, no years), 16 and 17 (delivered), 19, 25 (exit code 2). No message reaches a history port |
-| `CONFIGURATION_ERROR`: as above | 3 to 5, then 11 to 25 as above |
+| `INVALID_YEARS`: no listing was created; the Calling system received a failed listing with the code and a message naming the problem, no years, on standard output; exit code 2; the Result History unchanged | 7 and 8 (the clock), 9 to 11 (the error), 13 and 14 (`serialize_failure`, no years), 16 and 17 (delivered), 19, 25 (exit code 2). No message reaches a history port |
+| `CONFIGURATION_ERROR`: as above | 3 to 5, 7 and 8 (the clock), then 13 to 25 as above |
 | Standard output cannot be written: nothing stored, no document, standard error names the delivery error, exit code 4 | 16, 20, 21 (status `DELIVERY_FAILED`, the message), 22 to 25 (exit code 4); nothing was stored because no store is involved |
 | A year without calendar data is not a failure | Block 3.1 messages 11 and 13 (exit code 0) |
 
@@ -1159,8 +1159,8 @@ sequenceDiagram
     participant SNK as ":StreamResultSink<br/>infrastructure"
     C->>+CLI: 1: python -m hotel_booking_analysis llm-providers --config file
     CLI->>+LP: 2: run(config_path)
-    LP->>+CL: 3: load(config_path)
-    CL-->>-LP: 4: LoadedConfiguration (the addresses passed the loopback rule before any connection)
+    LP->>+CL: 3: load(config_path, with_llm = true)
+    CL-->>-LP: 4: LoadedConfiguration (the llm values are validated; the addresses passed the loopback rule before any connection)
     LP->>+REG: 5: providers(configuration.llm)
     create participant PV as ":LlmProvider<br/>OllamaProvider and LmStudioProvider, adapters, planned"
     REG->>PV: 6: create(base_url) for ollama, then for lmstudio
@@ -1243,7 +1243,7 @@ sequenceDiagram
     participant SNK as ":StreamResultSink<br/>infrastructure"
     C->>+CLI: 1: python -m hotel_booking_analysis llm-providers --config file
     CLI->>+LP: 2: run(config_path)
-    LP->>+CL: 3: load(config_path)
+    LP->>+CL: 3: load(config_path, with_llm = true)
     alt a value is invalid, or a provider address is not a loopback host while llm.allow_remote is false (CONFIGURATION_ERROR)
         CL--xLP: 4: raise ConfigurationError(message, key such as llm.ollama_url), no provider was contacted
         LP->>LP: 5: error = ConfigurationError
@@ -1361,11 +1361,12 @@ sequenceDiagram
     participant SEL as ":model_selection<br/>module, domain, planned"
     participant IP as ":insight_prompt<br/>module, domain, planned"
     participant PV as ":LlmProvider<br/>OllamaProvider or LmStudioProvider, adapters, planned"
+    participant HJ as ":http_json<br/>module, adapters, planned"
     participant IV as ":insight_validation<br/>module, domain, planned"
     participant CK as ":SystemClock<br/>infrastructure"
     participant BR as ":build_result<br/>module, application"
     CLI->>+UC: 1: run(input_path, config_path, insights)
-    Note over UC: messages 2 to 24 of block 1.1 run first, unchanged
+    Note over UC: messages 2 to 24 of block 1.1 run first, unchanged, except that message 2 is load(config_path, with_llm = insights), so the llm values are validated only when insights are requested (an invalid value ends the run there as in block 1.3, see block 5.2)
     alt insights requested, the extension point after step 4 of UC-001
         UC->>+RA: 2: run_analyses(validated, configuration, analyzers)
         RA-->>-UC: 3: (analyses, analysis_notices), block 1.1 messages 27 to 35
@@ -1385,7 +1386,11 @@ sequenceDiagram
             else a model is selected
                 GI->>+IP: 13: build_prompt(analysis, validated.summary)
                 IP-->>-GI: 14: InsightPrompt, aggregate findings and counts only
+                GI->>+DP: 14a: find_provider(providers, selection.provider)
+                DP-->>-GI: 14b: the LlmProvider of the selected provider
                 GI->>+PV: 15: generate(model, prompt, llm.temperature, llm.generation_timeout_seconds)
+                PV->>+HJ: 15a: post_json(chat url, body, deadline = llm.generation_timeout_seconds)
+                HJ-->>-PV: 15b: parsed body
                 PV-->>-GI: 16: answer text, failures in block 5.2
                 GI->>+IV: 17: validate_answer(answer text, prompt, configuration.min_group_size)
                 IV-->>-GI: 18: (ExecutiveSummary, ImprovementSuggestions), rejections in block 5.2
@@ -1430,16 +1435,16 @@ sequenceDiagram
 | Insights not requested: no AI Insight, no provider contacted, format version 1.0, identical to the built result | 28 and 29 (the built `build_result`, block 1.1 message 25); messages 4 to 27 do not occur in this branch |
 | One AI Insight instance per Analysis, associated with it (has); the Analyses and findings are identical to those of a run without insights | 11, 12 and 21 create one `AiInsight` per Analysis of the loop; 22 collects them; 25 attaches each to its Analysis by name; 2 and 3 produce the Analyses before any insight, and no message changes an `Analysis` except the attachment of its `insight` |
 | Each AI Insight has exactly one status: available, unavailable with a reason, or not applicable | 11 (not applicable), 12 (unavailable, `NO_PROVIDER` or `NO_MODEL`), 21 (available); the other unavailable reasons are created in block 5.2 messages 9 to 17 |
-| An available AI Insight has the label AI-generated, generated time and prompt version, one Executive Summary and one to five Improvement Suggestions, and the Language Model that produced it | 17 and 18 (the validator returns the summary and 1 to 5 suggestions only for an accepted answer), 19 and 20 (generated time), 21 (creation: `label()` is AI-generated for an available insight, provider and model as text), 22 (prompt version in the metadata) |
+| An available AI Insight has the label AI-generated, generated time, one Executive Summary and one to five Improvement Suggestions, and the Language Model that produced it | 14a and 14b (the provider found by name), 15 and 16 (`generate` calls `post_json`, messages 15a and 15b), 17 and 18 (the validator returns the summary and 1 to 5 suggestions only for an accepted answer), 19 and 20 (generated time), 21 (creation: `label()` is AI-generated for an available insight, provider and model as text) |
 | Each suggestion has hypothesis wording, evidence, a sample size from the findings, no causal word, no promise of earnings, no invented figure, and a small-sample statement when needed | 17 and 18: `validate_answer` applies rules 1 to 7 of [ADR-0010] against the `InsightPrompt` (message 14) that holds exactly the data sent |
 | An unavailable or not applicable insight has no label, no summary, no suggestion, and no text of a failed or rejected answer was kept | 11 and 12 create insights without texts; block 5.2 messages 9 to 17 create the others without texts and drop the answer |
 | No Booking Record, booking identifier, input reference, fingerprint, file name, path or booking date was sent to any model | 13 and 14: `build_prompt` takes only one `Analysis` (its findings) and the `DataQualitySummary` (counts); no `BookingSubmission`, `BookingRecord` or `ResultInput` is a parameter of `build_prompt` or of `generate` (message 15) |
-| The Analysis Result has format version 1.1 and insights information (requested true, provider, model or absent, prompt version) | 22 (metadata), 26 (`AnalysisResult` created with `insights` and `schema_version` 1.1) |
+| The Analysis Result has format version 1.1 and insights information (requested true, provider, model or absent, prompt version; the prompt version is one value per run, in the metadata and not in an insight) | 22 (metadata with `PROMPT_VERSION`), 26 (`AnalysisResult` created with `insights` and `schema_version` 1.1) |
 | Status `completed_with_warnings` and the notice `INSIGHTS_UNAVAILABLE` when an insight of an available Analysis is unavailable; the result is retained and delivered as before, exit code unchanged | 25 (`_insight_notices`, `_status`), block 5.2 messages 22 to 25; the run then continues with `_store_and_deliver` of block 1.2 unchanged (note before message 30), which appends, delivers and returns exit code 0 |
 
 ### Responsibility Check
 
-`AnalyzeBookings` sends 5 of the 30 messages here (`run_analyses`, `generate`, `assemble_result`, `build_result` and the return). `GenerateInsights` sends 12 (the most of any participant, 40 percent), and every one is a delegation to the registry, the discovery, the selector, the prompt builder, the provider, the validator, the clock or the creation of a value object; it holds no HTTP, no prompt text and no guardrail rule. Selection, prompt, validation and HTTP are in four different collaborators (high cohesion), and `assemble_result` builds the result. No participant receives all messages.
+`AnalyzeBookings` sends 5 of the 34 messages here (`run_analyses`, `generate`, `assemble_result`, `build_result` and the return). `GenerateInsights` sends 13 (the most of any participant, 38 percent), and every one is a delegation to the registry, the discovery (including `find_provider`), the selector, the prompt builder, the provider, the validator, the clock or the creation of a value object; it holds no HTTP, no prompt text and no guardrail rule. Selection, prompt, validation and HTTP are in four different collaborators (high cohesion), and `assemble_result` builds the result. No participant receives all messages.
 
 ## Sequence 5.2: analyzeBookings, insight failures per reason (Designed change)
 
@@ -1454,9 +1459,11 @@ sequenceDiagram
     participant SEL as ":model_selection<br/>module, domain, planned"
     participant IP as ":insight_prompt<br/>module, domain, planned"
     participant PV as ":LlmProvider<br/>OllamaProvider or LmStudioProvider, adapters, planned"
+    participant HJ as ":http_json<br/>module, adapters, planned"
     participant IV as ":insight_validation<br/>module, domain, planned"
     participant BR as ":build_result<br/>module, application"
-    Note over UC,GI: continues block 5.1 message 8, the statuses of both providers are known
+    Note over UC,GI: an invalid llm value fails earlier, in load(config_path, with_llm = true) of block 1.1 message 2: the run ends as in block 1.3 (failed result CONFIGURATION_ERROR naming the key, schema 1.0, exit code 2) and GenerateInsights is never called
+    Note over UC,GI: otherwise this block continues block 5.1 message 8, the statuses of both providers are known
     activate UC
     activate GI
     GI->>+SEL: 1: select_model(statuses, llm.provider, llm.model)
@@ -1466,7 +1473,7 @@ sequenceDiagram
             create participant AIN as ":AiInsight<br/>domain, planned"
             GI->>AIN: 3: unavailable(NO_PROVIDER), no model contacted
         end
-    else a reachable provider lists no model, or not the model named by llm.model (NO_MODEL)
+    else a provider is reachable but the configured or automatic model is not offered (NO_MODEL)
         loop for each available Analysis
             GI->>AIN: 4: unavailable(NO_MODEL), no model contacted
         end
@@ -1475,13 +1482,17 @@ sequenceDiagram
             GI->>+IP: 5: build_prompt(analysis, summary)
             IP-->>-GI: 6: InsightPrompt
             GI->>+PV: 7: generate(model, prompt, temperature, generation timeout)
-            alt no answer within llm.generation_timeout_seconds (TIMEOUT)
-                PV--xGI: 8: raise LlmTimeoutError
+            PV->>+HJ: 7a: post_json(chat url, body, deadline = llm.generation_timeout_seconds)
+            alt the total deadline passed before the answer was complete (TIMEOUT)
+                HJ--xPV: 7b: raise HttpFailure(TIMEOUT)
+                PV--xGI: 8: raise LlmTimeoutError, translated from HttpFailure(TIMEOUT)
                 GI->>AIN: 9: unavailable(TIMEOUT, provider, model), no retry
             else connection refused, error status or unusable body (MODEL_ERROR)
-                PV--xGI: 10: raise LlmError
+                HJ--xPV: 9a: raise HttpFailure(any other reason)
+                PV--xGI: 10: raise LlmError, translated from HttpFailure or from a body without the answer text
                 GI->>AIN: 11: unavailable(MODEL_ERROR, provider, model), no retry
             else an answer text was received
+                HJ-->>PV: 11a: parsed body
                 PV-->>GI: 12: answer text
                 GI->>+IV: 13: validate_answer(answer text, prompt, min_group_size)
                 alt not JSON, a key missing, a wrong type, an empty text or a limit exceeded (BAD_STRUCTURE)
@@ -1496,6 +1507,7 @@ sequenceDiagram
                 end
                 deactivate IV
             end
+            deactivate HJ
             deactivate PV
         end
     end
@@ -1520,6 +1532,7 @@ sequenceDiagram
 | Controller (GRASP) with exception translation | `GenerateInsights` (messages 9, 11, 15, 17) | `LlmTimeoutError`, `LlmError` and `InsightRejectedError` are caught at one place per analysis and turned into an unavailable `AiInsight` with one reason code; nothing propagates to `AnalyzeBookings`, so a failed insight never fails the run or changes the exit code ([ADR-0008]). |
 | Information Expert (GRASP) | `model_selection.select_model` (messages 2 to 4), `OllamaProvider.generate` (messages 8, 10, 12), `insight_validation.validate_answer` (messages 14, 16, 18) | Each raises or decides for the rule it owns: the selection rules, the timeout and the meaning of a bad answer body, and the guardrails. |
 | Exception hierarchy | `LlmError`, `LlmTimeoutError`, `InsightRejectedError` (carrying the reason code) | The class tells the controller which reason applies, so the reason is exact. |
+| Adapter (GoF) with exception translation | `PV.generate` (messages 7a to 10) | `http_json.post_json` raises `HttpFailure` with a provider reason (messages 7b, 9a); the provider adapter translates `HttpFailure(TIMEOUT)` into `LlmTimeoutError` and every other failure into `LlmError`, so `HttpFailure` and the standard-library exceptions never reach `GenerateInsights`. |
 | Strategy (GoF) | `PV` | The same failure behavior for both providers behind one port. |
 | Information Expert (GRASP) | `build_result.assemble_result` (messages 23 and 24) | The function that holds the analyses, insights and notices decides the notice and the status. |
 
@@ -1528,10 +1541,10 @@ sequenceDiagram
 | Postcondition (from contract, added exception row) | Satisfied by message |
 | --- | --- |
 | No reachable provider (or the named provider unreachable): every available Analysis has an unavailable insight `NO_PROVIDER`, no provider asked to generate text; exit code 0 | 1 to 3 (no `generate` occurs in this branch); 20 and 21, 22 to 25 (result assembled; delivery of block 1.2 gives exit code 0) |
-| A reachable provider without a model or without the configured model: `NO_MODEL`, as above | 2 and 4 |
-| No answer within the generation timeout: that Analysis `TIMEOUT`, no retry, the next is still tried | 7 to 9 (the loop continues with the next Analysis after message 9) |
-| Connection refused, error status or unusable body: `MODEL_ERROR`, no retry | 7, 10, 11 |
-| Answer not in the structure: `BAD_STRUCTURE`, the text dropped | 12 to 15 (the exception carries only the reason, the text is not passed on) |
+| A provider is reachable but the configured or automatic model is not offered: `NO_MODEL`, as above | 2 and 4 |
+| No complete answer within the total generation deadline: that Analysis `TIMEOUT`, no retry, the next is still tried | 7, 7a, 7b, 8, 9 (the loop continues with the next Analysis after message 9) |
+| Connection refused, error status or unusable body: `MODEL_ERROR`, no retry | 7, 7a, 9a, 10, 11 |
+| Answer not in the structure: `BAD_STRUCTURE`, the text dropped | 11a, 12 to 15 (the exception carries only the reason, the text is not passed on) |
 | Answer fails a guardrail: `GUARDRAIL_REJECTED`, the text dropped | 12, 13, 16, 17 |
 | An unavailable insight has no label, summary or suggestion | 3, 4, 9, 11, 15, 17 (`unavailable(...)` has no texts); only 19 (`available`) carries texts |
 | `completed_with_warnings` and the notice `INSIGHTS_UNAVAILABLE` with the count; the result is still delivered as a completed result | 22, 23 (notice and status), 24 (no notice when all insights are available), 25 (delivery by block 1.2) |
@@ -1637,7 +1650,7 @@ Every postcondition and exception of the designed contracts of [OC-001] is reali
 | `analyzeBookings` (Designed change) | Insights not requested: nothing changes, format version 1.0 | 5.0, 5.1 |
 | `analyzeBookings` (Designed change) | One AI Insight per Analysis, associated (has) | 5.1 |
 | `analyzeBookings` (Designed change) | Exactly one status per AI Insight | 5.1, 5.2 |
-| `analyzeBookings` (Designed change) | Available insight: label, time, prompt version, summary, one to five suggestions, model | 5.1 |
+| `analyzeBookings` (Designed change) | Available insight: label, time, summary, one to five suggestions, model (the prompt version is result-level metadata) | 5.1 |
 | `analyzeBookings` (Designed change) | Suggestions: hypothesis, evidence, sample size, no causal word, no promise, no invented figure | 5.1, 5.2 |
 | `analyzeBookings` (Designed change) | Unavailable or not applicable insight has no text; no rejected text kept | 5.1, 5.2 |
 | `analyzeBookings` (Designed change) | No booking record, identifier, reference, fingerprint, path or date sent to a model | 5.1 |
@@ -1650,7 +1663,7 @@ Every postcondition and exception of the designed contracts of [OC-001] is reali
 | `analyzeBookings` (Designed change) | Exception: `BAD_STRUCTURE` | 5.2 |
 | `analyzeBookings` (Designed change) | Exception: `GUARDRAIL_REJECTED` | 5.2 |
 | `analyzeBookings` (Designed change) | Exception: an Analysis is unavailable (not applicable) | 5.1 |
-| `analyzeBookings` (Designed change) | Exception: invalid `[llm]` configuration | 1.3 (unchanged failed-result path; the `[llm]` values are read by the configuration loader, block 4.2 shows the same loader failure) |
+| `analyzeBookings` (Designed change) | Exception: invalid `[llm]` configuration (checked only when insights are requested) | 5.1 (note to message 2: `load(config_path, with_llm = insights)`), 5.2 (first note: the run ends before `GenerateInsights`), and the built failed-result path of 1.3, whose configuration error is unchanged; block 4.2 shows the same loader failure for `getLlmProviders` |
 | `analyzeBookings` (Designed change) | Exception: history or delivery failure with insights | 1.4, 1.5 (unchanged; the result is built before the store, block 5.1 note) |
 | `selectResult` (Designed change) | Nothing changed, no provider contacted | 2.4 |
 | `selectResult` (Designed change) | Insight shown per Analysis (available, unavailable with reason, not applicable) | 2.4 |

@@ -16,6 +16,7 @@
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -23,7 +24,7 @@ This document describes the system **as built** (gateway MIL-007, sequence cavea
 
 **Scope note (MIL-009, 2026-09-30).** Everything above the heading **Designed Additions (MIL-009, not yet built)** at the end of this document describes the system as built and is unchanged. That last part is a **design made before the code**: the system operations of [UC-003], [UC-004] and [UC-005] and the revised return of `selectResult` ([UC-002]). They are implemented in MIL-010 and MIL-011 and are marked `Designed` in every heading; until then they are checked against the use cases and the decisions [ADR-0008] to [ADR-0012], not against `src/`.
 
-Message numbering: messages are numbered per use case (`UC-001 message 1`, `UC-002 message 2`). The same message number can appear in several diagrams of one use case when the scenarios differ only in the outcome; the Operation Contract document ([OC-001]) has exactly one contract per message number.
+Message numbering: messages are numbered per use case (`UC-001 message 1`, `UC-002 message 2`). The same message number can appear in several diagrams of one use case when the scenarios differ only in the outcome; the Operation Contract document ([OC-001]) has one contract per operation (message name). Each message number of one use case has one contract; the only case where two message numbers share a contract is `UC-005 message 1`, which is `UC-001 message 1` (`analyzeBookings`) with one more argument (see the Designed Additions).
 
 ## UC-001 Analyze Hotel Bookings
 
@@ -282,7 +283,7 @@ sequenceDiagram
     actor C as Calling system
     participant S as :System
     C->>S: 1: getHolidayCalendar(years, configFile)
-    S-->>C: failedListingJson (status failed, error code INVALID_YEARS or CONFIGURATION_ERROR and message, no years) on standard output, exitCode 2
+    S-->>C: holidayListingJson (status failed, error code INVALID_YEARS or CONFIGURATION_ERROR and message, empty notices, no years) on standard output, exitCode 2
 ```
 
 ### Diagram 3.4: delivery failure (Designed)
@@ -301,7 +302,7 @@ sequenceDiagram
 
 | Step | Message | Parameters | Return | Use case step |
 | --- | --- | --- | --- | --- |
-| UC-003 message 1 | `getHolidayCalendar` (verb phrase: get the Cambodian holiday calendar of the requested years) | `years`: optional text (`--years`): a single year, a range `2024-2026` or a comma list `2024,2026`; absent means the current year; `configFile`: optional path to the TOML configuration (`--config`) | The holiday listing as JSON on standard output (`listingJson`), or a failed listing, and the process exit code: 0 success (including a year without calendar data), 2 invalid `years` or configuration, 4 delivery failure. Exit code 3 is not used because the history is not touched. Messages go to standard error. | U3-1 (the request names the years), U3-2 and U3-3 (the answer), U3-4 (unavailable year), U3-5 (invalid request), U3-6 (delivery failure), U3-7 (nothing else happens) |
+| UC-003 message 1 | `getHolidayCalendar` (verb phrase: get the Cambodian holiday calendar of the requested years) | `years`: optional text (`--years`): a single year, a range `2024-2026` or a comma list `2024,2026`; absent means the current year; `configFile`: optional path to the TOML configuration (`--config`) | The holiday listing as JSON on standard output (`holidayListingJson`), or a failed listing in the same return, and the process exit code: 0 success (including a year without calendar data), 2 invalid `years` or configuration, 4 delivery failure. Exit code 3 is not used because the history is not touched. Messages go to standard error. | U3-1 (the request names the years), U3-2 and U3-3 (the answer), U3-4 (unavailable year), U3-5 (invalid request), U3-6 (delivery failure), U3-7 (nothing else happens) |
 
 [UC-003] is a casual use case without numbered steps, so its narrative is numbered here for the mapping (as for [UC-002] above).
 
@@ -325,7 +326,7 @@ The System instance is one operating-system process per call, created when the p
 
 ### Source Use Case
 
-Get Available LLM Providers ([UC-004]) — scenario: the whole casual scenario (the Calling system asks which language-model providers can be reached and receives the list as JSON), with the case that no provider is reachable, the invalid configuration and the failed delivery as separate diagrams. The primary actor is the Calling system. Command: `python -m hotel_booking_analysis llm-providers [--config <file>]` ([ADR-0008]); the discovery is fixed in [ADR-0009] (Ollama and LM Studio, checked in that order, read-only, each within the discovery timeout) and the JSON in [ADR-0011]. No model is asked to generate text, no booking data is sent and the Result History is not touched.
+Get Available LLM Providers ([UC-004]) — scenario: the whole casual scenario (the Calling system asks which language-model providers can be reached and receives the list as JSON), with the case that no provider is reachable, the invalid configuration and the failed delivery as separate diagrams. The primary actor is the Calling system. Command: `python -m hotel_booking_analysis llm-providers [--config <file>]` ([ADR-0008]); the discovery is fixed in [ADR-0009] (Ollama and LM Studio, checked in that order, read-only, each within the discovery deadline, a total limit per provider) and the JSON in [ADR-0011]. No model is asked to generate text, no booking data is sent and the Result History is not touched.
 
 ### Diagram 4.1: some provider reachable (Designed)
 
@@ -360,7 +361,7 @@ sequenceDiagram
     actor C as Calling system
     participant S as :System
     C->>S: 1: getLlmProviders(configFile)
-    S-->>C: failedListingJson (status failed, error code CONFIGURATION_ERROR naming the key, no providers) on standard output, exitCode 2
+    S-->>C: providerListingJson (status failed, error code CONFIGURATION_ERROR naming the key, empty notices, no providers) on standard output, exitCode 2
 ```
 
 ### Diagram 4.4: delivery failure (Designed)
@@ -377,7 +378,7 @@ sequenceDiagram
 
 | Step | Message | Parameters | Return | Use case step |
 | --- | --- | --- | --- | --- |
-| UC-004 message 1 | `getLlmProviders` (verb phrase: get the language-model providers that can be reached) | `configFile`: optional path to the TOML configuration (`--config`); the provider addresses and the discovery timeout are configuration values, not parameters | The provider listing as JSON on standard output (`listingJson`), or a failed listing, and the exit code: 0 success (including no reachable provider), 2 invalid configuration, 4 delivery failure. Exit code 3 is not used. Messages go to standard error. | U4-1 (the request), U4-2 to U4-4 (the answer), U4-5 (invalid configuration), U4-6 (delivery failure), U4-7 (nothing else happens) |
+| UC-004 message 1 | `getLlmProviders` (verb phrase: get the language-model providers that can be reached) | `configFile`: optional path to the TOML configuration (`--config`); the provider addresses and the discovery timeout are configuration values, not parameters | The provider listing as JSON on standard output (`providerListingJson`), or a failed listing in the same return, and the exit code: 0 success (including no reachable provider), 2 invalid configuration, 4 delivery failure. Exit code 3 is not used. Messages go to standard error. | U4-1 (the request), U4-2 to U4-4 (the answer), U4-5 (invalid configuration), U4-6 (delivery failure), U4-7 (nothing else happens) |
 
 | Ref | Narrative element of [UC-004] | Mapped to |
 | --- | --- | --- |
@@ -486,19 +487,19 @@ sequenceDiagram
 
 | Extension | Diagram or outcome | Exit code |
 | --- | --- | --- |
-| 2a no reachable provider, or no reachable provider offers a model | Diagram 5.2 (reasons `NO_PROVIDER`, `NO_MODEL`) | 0 |
+| 2a no reachable provider, or a reachable provider offers no usable model | Diagram 5.2 (reasons `NO_PROVIDER`, `NO_MODEL`) | 0 |
 | 3a an analysis is unavailable | Diagram 5.1 with the insight of that analysis `not_applicable` | 0 |
-| 4a the model fails or does not answer within the time limit | Diagram 5.3 (reasons `MODEL_ERROR`, `TIMEOUT`) | 0 |
+| 4a the model fails or does not finish its answer within the total deadline | Diagram 5.3 (reasons `MODEL_ERROR`, `TIMEOUT`) | 0 |
 | 5a the answer is empty or not in the expected structure | Diagram 5.4 (reason `BAD_STRUCTURE`) | 0 |
 | 6a the answer fails the guardrails | Diagram 5.4 (reason `GUARDRAIL_REJECTED`) | 0 |
 | 7a some analyses have insights and others do not | Diagrams 5.3 and 5.4 (the insights that passed stay in the result) | 0 |
 | 8a the result cannot be saved or returned | Diagram 1.3 (exit code 3) or Diagram 1.4 (exit code 4), unchanged from [UC-001]; the insights are part of the retained result | 3 or 4 |
 | insights not requested (default) | Diagram 5.5 | 0 |
-| invalid configuration, including the `[llm]` keys of [ADR-0012] | Diagram 1.2 (`CONFIGURATION_ERROR`), unchanged; no provider is contacted | 2 |
+| invalid configuration; the `[llm]` keys of [ADR-0012] are checked only because `--insights` is given | Diagram 1.2 (`CONFIGURATION_ERROR`), unchanged; no provider is contacted | 2 |
 
 ### Lifecycle Notes
 
-As for `analyzeBookings` above: one operating-system process per call, wired by the composition root, ended with the exit code. With `insights` true the composition root also wires the language model provider adapters; the providers are external systems reached over local HTTP for the length of the call ([ADR-0009]) and are not part of the System instance. The worst-case duration of the call is long (up to six generation requests of 120 seconds each plus discovery, [ADR-0008]), so the Calling system sets its own process timeout. Nothing is cached: insights are generated again for each run ([ADR-0010]).
+As for `analyzeBookings` above: one operating-system process per call, wired by the composition root, ended with the exit code. With `insights` true the composition root also wires the language model provider adapters; the providers are external systems reached over local HTTP for the length of the call ([ADR-0009]) and are not part of the System instance. The worst-case duration of the call is long (up to six generation requests of 120 seconds each, a total deadline per request, plus discovery, [ADR-0008], [ADR-0009]), so the Calling system sets its own process timeout. Nothing is cached: insights are generated again for each run ([ADR-0010]).
 
 ## UC-002 Review Analysis History: insights (Designed)
 

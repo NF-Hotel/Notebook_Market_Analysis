@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -30,9 +31,9 @@ Options for the answer: free prose (cannot be checked), or a fixed structure wit
 
 Each available analysis gets at most one insight from one model request, built from that analysis's aggregate findings only, answered in a required JSON structure, and accepted only if a validator finds the wording, sample sizes and figures acceptable; otherwise the insight is unavailable with a reason and nothing else changes.
 
-**What is sent.** The prompt for one analysis contains the fixed instruction text and one JSON block with: the analysis name, that analysis's `findings` exactly as in the result ([ADR-0002]), and the data-quality counts (record count, duplicate booking ID count, zero-price count, and missing and invalid counts per field). It never contains a raw booking record, a booking identifier, the input `reference`, `content_sha256`, any file name or path, dates of individual bookings, or the names of unknown input fields. Group labels that come from the data (for example a country or market segment value) are included as JSON string values, cut to 60 characters, and the instruction tells the model to treat the block as data, not instructions. A scanner test builds the prompt of every analysis from fixtures that contain marker booking identifiers, file names and paths, and fails if any marker or any key of a raw record appears in any prompt (the check named in [PP-001], implemented in MIL-011).
+**What is sent.** The prompt for one analysis contains the fixed instruction text and one JSON block with: the analysis name, that analysis's `findings` exactly as in the result ([ADR-0002]), and the data-quality counts (record count, duplicate booking ID count, zero-price count, and missing and invalid counts per field). It never contains a raw booking record, a booking identifier, the input `reference`, `content_sha256`, any file name or path, the date of an individual booking, or the names of unknown input fields. Counts by period (a month or an ISO week) and the data coverage dates of the data-quality counts (earliest and latest booking and arrival date) are findings, not individual bookings, and are allowed. Group labels that come from the data (for example a country or market segment value) are included as JSON string values, cut to 60 characters, and the instruction tells the model to treat the block as data, not instructions. A scanner test builds the prompt of every analysis from fixtures that contain marker booking identifiers, file names and paths, and fails if any marker or any key of a raw record appears in any prompt (the check named in [PP-001], implemented in MIL-011). The scanner also enforces these rules: the prompt contains no booking identifier and no per-booking record (no object with a booking-level key such as a booking ID, a single booking date or an arrival date next to a price or guest count), and no group with fewer bookings than `min_group_size` ([ADR-0004]) is labelled by a single date, because such a group could identify one booking.
 
-**How it is asked.** One request per available analysis, sequential, in English, regenerated on every run and never cached (OI-19 assumed). The instruction text is a fixed template with a `prompt_version` (first value `"1"`); any change to the template raises it, and it is stored with each insight. The template states the required structure, asks for hypothesis wording, and lists the forbidden words. Model, provider, timeout and temperature come from [ADR-0009] and [ADR-0012]; the temperature is 0, which reduces but does not remove differences between runs.
+**How it is asked.** One request per available analysis, sequential, in English, regenerated on every run and never cached (OI-19 assumed). The instruction text is a fixed template with a `prompt_version` (first value `"1"`); any change to the template raises it, and it is stored once per run, in the result-level `insights` object ([ADR-0011]), not in each insight. The template states the required structure, asks for hypothesis wording, and lists the forbidden words. Model, provider, deadline and temperature come from [ADR-0009] and [ADR-0012]; the temperature is 0, which reduces but does not remove differences between runs.
 
 **Required answer.** A JSON object (a single surrounding Markdown code fence is tolerated and removed) with:
 
@@ -49,28 +50,30 @@ Other keys are dropped and never stored.
 | 2 | Any word of the forbidden causal list of [ADR-0007] ("caused", "because", "due to", "effect of", "leads to", "drives") in the summary, a suggestion or its evidence, using the same definition (`FORBIDDEN_WORDS` in `domain/wording`), compared ignoring case | `GUARDRAIL_REJECTED` |
 | 3 | A promise or forecast of earnings: "will increase", "will grow", "will raise", "will boost", "guarantee", "ensure", "certainly", "definitely", "forecast", "predict", including their inflections, ignoring case | `GUARDRAIL_REJECTED` |
 | 4 | A percentage or a currency amount (a number with `%` or the word percent, or with a currency symbol or code) that does not appear in the findings sent for that analysis; an invented figure is rejected even when it looks harmless | `GUARDRAIL_REJECTED` |
-| 5 | A suggestion whose `sample_size` is not one of the whole numbers that appear in the findings sent (a numerator, a denominator or the record count) | `GUARDRAIL_REJECTED` |
+| 5 | A suggestion whose `sample_size` is not a sample size present in the findings sent. The sample sizes are exactly the values of the fields named `numerator`, `denominator` and `records_used`, and a day count present in the findings (a field whose name ends in `_days`); the record count of the data-quality counts also counts. Medians, means, rates and other computed figures are not sample sizes | `GUARDRAIL_REJECTED` |
 | 6 | A suggestion with a `sample_size` below the configured `min_group_size` ([ADR-0004]) whose `evidence` does not contain the words "small sample" | `GUARDRAIL_REJECTED` |
 | 7 | A suggestion without hypothesis wording: none of the words "may", "might", "could", "suggests", "consider testing" in its `suggestion` | `GUARDRAIL_REJECTED` |
 
 The validator is deterministic code in the `domain` layer that needs no model; the word lists and limits are constants that a test pins.
 
-**Label.** Every insight that is available carries the label `AI-generated`, the provider, the model, the `prompt_version` and the generation time ([ADR-0011]). The analysis's own findings never contain AI text.
+**Label.** Every insight that is available carries the label `AI-generated`, the provider, the model and the generation time ([ADR-0011]). The `prompt_version` is not part of the per-insight label: it is one value for the run, in the result-level `insights` object ([ADR-0011]). The analysis's own findings never contain AI text.
+
+**An analysis available for only some years.** Its findings already list the years that were left out (for example a year with no data), and the prompt includes that list, because the prompt carries the findings exactly as they are. The insight must not claim more than the findings do (no statement about a year listed as left out); the validator cannot check this, so the instruction text says so and it stays part of the residual risk. Such an analysis is `available`, so it gets an insight; only an analysis that is `unavailable` as a whole is `not_applicable`.
 
 **Failure semantics.** Each analysis's insight ends in exactly one state:
 
 | Status | Reason code | When |
 | --- | --- | --- |
 | `available` | none | the answer passed the validator |
-| `unavailable` | `NO_PROVIDER` | no reachable provider ([ADR-0009]); no model was contacted |
-| `unavailable` | `NO_MODEL` | a reachable provider with no usable model ([ADR-0009]); no model was contacted |
-| `unavailable` | `TIMEOUT` | no answer within `llm.generation_timeout_seconds`; not retried |
+| `unavailable` | `NO_PROVIDER` | no provider can be reached ([ADR-0009]); no model was contacted |
+| `unavailable` | `NO_MODEL` | a provider is reachable but the configured or automatic model is not offered ([ADR-0009]); no model was contacted |
+| `unavailable` | `TIMEOUT` | no complete answer within the total deadline `llm.generation_timeout_seconds` ([ADR-0009]); not retried |
 | `unavailable` | `MODEL_ERROR` | a refused connection, an error status or an unusable response during generation; not retried |
 | `unavailable` | `BAD_STRUCTURE` | rule 1 of the validator |
 | `unavailable` | `GUARDRAIL_REJECTED` | rules 2 to 7 of the validator |
 | `not_applicable` | none | the analysis itself is unavailable; no request is made and nothing is invented |
 
-A failure of one insight does not affect another analysis's insight (the next analysis is still tried after a timeout). A failure never changes an analysis, never makes the run fail, never changes the exit code ([ADR-0008]) and never delays delivery beyond the configured timeouts. A completed analysis whose available analyses have unavailable insights is reported with the result status `completed_with_warnings` ([ADR-0011]); it is still stored and returned like any completed result ([ADR-0005]).
+A failure of one insight does not affect another analysis's insight (the next analysis is still tried after a timeout). A failure never changes an analysis, never makes the run fail, never changes the exit code ([ADR-0008]) and never delays delivery beyond the configured deadlines. A completed analysis whose available analyses have unavailable insights is reported with the result status `completed_with_warnings` ([ADR-0011]); it is still stored and returned like any completed result ([ADR-0005]).
 
 **Relation to [ADR-0007].** [ADR-0007] stays unchanged and governs the findings: fixed association templates, checked by its own test. AI text is not built from templates and is kept apart from the findings as a labeled insight; the causal-word ban is extended to it through the same word list, so the two rules cannot drift.
 
@@ -85,7 +88,7 @@ A failure of one insight does not affect another analysis's insight (the next an
 - Only aggregate findings leave the analysis, and a test can prove it for every prompt.
 - The failure behavior is complete and bounded: six failure reasons and one not-applicable state, each a defined state, none touching the analysis.
 - The validator is deterministic and testable without a model; wrong-form answers never reach the caller or the history.
-- Every insight is traceable to provider, model and prompt version, and each suggestion shows the sample size behind it.
+- Every insight is traceable to provider and model, and the run to its prompt version, and each suggestion shows the sample size behind it.
 
 **Negative:**
 

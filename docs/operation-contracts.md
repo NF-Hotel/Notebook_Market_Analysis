@@ -16,10 +16,11 @@
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
-One contract per system operation (message) of [SSD-001]: one for [UC-001] and three for [UC-002]. The contracts describe the built system. Preconditions and postconditions use the concept names of [DM-001] (Booking Submission, Booking Record, Data Quality Summary, Analysis, Analysis Result, Result History, Retention Policy); they state what is true, not how it is achieved. Where the built behavior differs from an earlier decision, the difference is listed in the section **As-Built Deviations** at the end.
+One contract per system operation (message) of [SSD-001]: the built system has one for [UC-001] and three for [UC-002]; the Designed Additions at the end add one contract each for [UC-003] and [UC-004], and one change block each for `analyzeBookings` ([UC-005]) and `selectResult` (the insight display of [UC-002]), so the design has six contracts in all: the built four, of which two are changed, and two new ones (`getHolidayCalendar`, `getLlmProviders`). The built contracts describe the built system. Preconditions and postconditions use the concept names of [DM-001] (Booking Submission, Booking Record, Data Quality Summary, Analysis, Analysis Result, Result History, Retention Policy); they state what is true, not how it is achieved. Where the built behavior differs from an earlier decision, the difference is listed in the section **As-Built Deviations** at the end.
 
 **Scope note (MIL-009, 2026-09-30).** Everything above the heading **Designed Additions (MIL-009, not yet built)** at the end of this document describes the built system and is unchanged. That last part is a design made before the code: the contracts of `getHolidayCalendar` and `getLlmProviders`, the Designed change to `analyzeBookings` (the insights) and the Designed change to `selectResult` (the insight display). They are implemented in MIL-010 and MIL-011.
 
@@ -162,7 +163,7 @@ The three operations of [UC-002] read only. Each postcondition states that the R
 
 Update 2026-09-30: UC-001 now states AD-1 and OD-1; AD-2 is amended in ADR-0005 and AD-3 in ADR-0003. The contracts are unchanged.
 
-The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones that change a contract are repeated here. Each was raised as an open issue in the project plan (OI-21 to OI-27) through the MIL-007 review; AD-1 and OD-1 are resolved in UC-001, AD-2 in ADR-0005, AD-3 in ADR-0003, and OD-2 stays with the DM-001 revision of MIL-009 task 1 (OI-25).
+The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones that change a contract are repeated here. Each was raised as an open issue in the project plan (OI-21 to OI-27) through the MIL-007 review; AD-1 and OD-1 are resolved in UC-001, AD-2 in ADR-0005, AD-3 in ADR-0003, and OD-2 is resolved by the DM-001 revision of MIL-009 task 1 (OI-25): the Analysis Result holds a copy of the input description and the association was removed.
 
 | ID | Earlier decision | As built | Effect on the contracts |
 | --- | --- | --- | --- |
@@ -174,7 +175,7 @@ The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones t
 
 ## Designed Additions (MIL-009, not yet built)
 
-Design made before the code (gateway MIL-009, task 8). The contracts above describe the built system and stay true. This part adds the contracts of the system operations that [SSD-001] designs for [UC-003], [UC-004] and [UC-005] and the revised return of `selectResult` for [UC-002]; they are implemented in MIL-010 and MIL-011 and are marked `Designed` in every heading. They use the concept names of the revised [DM-001] (Language Model Provider, Provider Status, Language Model, AI Insight, Executive Summary, Improvement Suggestion, Holiday Calendar Listing, Holiday Calendar Year, Holiday) besides the built ones. The reason codes are those of [ADR-0009], [ADR-0010] and [ADR-0011].
+Design made before the code (gateway MIL-009, task 8). The contracts above describe the built system and stay true. This part adds the contracts of the system operations that [SSD-001] designs for [UC-003], [UC-004] and [UC-005] and the revised return of `selectResult` for [UC-002]; they are implemented in MIL-010 and MIL-011 and are marked `Designed` in every heading. They use the concept names of the revised [DM-001] (Language Model Provider, Provider Status, Language Model, AI Insight, Executive Summary, Improvement Suggestion, Holiday Calendar Listing, Holiday Calendar Year, Holiday, LLM Provider Listing, Notice) besides the built ones. The reason codes are those of [ADR-0009], [ADR-0010] and [ADR-0011].
 
 One contract per operation, traced to its SSD messages:
 
@@ -193,15 +194,15 @@ The operations are realized in the code by the planned use cases `ListHolidays.r
 
 | Item | Value |
 | --- | --- |
-| Operation | `getHolidayCalendar(years: str \| None, configFile: Path \| None): (listingJson: str, exitCode: int)` where `exitCode` is 0, 2 or 4 and `listingJson` is a holiday listing (exit code 0), a failed listing (exit code 2), or absent (exit code 4) |
+| Operation | `getHolidayCalendar(years: str \| None, configFile: Path \| None): (holidayListingJson: str, exitCode: int)` where `exitCode` is 0, 2 or 4 and `holidayListingJson` is a holiday listing (exit code 0), a failed listing (exit code 2), or absent (exit code 4) |
 | Traces to | UC-003 message 1 (`getHolidayCalendar`) in [SSD-001], diagrams 3.1 to 3.4 |
-| Domain Model concepts | Holiday Calendar Listing, Holiday Calendar Year, Holiday; associations covers, lists ([DM-001]). Analysis Result, Analysis and Result History are named only to state that they are unchanged |
+| Domain Model concepts | Holiday Calendar Listing, Holiday Calendar Year, Holiday, Notice; associations covers, lists, carries ([DM-001]). Analysis Result, Analysis and Result History are named only to state that they are unchanged |
 
 **Preconditions**
 
 - `years` is absent, or is a single year (`2025`), a range of years (`2024-2026`, the first year not after the last) or a comma list of single years (`2024,2026`), with every year a whole number from 1900 to 2100 and at most 30 different years ([ADR-0011]).
-- The configuration is valid: when a configuration file exists it is valid TOML and every value, including the `[llm]` values, is valid; when none exists the defaults apply. `holidays` uses no configuration value, but an invalid file is reported in every command ([ADR-0011], [ADR-0012]).
-- The Cambodian holiday calendar source can be read.
+- The configuration is valid: when a configuration file exists it is valid TOML; when none exists the defaults apply. `holidays` uses no configuration value and validates only that the file parses as TOML; the `[llm]` values are validated only by `llm-providers` and `analyze --insights` ([ADR-0011], [ADR-0012]).
+- The Cambodian holiday calendar source (the `holidays` package for `KH`) can be read. A year that the source does not support is not a failure of this precondition; see the exceptions.
 - Standard output of the process can be written.
 
 **Postconditions**
@@ -221,8 +222,8 @@ Main success (exit code 0):
 | Condition (failing precondition) | Outcome |
 | --- | --- |
 | `years` is empty, not a number, outside 1900 to 2100, a reversed range, a range inside a list, or names more than 30 years; error code `INVALID_YEARS` | No Holiday Calendar Listing was created; the Calling system received a failed listing (status failed, the error code and a message that names the problem, no years) on standard output and exit code 2; the Result History is unchanged |
-| The configuration file cannot be read or parsed, or a configuration value is invalid; error code `CONFIGURATION_ERROR` naming the key | As above: failed listing, exit code 2 |
-| The calendar source returns no Holiday for a requested year | Not a failure: that Holiday Calendar Year is unavailable with `NO_CALENDAR_DATA` (diagram 3.2); exit code 0 |
+| The configuration file cannot be read or parsed; error code `CONFIGURATION_ERROR` (the `[llm]` values are not validated by this operation) | As above: failed listing, exit code 2 |
+| The calendar source returns no Holiday for a requested year, including a year it does not support (the `holidays` package returns no holidays for an unsupported year instead of failing) | Not a failure: that Holiday Calendar Year is unavailable with `NO_CALENDAR_DATA` and lists no Holiday (diagram 3.2); the other years are unaffected; exit code 0 |
 | Standard output cannot be written | Nothing was stored; the Calling system received no document; the message on standard error names the delivery error; exit code 4; a retry has no side effect |
 
 ## UC-004 Get Available LLM Providers (Designed)
@@ -231,13 +232,13 @@ Main success (exit code 0):
 
 | Item | Value |
 | --- | --- |
-| Operation | `getLlmProviders(configFile: Path \| None): (listingJson: str, exitCode: int)` where `exitCode` is 0, 2 or 4 and `listingJson` is a provider listing (exit code 0), a failed listing (exit code 2), or absent (exit code 4) |
+| Operation | `getLlmProviders(configFile: Path \| None): (providerListingJson: str, exitCode: int)` where `exitCode` is 0, 2 or 4 and `providerListingJson` is a provider listing (exit code 0), a failed listing (exit code 2), or absent (exit code 4) |
 | Traces to | UC-004 message 1 (`getLlmProviders`) in [SSD-001], diagrams 4.1 to 4.4 |
-| Domain Model concepts | Language Model Provider, Provider Status, Language Model; associations reports, is offered by ([DM-001]). The provider listing is an answer to a request and has no concept of its own in [DM-001] |
+| Domain Model concepts | LLM Provider Listing, Language Model Provider, Provider Status, Language Model, Notice; associations covers, reports, is offered by, carries ([DM-001]). The listing is an answer to a request and is not stored |
 
 **Preconditions**
 
-- The configuration is valid: when a configuration file exists it is valid TOML and every value is valid, that is the two provider addresses have the scheme `http` or `https` and a host that is a loopback host (`localhost`, `127.0.0.1`, `::1`) unless `llm.allow_remote` is true, the timeouts are numbers greater than 0, and the other `[llm]` values are valid ([ADR-0009], [ADR-0012]); when none exists the defaults apply (Ollama at `http://localhost:11434`, LM Studio at `http://localhost:1234`, discovery timeout 2 seconds).
+- The configuration is valid: when a configuration file exists it is valid TOML and every value is valid, that is the two provider addresses have the scheme `http` or `https` and a parsed host name that is a loopback host (`localhost`, `127.0.0.1`, `::1`) unless `llm.allow_remote` is true, the timeouts are numbers greater than 0, and the other `[llm]` values are valid ([ADR-0009], [ADR-0012]); when none exists the defaults apply (Ollama at `http://localhost:11434`, LM Studio at `http://localhost:1234`, discovery timeout 2 seconds).
 - Standard output of the process can be written.
 - No provider needs to be running: reachability is what the operation reports, not a precondition.
 
@@ -245,8 +246,9 @@ Main success (exit code 0):
 
 Main success (exit code 0):
 
+- One LLM Provider Listing instance was created with the generated time and associated (covers, reports) with the Language Model Provider and Provider Status instances below.
 - One Language Model Provider instance was created for each of the two supported providers, `ollama` then `lmstudio`, each with its name and its configured address.
-- Each Language Model Provider was associated (reports) with one Provider Status instance. A provider that answered the check within the discovery timeout has reachable set to true, and each model it lists is a Language Model instance associated with it (is offered by); a provider that listed none is reachable with no Language Model. A provider that did not answer has reachable set to false and reason set to one of `CONNECTION_REFUSED`, `TIMEOUT`, `UNEXPECTED_ANSWER` or `NETWORK_ERROR`, and has no Language Model.
+- Each Language Model Provider was associated (reports) with one Provider Status instance. A provider that answered the check within the discovery deadline has reachable set to true, and each model it lists is a Language Model instance associated with it (is offered by); a provider that listed none is reachable with no Language Model. A provider that did not answer has reachable set to false and reason set to one of `CONNECTION_REFUSED`, `TIMEOUT`, `UNEXPECTED_ANSWER` or `NETWORK_ERROR`, and has no Language Model.
 - When no Provider Status is reachable the provider listing carries the notice `NO_PROVIDER_REACHABLE`; the operation still succeeds.
 - No model was asked to generate text, no Booking Record or other booking data was sent to any provider, and no Booking Submission, Analysis, Analysis Result or AI Insight instance was created; the Result History is unchanged and the provider listing was not associated with it.
 - The Calling system received the serialized provider listing on standard output, naming only providers and models, and the exit code 0.
@@ -256,7 +258,7 @@ Main success (exit code 0):
 | Condition (failing precondition) | Outcome |
 | --- | --- |
 | The configuration file cannot be read or parsed, or a value is invalid, including a provider address whose host is not a loopback host while `llm.allow_remote` is false; error code `CONFIGURATION_ERROR` naming the key (for example `llm.ollama_url`) | No provider was contacted and no instance was created; the Calling system received a failed listing (status failed, the error, no providers) on standard output and exit code 2; the Result History is unchanged |
-| A provider is not running, does not answer within the discovery timeout, answers with an error status or an unexpected body, or cannot be connected to | Not a failure: its Provider Status is unreachable with the reason (diagrams 4.1 and 4.2); the other provider is still checked; exit code 0 |
+| A provider is not running, does not answer completely within the discovery deadline, answers with an error status or an unexpected body, or cannot be connected to | Not a failure: its Provider Status is unreachable with the reason (diagrams 4.1 and 4.2); the other provider is still checked; exit code 0 |
 | Standard output cannot be written | Nothing was stored; the Calling system received no document; the message on standard error names the delivery error; exit code 4 |
 
 ## UC-005 Get AI Insights for Analyses (Designed)
@@ -273,7 +275,7 @@ UC-005 message 1 is UC-001 message 1 with the argument `insights`; the contract 
 
 **Added preconditions** (all of the built preconditions still apply)
 
-- The `[llm]` configuration values are valid (the same rules as for `getLlmProviders`); when `insights` is false they are validated but not used ([ADR-0012]).
+- When `insights` is true, the `[llm]` configuration values are valid (the same rules as for `getLlmProviders`); when `insights` is false they are neither validated nor used ([ADR-0012]).
 - A language model provider need not be reachable: the absence of one is an exception with a defined outcome, not a failed precondition of the operation.
 
 **Added postconditions**
@@ -284,9 +286,9 @@ Insights requested (`insights` true) and the Analysis Result completed (exit cod
 
 - One AI Insight instance was created for each Analysis of the Analysis Result and associated with it (has); the Analysis instances and their findings are identical to those of a run without insights.
 - An AI Insight has exactly one status. It is available when the answer of the language model passed the checks of [ADR-0010]; unavailable with a reason (`NO_PROVIDER`, `NO_MODEL`, `TIMEOUT`, `MODEL_ERROR`, `BAD_STRUCTURE` or `GUARDRAIL_REJECTED`) when it could not be produced or the answer was rejected; not applicable when its Analysis is unavailable.
-- An available AI Insight has its label set to AI-generated, its generated time and the prompt version set, an Executive Summary instance associated with it (contains) and one to five Improvement Suggestion instances associated with it (contains), and is associated with the Language Model that produced it (is produced by; the Analysis Result keeps the provider name and the model name as text).
+- An available AI Insight has its label set to AI-generated, its generated time set, an Executive Summary instance associated with it (contains) and one to five Improvement Suggestion instances associated with it (contains), and is associated with the Language Model that produced it (is produced by; the Analysis Result keeps the provider name and the model name as text).
 - Each Improvement Suggestion has text worded as a hypothesis, evidence, and a sample size that is a whole number of at least 1 which appears in the findings of the Analysis; no Executive Summary or Improvement Suggestion contains a causal word of [ADR-0007], a promise or forecast of earnings, or a percentage or amount that is not in the findings; a suggestion whose sample size is below the minimum group size says that it rests on a small sample.
-- An AI Insight that is unavailable or not applicable has no label, no Executive Summary and no Improvement Suggestion, and no text of a failed or rejected answer was kept anywhere.
+- An AI Insight that is unavailable or not applicable has no label, no Executive Summary and no Improvement Suggestion, and no text of a failed or rejected answer was kept anywhere. An unavailable AI Insight after an attempt (`TIMEOUT`, `MODEL_ERROR`, `BAD_STRUCTURE`, `GUARDRAIL_REJECTED`) keeps the provider name and model name that were tried ([ADR-0011]); with `NO_PROVIDER` or `NO_MODEL` it has the provider and model that were selected, or none, and a not applicable one has neither.
 - No Booking Record, no booking identifier, no input reference or fingerprint, no file name or path, and no date of an individual booking was sent to any language model; only the findings of the Analysis and the data-quality counts were.
 - The Analysis Result has format version 1.1 and holds insights information (requested true, the provider and the model selected or absent when none was selected, and the prompt version).
 - When an AI Insight of an available Analysis is unavailable, the Analysis Result has status `completed_with_warnings` and carries the notice `INSIGHTS_UNAVAILABLE` giving the number of such insights; it is still associated with the Result History (retains) and delivered like any completed result, and the exit code is unchanged.
@@ -296,13 +298,13 @@ Insights requested (`insights` true) and the Analysis Result completed (exit cod
 | Condition (failing or unmet condition) | Outcome |
 | --- | --- |
 | No provider of the two is reachable, or the provider named by `llm.provider` is not reachable | No provider was asked to generate text; every available Analysis has an AI Insight unavailable with reason `NO_PROVIDER`; the result is delivered as above; exit code 0 (diagram 5.2) |
-| A reachable provider lists no model, or does not list the model named by `llm.model` | As above with reason `NO_MODEL` |
-| The language model does not answer within `llm.generation_timeout_seconds` | The AI Insight of that Analysis is unavailable with reason `TIMEOUT`; no retry; the next Analysis is still tried (diagram 5.3) |
+| A provider is reachable but the configured or automatic model is not offered (it lists no model, or does not list the model named by `llm.model`) | As above with reason `NO_MODEL` |
+| The language model does not finish its answer within the total deadline `llm.generation_timeout_seconds` ([ADR-0009]) | The AI Insight of that Analysis is unavailable with reason `TIMEOUT`; no retry; the next Analysis is still tried (diagram 5.3) |
 | The connection is refused, or the provider answers with an error status or a body that cannot be used | The AI Insight of that Analysis is unavailable with reason `MODEL_ERROR`; no retry |
 | The answer is empty, is not JSON, lacks a required key, has a wrong type or exceeds a limit of [ADR-0010] | The AI Insight of that Analysis is unavailable with reason `BAD_STRUCTURE`; the text is dropped (diagram 5.4) |
 | The answer fails a guardrail (causal word, promise of earnings, invented figure, sample size not in the findings, small sample not stated, no hypothesis wording) | The AI Insight of that Analysis is unavailable with reason `GUARDRAIL_REJECTED`; the text is dropped |
 | An Analysis is unavailable | Not a failure: its AI Insight is not applicable; no request was made |
-| An `[llm]` configuration value is invalid | As the built exception for a configuration error: a `failed` Analysis Result with `CONFIGURATION_ERROR` and format version 1.0 without insights, Result History unchanged, exit code 2; no provider was contacted |
+| An `[llm]` configuration value is invalid and `insights` is true | As the built exception for a configuration error: a `failed` Analysis Result with `CONFIGURATION_ERROR` and format version 1.0 without insights, Result History unchanged, exit code 2; no provider was contacted |
 | The Result History cannot be extended, retention fails, or standard output cannot be written | As the built exception rows (exit codes 3 and 4); the insights are part of the retained Analysis Result |
 
 ## UC-002 Review Analysis History: insights (Designed)

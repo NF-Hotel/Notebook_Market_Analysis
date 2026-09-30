@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -23,7 +24,7 @@ Scope: Hotel Booking Analysis (the system). Level: user-goal. Primary Actor: Cal
 
 The Calling system asks the application which language-model (LLM) providers it can reach, and gets the answer as JSON. The providers are Ollama and LM Studio. No booking records are supplied, no analysis runs and nothing is written to the history: this use case is independent of Analyze Hotel Bookings and Review Analysis History.
 
-For each configured provider the system makes a quick, read-only check within a time limit. The addresses of the providers come from configuration; their defaults are fixed later in the design gateway (ADR-0009 and ADR-0012, planned). The answer lists every configured provider with whether it is reachable, the reason when it is not (for example not running or timed out), and, for a reachable provider, the models it offers. A provider that is not reachable is a normal entry in the answer, not an error: the request still succeeds. Which model is chosen when a provider offers several is not part of this use case (open issue OI-13 in [PP-001], owner S01).
+For each configured provider the system makes a quick, read-only check within a time limit. The addresses of the providers come from configuration; their defaults are fixed later in the design gateway (ADR-0009 and ADR-0012, planned). The answer lists every configured provider with its name and address, whether it is reachable, the reason when it is not (for example not running or timed out), and, for a reachable provider, the models it offers. A provider that is not reachable is a normal entry in the answer, not an error: the request still succeeds. Which model is chosen when a provider offers several is not part of this use case (open issue OI-13 in [PP-001], owner S01).
 
 If the configuration is invalid, the system returns a failed answer that names the problem and does not guess. If the answer cannot be returned to the Calling system, the system reports the failure and does not report success; nothing was stored, so a retry has no side effect.
 

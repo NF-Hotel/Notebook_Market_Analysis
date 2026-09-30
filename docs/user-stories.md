@@ -14,6 +14,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -225,7 +226,7 @@ Stories for the epic in [MIL-002]: analyze hotel bookings supplied as JSON by th
 
 - Given insights are requested and a provider is reachable, when the analysis completes, then each available analysis in the result has improvement suggestions, each labeled AI-generated with the model and provider.
 - Given a suggestion, then it is worded as a hypothesis to test (for example "could be tested"), names the observed association it rests on and the sample sizes (counts) behind it, and carries over a small-sample flag from the analysis.
-- Given a suggestion, then it does not state a cause, does not forecast, and does not promise or quantify earnings, and none of the words "caused", "because", "due to", "effect of", "leads to" or "drives" appears in it.
+- Given a suggestion, then it does not state a cause, does not forecast or promise earnings (any figure it quotes comes from the findings), and none of the words "caused", "because", "due to", "effect of", "leads to" or "drives" appears in it.
 - Given an answer contains a suggestion without a sample size, a causal statement or a promised earning, when the answer is checked, then that answer is rejected and none of its text appears in the result.
 - Given only aggregate findings are used, then no raw booking record and no booking identifier appears in any prompt.
 - Given no provider is reachable, or the model fails, times out or gives an unsuitable answer, when insights are requested, then the affected analyses have no suggestions and state the reason, and the analysis result stays valid, returned and saved.

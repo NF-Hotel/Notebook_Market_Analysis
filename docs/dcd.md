@@ -15,6 +15,7 @@
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -1406,7 +1407,7 @@ The script `verify_dcd.py` (a throw-away check that is not committed to the repo
 | Classes, ports and enumerations drawn per layer (domain, application, adapters, infrastructure, interface) | domain 29, application 18, adapters 11, infrastructure 6, interface 22, total 86 |
 | Module boxes (`<<module>>`) per layer | domain 4, application 3, adapters 0, infrastructure 4, interface 14, total 25 |
 | Domain classes in `src/hotel_booking_analysis/domain` versus drawn | 29 in src, 29 drawn, 0 missing, 0 not in src |
-| Drawn class exists in `src/` under the same name and layer | all 87 found, 0 mismatches |
+| Drawn class exists in `src/` under the same name and layer | all 86 found, 0 mismatches |
 | Drawn module exists as `<layer>/<name>.py` | all 25 found, 0 mismatches |
 | Attributes and operations drawn (members checked against the class body or module functions) | 429 checked, 0 mismatches |
 | Relationship end names that are not declared in any diagram | 1 (the built-in `Exception` only); every other referenced class is declared, and found in `src/`, in the diagram of its own layer |
@@ -1417,9 +1418,9 @@ The script `verify_dcd.py` (a throw-away check that is not committed to the repo
 
 Update 2026-09-30: after the removal of the unused definitions (DD-3) the counts were recomputed with `ast` over `src/`: 29 domain classes, all drawn; the members drawn fell by seven (`HolidayWindow` with two attributes, `DayClass.in_window`, `ValidatedBookings.availability_of`, `analysis_rules.lead_time_band`, `stay_bucket` and `capped_label`), giving 429.
 
-Mermaid check: every `mermaid` block of this document and of [SD-001] was parsed and rendered with Mermaid 11 in a browser without error.
+Mermaid check: every `mermaid` block of the built parts of this document and of the built blocks of [SD-001] (above their headings Designed Additions) was parsed and rendered with Mermaid 11 in a browser without error. The Mermaid blocks of the designed parts of both documents (below those headings) had their structure checked with a script (balanced `alt`, `opt`, `loop` and `end`, balanced `activate` and `deactivate`, every class name declared once); their rendering is not verified.
 
-**Update 2026-09-30 (MIL-009): the split between built and designed parts.** The table and the counts above cover the **built parts only**, that is every diagram, table and note above the heading **Designed Additions (MIL-009, not yet built)**. The check was repeated with an equivalent `ast` script on the version of this document you are reading, restricted to the text before that heading: 10 Mermaid blocks (the package overview excluded), classes drawn per layer domain 29, application 18, adapters 11, infrastructure 6, interface 22 (total 86), module boxes domain 4, application 3, infrastructure 4, interface 14 (total 25), 429 attributes and operations checked, 0 mismatches, 0 public classes of `src/` not drawn. The import-linter run of the Dependency Check was repeated as well and gave the same result (6 contracts kept, 0 broken; 83 files, 326 dependencies). The designed part contains **38 planned classes and 7 planned modules** that are not in `src/`; they are listed in the section Excluded from the mechanical check and will be checked by the same script when they are built. The Mermaid blocks of the designed part are marked `<<planned>>` and are not counted above.
+**Update 2026-09-30 (MIL-009): the split between built and designed parts.** The table and the counts above cover the **built parts only**, that is every diagram, table and note above the heading **Designed Additions (MIL-009, not yet built)**. The check was repeated with an equivalent `ast` script on the version of this document you are reading, restricted to the text before that heading: 10 Mermaid blocks (the package overview excluded), classes drawn per layer domain 29, application 18, adapters 11, infrastructure 6, interface 22 (total 86), module boxes domain 4, application 3, infrastructure 4, interface 14 (total 25), 429 attributes and operations checked, 0 mismatches, 0 public classes of `src/` not drawn. The import-linter run of the Dependency Check was repeated as well and gave the same result (6 contracts kept, 0 broken; 83 files, 326 dependencies). The designed part contains **38 planned classes and 7 planned modules** that are not in `src/`; they are listed in the section Excluded from the mechanical check and will be checked by the same script when they are built. The Mermaid blocks of the designed part are marked `<<planned>>` and are not counted above; their rendering is not verified (see the Mermaid check above).
 
 ## As-Built Deviations
 
@@ -1444,7 +1445,7 @@ Design made before the code (gateway MIL-009, task 10). Everything above this he
 
 ### Purpose and scope of the designed part
 
-The designed classes realize the sequence diagrams of [SD-001] (Designed Additions, blocks 3.0 to 5.2 and 2.4), which realize the contracts of [OC-001] (Designed Additions) for the system operations of [SSD-001] (UC-003 message 1, UC-004 message 1, UC-005 message 1, and the revised return of UC-002 message 2). They refine the concepts added to [DM-001] on 2026-09-30 (AI Insight, Executive Summary, Improvement Suggestion, Language Model Provider, Provider Status, Language Model, Holiday Calendar Listing, Holiday Calendar Year) and follow [ADR-0008] to [ADR-0012] and the layers of [ADR-0006] (as amended). The designed part adds **38 planned classes** and **7 planned modules**, and lists the **Designed changes** to built elements.
+The designed classes realize the sequence diagrams of [SD-001] (Designed Additions, blocks 3.0 to 5.2 and 2.4), which realize the contracts of [OC-001] (Designed Additions) for the system operations of [SSD-001] (UC-003 message 1, UC-004 message 1, UC-005 message 1, and the revised return of UC-002 message 2). They refine the concepts added to [DM-001] on 2026-09-30 (AI Insight, Executive Summary, Improvement Suggestion, Language Model Provider, Provider Status, Language Model, LLM Provider Listing, Notice, Holiday Calendar Listing, Holiday Calendar Year) and follow [ADR-0008] to [ADR-0012] and the layers of [ADR-0006] (as amended). The designed part adds **38 planned classes** and **7 planned modules**, and lists the **Designed changes** to built elements.
 
 Conventions of this part:
 
@@ -1547,7 +1548,7 @@ classDiagram
 
 ### Domain layer (planned), part 2: providers, models and listings
 
-The Language Model Provider concepts of [UC-004] and the two listings. `ProviderListing` has no concept of its own in [DM-001] (it is an answer, like the built `DayClass` is a design value object); see Design Note DN-2.
+The Language Model Provider concepts of [UC-004] and the two listings. `ProviderListing` is the design class of the concept LLM Provider Listing in [DM-001] (an answer, like `HolidayCalendarListing`); see Design Note DN-2.
 
 ```mermaid
 classDiagram
@@ -1779,7 +1780,7 @@ classDiagram
     GenerateInsights ..> insight_validation : calls validate_answer
     ListingOutcome "1" --> "1" RunStatus : status
     InsightBatch "1" --> "1" InsightsMetadata : metadata
-    InsightBatch "1" *-- "0..6" AiInsight : insights, one per Analysis
+    InsightBatch "1" o-- "0..6" AiInsight : insights, one per Analysis, owned by the Analysis after attachment
     LlmConfiguration "1" --> "0..1" ProviderName : provider
 ```
 
@@ -1963,7 +1964,7 @@ classDiagram
 | `AnalyzeBookings` (application) | New optional attribute `insight_generator : GenerateInsights \| None = None`; `run(input_path, config_path, insights: bool = False)`; new private step `_assemble_with_insights(validated: ValidatedBookings, notices: tuple[Notice, ...], result_id: str, generated_at: datetime, configuration: AppConfiguration) -> AnalysisResult`, used only when `insights` is true and a generator is present; when `insights` is false the built path is unchanged | `analyzeBookings` (Designed change) / SD 5.1 messages 1 to 4 and 24 |
 | `build_result` (application module) | New function `assemble_result(validated, config_notices, result_id, generated_at, analyses, analysis_notices, insights: InsightBatch \| None = None) -> AnalysisResult` (the second half of `build_result`, now public) and a private `_insight_notices(batch: InsightBatch) -> tuple[Notice, ...]` (the notice `INSIGHTS_UNAVAILABLE`); `build_result` calls `run_analyses` and then `assemble_result` and behaves as built | `analyzeBookings` (Designed change) / SD 5.1 messages 24 and 25, SD 5.2 messages 22 to 25 |
 | `HolidayCalendar` (application port) and `KhmerHolidayCalendar` (adapters) | New operation `source() -> str` (the calendar source and its version, for the notice `CALENDAR_SOURCE`) | `getHolidayCalendar` / SD 3.1 messages 14 and 15 |
-| `TomlConfigurationLoader` (adapters) | Reads and validates the `[llm]` table (loopback rule, ranges, unknown keys as `llm.<key>`); new private `_llm_section(data: Mapping[str, object]) -> LlmConfiguration` | `getLlmProviders`, `getHolidayCalendar`, `analyzeBookings` / SD 4.1 message 4, SD 3.1 message 4, SD 4.2 message 4 |
+| `ConfigurationLoader` (application port) and `TomlConfigurationLoader` (adapters) | `load(explicit_path: Path \| None, with_llm: bool = False) -> LoadedConfiguration`: the new optional parameter is true for `llm-providers` and for `analyze --insights`. Only then is the `[llm]` table read and validated (loopback rule, ranges; unknown keys as `llm.<key>`) by the new private `_llm_section(data: Mapping[str, object]) -> LlmConfiguration`; otherwise the file is only parsed and `AppConfiguration.llm` holds the defaults ([ADR-0012]) | `getLlmProviders` / SD 4.1 messages 3 and 4, SD 4.2 messages 3 and 4; `analyzeBookings` / block 1.1 message 2 with `with_llm = insights` (SD 5.1 note); `getHolidayCalendar` / SD 3.1 message 3 (default false) |
 | `JsonResultSerializer` (adapters) | Writes the top-level `insights` object and the per-analysis `insight` object when present, and takes `schema_version` from the result; a result without them is byte-for-byte the built output | `analyzeBookings` (Designed change) / SD 1.2 message 2 with insights |
 | `cli` (infrastructure module) | `build_parser` gains the option `--insights` of `analyze` and the subcommands `holidays` (`--years`, `--config`) and `llm-providers` (`--config`); `main` dispatches on the subcommand and reuses `_EXIT_CODES`; new private `_report_listing(outcome: ListingOutcome) -> None` | all three new operations / SD 3.0 messages 1 to 3, 14; SD 3.1 message 24; SD 4.1 message 28 |
 | `bootstrap` (infrastructure module) | `build_analyze_bookings` also creates the registry and `GenerateInsights` and passes it to `AnalyzeBookings`; new functions `build_list_holidays(stdout: BinaryIO, working_directory: Path, environ: Mapping[str, str]) -> ListHolidays`, `build_list_llm_providers(stdout: BinaryIO, working_directory: Path, environ: Mapping[str, str]) -> ListLlmProviders`, `build_llm_registry() -> LlmProviderRegistry` | SD 3.0 message 4, SD 4.0 messages 4 and 6, SD 5.0 messages 4 to 9 |
@@ -1989,14 +1990,14 @@ One row per planned class, `Protocol`, enumeration or module (layer and target m
 | `LanguageModelProvider` (class, domain/llm.py) | Language Model Provider | Holds the name and the configured address of a provider. | `name`, `base_url` | none |
 | `LanguageModel` (class, domain/llm.py) | Language Model | Holds a model name and the provider that offers it. | `provider`, `name` | none |
 | `ProviderStatus` (class, domain/llm.py) | Provider Status | Holds whether a provider was reachable, the reason when not, and the models it lists. | `provider`, `reachable`, `reason`, `models` | `offers`, `first_model` |
-| `ProviderListing` (class, domain/llm.py) | none (answer of UC-004, DN-2) | Holds the two provider statuses and the notices of one listing. | `generated_at`, `providers`, `notices` | `any_reachable` |
+| `ProviderListing` (class, domain/llm.py) | LLM Provider Listing (answer of UC-004, DN-2) | Holds the two provider statuses and the notices of one listing. | `generated_at`, `providers`, `notices` | `any_reachable` |
 | `ModelSelection` (class, domain/model_selection.py) | Language Model (the model chosen for insights) | Holds the chosen provider and model, or the reason none was chosen. | `provider`, `model`, `reason` | `is_selected` |
 | `HolidayCalendarYear` (class, domain/listing.py) | Holiday Calendar Year | Holds one requested year with its holidays or its unavailable reason. | `year`, `availability`, `holidays`, `reason` | none |
 | `HolidayCalendarListing` (class, domain/listing.py) | Holiday Calendar Listing | Holds the country, time, years and notices of one holiday answer. | `country`, `generated_at`, `years`, `notices` | none |
 | `InvalidYearsError` (class, domain/errors.py) | none (exception of OC-001 getHolidayCalendar) | Signals that the `--years` value is not valid; an `InputError` with the code `INVALID_YEARS`. | none | none |
 | `InsightRejectedError` (class, domain/errors.py) | none (exception of OC-001 analyzeBookings, Designed change) | Signals that an answer was rejected, with the reason `BAD_STRUCTURE` or `GUARDRAIL_REJECTED`. | `reason`, `detail` | none |
 | `LlmError` (class, domain/errors.py) | none (exception of OC-001 analyzeBookings, Designed change) | Signals a model failure during generation (`MODEL_ERROR`). | none | none |
-| `LlmTimeoutError` (class, domain/errors.py) | none (exception of OC-001 analyzeBookings, Designed change) | Signals that no answer came within the generation timeout (`TIMEOUT`). | none | none |
+| `LlmTimeoutError` (class, domain/errors.py) | none (exception of OC-001 analyzeBookings, Designed change) | Signals that no complete answer came within the total generation deadline (`TIMEOUT`). | none | none |
 | `insight_prompt` (module, domain) | AI Insight (what is sent) | Builds the prompt from the findings and the data-quality counts only. | none | build_prompt, data_block |
 | `insight_validation` (module, domain) | AI Insight, Improvement Suggestion (guardrails) | Parses the answer and applies the rules 1 to 7 of [ADR-0010]. | none | validate_answer, parse_structure, check_guardrails |
 | `model_selection` (module, domain) | Language Model, Language Model Provider (choice) | Applies the order and rules of [ADR-0009] to the provider statuses. | none | select_model |
@@ -2011,14 +2012,14 @@ One row per planned class, `Protocol`, enumeration or module (layer and target m
 | `ListHolidays` (class, application/list_holidays.py) | none (use case controller of UC-003) | Produces the holiday listing of the requested years or a failed document and delivers it. | `configuration_loader`, `calendar`, `serializer`, `sink`, `clock` | `run`, `_failure_line`, `_deliver` |
 | `ListLlmProviders` (class, application/list_llm_providers.py) | none (use case controller of UC-004) | Produces the provider listing or a failed document and delivers it. | `configuration_loader`, `registry`, `serializer`, `sink`, `clock` | `run`, `_failure_line`, `_deliver` |
 | `GenerateInsights` (class, application/generate_insights.py) | AI Insight (Creator; UC-005 steps 2 to 8) | Selects the model and creates one insight per analysis, never letting a failure escape. | `registry`, `clock` | `generate`, `_insight_for` |
-| `provider_discovery` (module, application) | Provider Status (discovery of UC-004) | Checks the providers in order with the discovery timeout; shared by the listing and the insights. | none | discover_providers, find_provider |
+| `provider_discovery` (module, application) | Provider Status (discovery of UC-004) | Checks the providers in order, each within the total discovery deadline; shared by the listing and the insights. | none | discover_providers, find_provider |
 | `OllamaProvider` (class, adapters/ollama_provider.py) | Language Model Provider (adapter) | Lists models and generates text through Ollama's HTTP interface. | `_base_url` | `provider`, `list_models`, `generate`, `_chat_body` |
 | `LmStudioProvider` (class, adapters/lmstudio_provider.py) | Language Model Provider (adapter) | Lists models and generates text through LM Studio's OpenAI-compatible interface. | `_base_url` | `provider`, `list_models`, `generate`, `_chat_body` |
 | `ConfiguredLlmProviders` (class, adapters/llm_registry.py) | Language Model Provider (adapter, Factory) | Creates the provider adapters from the configured addresses. | none | `providers` |
 | `JsonHolidayListingSerializer` (class, adapters/json_listing_serializers.py) | Holiday Calendar Listing (adapter) | Serializes the holiday listing and its failed document to compact JSON. | none | `serialize`, `serialize_failure` |
 | `JsonProviderListingSerializer` (class, adapters/json_listing_serializers.py) | Provider Status (adapter) | Serializes the provider listing and its failed document to compact JSON. | none | `serialize`, `serialize_failure` |
 | `HttpFailure` (class, adapters/http_json.py) | Provider Status (reason) | Signals a failed HTTP request with its provider reason; never leaves the adapters. | `reason` | none |
-| `http_json` (module, adapters) | none | Makes one JSON GET or POST with the standard library and a timeout. | none | get_json, post_json |
+| `http_json` (module, adapters) | none | Makes one JSON GET or POST with the standard library within a total deadline (socket timeout set to the time left, answer read in chunks, deadline checked before each read; [ADR-0009]). | none | get_json, post_json |
 | `SuggestionView` (class, interface/insight_view.py) | Improvement Suggestion (view model) | Holds one suggestion as it is shown. | `suggestion`, `evidence`, `sample_size` | none |
 | `InsightView` (class, interface/insight_view.py) | AI Insight (view model) | Holds what the insight of one analysis shows: state, reason, label, provider, model, texts. | `analysis`, `state`, `reason`, `reason_text`, `label`, `provider`, `model`, `generated_at`, `executive_summary`, `suggestions` | `suggestion_table`, `lines` |
 | `insight_view` (module, interface) | AI Insight (view model) | Builds the insight view from the stored result. | none | build_insight_view, reason_text |
@@ -2027,7 +2028,7 @@ Counts of the planned classes by layer (modules in brackets): domain 20 (4), app
 
 ### Domain Model concepts and their planned design classes
 
-Every concept added to [DM-001] on 2026-09-30 and how it is designed.
+Every concept added to [DM-001] on 2026-09-30 and how it is designed (the prompt version of the result is `InsightsMetadata.prompt_version`, not an attribute of an insight).
 
 | DM-001 concept | Design class or representation (planned) |
 | --- | --- |
@@ -2037,17 +2038,20 @@ Every concept added to [DM-001] on 2026-09-30 and how it is designed.
 | Language Model Provider | `LanguageModelProvider` and `ProviderName` (domain); port `LlmProvider` and adapters `OllamaProvider`, `LmStudioProvider` |
 | Provider Status | `ProviderStatus` and `ProviderReason` (domain), created by the adapters' `list_models` |
 | Language Model | `LanguageModel` (domain); the chosen one is `ModelSelection` |
+| LLM Provider Listing | `ProviderListing` (domain), created by `ListLlmProviders` |
+| Notice | the built `Notice` (domain), carried by both listings and the result |
 | Holiday Calendar Listing | `HolidayCalendarListing` (domain), created by `ListHolidays` |
 | Holiday Calendar Year | `HolidayCalendarYear` (domain) |
 
 | DM-001 association | Planned design |
 | --- | --- |
-| has (Analysis 1 to 0..1 AI Insight) | composition `Analysis *-- AiInsight` (Designed change, 0..1) |
+| has (Analysis 1 to 0..1 AI Insight) | composition `Analysis *-- AiInsight` (Designed change, 0..1); the Analysis owns the insight. `InsightBatch` only collects the insights until they are attached, so it holds them by aggregation `o--` (DN-3) |
 | contains (AI Insight to Executive Summary, 1 to 0..1) | composition `AiInsight *-- ExecutiveSummary` |
 | contains (AI Insight to Improvement Suggestion, 1 to 0..*) | composition `AiInsight *-- ImprovementSuggestion`, multiplicity 0..5 because [ADR-0010] allows one to five and an unavailable insight has none |
 | is produced by (AI Insight * to 0..1 Language Model) | not an association: the stored insight keeps the provider and model names as text (`AiInsight.provider`, `AiInsight.model`, [DM-001] states the same); DN-3 |
 | is offered by (Language Model * to 1 Language Model Provider) | `LanguageModel --> LanguageModelProvider` |
 | reports (Language Model Provider 1 to 1 Provider Status) | reversed to `ProviderStatus --> LanguageModelProvider`, and `ProviderStatus *-- LanguageModel`; DN-2 |
+| covers, reports (LLM Provider Listing 1 to 1..* Language Model Provider and 1 to 1..* Provider Status) | composition `ProviderListing *-- ProviderStatus` (two statuses; each status refers to its provider) |
 | covers (Holiday Calendar Listing 1 to 1..* Holiday Calendar Year) | composition `HolidayCalendarListing *-- HolidayCalendarYear` |
 | lists (Holiday Calendar Year 1 to 0..* Holiday) | composition `HolidayCalendarYear *-- Holiday` (the built `Holiday`) |
 
@@ -2072,8 +2076,8 @@ Every planned operation and every operation added by a Designed change appears o
 | `insight_validation.parse_structure(answer_text: str) -> tuple[ExecutiveSummary, tuple[ImprovementSuggestion, ...]]` | `analyzeBookings` (Designed change) / SD 5.2 message 14 (`BAD_STRUCTURE`, inside `validate_answer`) |
 | `insight_validation.check_guardrails(summary: ExecutiveSummary, suggestions: tuple[ImprovementSuggestion, ...], prompt: InsightPrompt, min_group_size: int) -> None` | `analyzeBookings` (Designed change) / SD 5.2 message 16 (`GUARDRAIL_REJECTED`, inside `validate_answer`) |
 | `model_selection.select_model(statuses: tuple[ProviderStatus, ...], provider: ProviderName \| None, model: str \| None) -> ModelSelection` | `analyzeBookings` (Designed change) / SD 5.1 message 9, SD 5.2 message 1 |
-| `year_selection.parse_years(text: str \| None, current_year: int) -> tuple[int, ...]` | `getHolidayCalendar` / SD 3.1 message 7, SD 3.2 message 7 |
-| `LlmProvider.provider() -> LanguageModelProvider` | `analyzeBookings` (Designed change) / SD 5.1 message 15 (`find_provider` compares the name before `generate`) |
+| `year_selection.parse_years(text: str \| None, current_year: int) -> tuple[int, ...]` | `getHolidayCalendar` / SD 3.1 message 7, SD 3.2 message 9 |
+| `LlmProvider.provider() -> LanguageModelProvider` | `analyzeBookings` (Designed change) / SD 5.1 messages 14a and 14b (`find_provider` compares the name before `generate`) |
 | `LlmProvider.list_models(timeout_seconds: float) -> ProviderStatus` | `getLlmProviders` / SD 4.1 message 9; `analyzeBookings` (Designed change) / SD 5.1 message 8 |
 | `LlmProvider.generate(model: str, prompt: InsightPrompt, temperature: float, timeout_seconds: float) -> str` | `analyzeBookings` (Designed change) / SD 5.1 message 15, SD 5.2 message 7 |
 | `LlmProviderRegistry.providers(configuration: LlmConfiguration) -> tuple[LlmProvider, ...]` | `getLlmProviders` / SD 4.1 message 5; `analyzeBookings` (Designed change) / SD 5.1 message 5 |
@@ -2084,7 +2088,7 @@ Every planned operation and every operation added by a Designed change appears o
 | `InsightBatch.insight_for(name: AnalysisName) -> AiInsight \| None` | `analyzeBookings` (Designed change) / SD 5.1 message 25 |
 | `InsightBatch.unavailable_count() -> int` | `analyzeBookings` (Designed change) / SD 5.2 message 23 |
 | `ListHolidays.run(years: str \| None, config_path: Path \| None) -> ListingOutcome` | `getHolidayCalendar` / SD 3.1 message 2, SD 3.0 message 12 |
-| `ListHolidays._failure_line(error: InputError, notices: tuple[Notice, ...]) -> str` | `getHolidayCalendar` / SD 3.2 messages 11 to 14 |
+| `ListHolidays._failure_line(error: InputError, notices: tuple[Notice, ...]) -> str` | `getHolidayCalendar` / SD 3.2 messages 13 and 14 (after the clock read of messages 7 and 8) |
 | `ListHolidays._deliver(line: str, failure: InputError \| None) -> ListingOutcome` | `getHolidayCalendar` / SD 3.1 messages 19 to 22, SD 3.2 messages 16 to 22 |
 | `ListLlmProviders.run(config_path: Path \| None) -> ListingOutcome` | `getLlmProviders` / SD 4.1 message 2, SD 4.0 message 14 |
 | `ListLlmProviders._failure_line(error: InputError, notices: tuple[Notice, ...]) -> str` | `getLlmProviders` / SD 4.2 messages 7 to 10 |
@@ -2092,12 +2096,12 @@ Every planned operation and every operation added by a Designed change appears o
 | `GenerateInsights.generate(analyses: tuple[Analysis, ...], summary: DataQualitySummary, configuration: AppConfiguration) -> InsightBatch` | `analyzeBookings` (Designed change) / SD 5.1 message 4 |
 | `GenerateInsights._insight_for(analysis: Analysis, summary: DataQualitySummary, selection: ModelSelection, provider: LlmProvider \| None, configuration: AppConfiguration) -> AiInsight` | `analyzeBookings` (Designed change) / SD 5.1 messages 11 to 21, SD 5.2 messages 3 to 19 |
 | `provider_discovery.discover_providers(providers: tuple[LlmProvider, ...], discovery_timeout_seconds: float) -> tuple[ProviderStatus, ...]` | `getLlmProviders` / SD 4.1 message 8; `analyzeBookings` (Designed change) / SD 5.1 message 7 |
-| `provider_discovery.find_provider(providers: tuple[LlmProvider, ...], name: ProviderName) -> LlmProvider \| None` | `analyzeBookings` (Designed change) / SD 5.1 message 15 (the provider on which `generate` is called) |
-| `OllamaProvider.provider() -> LanguageModelProvider` | `analyzeBookings` (Designed change) / SD 5.1 message 15 |
+| `provider_discovery.find_provider(providers: tuple[LlmProvider, ...], name: ProviderName) -> LlmProvider \| None` | `analyzeBookings` (Designed change) / SD 5.1 messages 14a and 14b (returns the provider on which `generate` is called in message 15) |
+| `OllamaProvider.provider() -> LanguageModelProvider` | `analyzeBookings` (Designed change) / SD 5.1 message 14a (inside `find_provider`) |
 | `OllamaProvider.list_models(timeout_seconds: float) -> ProviderStatus` | `getLlmProviders` / SD 4.1 messages 9 to 15 |
 | `OllamaProvider.generate(model: str, prompt: InsightPrompt, temperature: float, timeout_seconds: float) -> str` | `analyzeBookings` (Designed change) / SD 5.1 message 15, SD 5.2 messages 7 to 12 |
 | `OllamaProvider._chat_body(model: str, prompt: InsightPrompt, temperature: float) -> dict[str, JsonValue]` | `analyzeBookings` (Designed change) / SD 5.2 message 7 (inside `generate`) |
-| `LmStudioProvider.provider() -> LanguageModelProvider` | `analyzeBookings` (Designed change) / SD 5.1 message 15 |
+| `LmStudioProvider.provider() -> LanguageModelProvider` | `analyzeBookings` (Designed change) / SD 5.1 message 14a (inside `find_provider`) |
 | `LmStudioProvider.list_models(timeout_seconds: float) -> ProviderStatus` | `getLlmProviders` / SD 4.1 messages 9 to 15 |
 | `LmStudioProvider.generate(model: str, prompt: InsightPrompt, temperature: float, timeout_seconds: float) -> str` | `analyzeBookings` (Designed change) / SD 5.1 message 15, SD 5.2 messages 7 to 12 |
 | `LmStudioProvider._chat_body(model: str, prompt: InsightPrompt, temperature: float) -> dict[str, JsonValue]` | `analyzeBookings` (Designed change) / SD 5.2 message 7 (inside `generate`) |
@@ -2107,7 +2111,7 @@ Every planned operation and every operation added by a Designed change appears o
 | `JsonProviderListingSerializer.serialize(listing: ProviderListing) -> str` | `getLlmProviders` / SD 4.1 message 21 |
 | `JsonProviderListingSerializer.serialize_failure(error: ResultError, notices: tuple[Notice, ...], generated_at: datetime) -> str` | `getLlmProviders` / SD 4.2 message 9 |
 | `http_json.get_json(url: str, timeout_seconds: float) -> JsonValue` | `getLlmProviders` / SD 4.1 message 10 |
-| `http_json.post_json(url: str, body: Mapping[str, JsonValue], timeout_seconds: float) -> JsonValue` | `analyzeBookings` (Designed change) / SD 5.2 message 7 (inside `generate`) |
+| `http_json.post_json(url: str, body: Mapping[str, JsonValue], timeout_seconds: float) -> JsonValue` | `analyzeBookings` (Designed change) / SD 5.1 messages 15a and 15b, SD 5.2 messages 7a, 7b, 9a and 11a (inside `generate`; `HttpFailure` is raised in 7b and 9a and translated in 8 and 10) |
 | `InsightView.suggestion_table() -> list[Row]` | `selectResult` (Designed change) / SD 2.4 message 13 |
 | `InsightView.lines() -> list[str]` | `selectResult` (Designed change) / SD 2.4 message 13 |
 | `insight_view.build_insight_view(result: Result, analysis: str) -> InsightView` | `selectResult` (Designed change) / SD 2.4 message 3 |
@@ -2117,7 +2121,8 @@ Every planned operation and every operation added by a Designed change appears o
 | `build_result.assemble_result(validated: ValidatedBookings, config_notices: tuple[Notice, ...], result_id: str, generated_at: datetime, analyses: tuple[Analysis, ...], analysis_notices: tuple[Notice, ...], insights: InsightBatch \| None = None) -> AnalysisResult` | `analyzeBookings` (Designed change) / SD 5.1 message 24, SD 5.2 message 22 |
 | `build_result._insight_notices(batch: InsightBatch) -> tuple[Notice, ...]` | `analyzeBookings` (Designed change) / SD 5.1 message 25, SD 5.2 message 23 |
 | `HolidayCalendar.source() -> str` and `KhmerHolidayCalendar.source() -> str` | `getHolidayCalendar` / SD 3.1 message 14 |
-| `TomlConfigurationLoader._llm_section(data: Mapping[str, object]) -> LlmConfiguration` | `getLlmProviders` / SD 4.1 message 4, SD 4.2 message 4; `getHolidayCalendar` / SD 3.1 message 4; `analyzeBookings` / SD 5.1 (block 1.1 message 2) |
+| `ConfigurationLoader.load(explicit_path: Path \| None, with_llm: bool = False) -> LoadedConfiguration` (Designed change: the parameter `with_llm`) | `getLlmProviders` / SD 4.1 message 3, SD 4.2 message 3; `analyzeBookings` / block 1.1 message 2 with `with_llm = insights` (SD 5.1 note); `getHolidayCalendar` / SD 3.1 message 3 and SD 3.2 message 3 (default false) |
+| `TomlConfigurationLoader._llm_section(data: Mapping[str, object]) -> LlmConfiguration` | `getLlmProviders` / SD 4.1 message 4, SD 4.2 message 4 (inside `load` with `with_llm`); `analyzeBookings` / block 1.1 message 2 with `with_llm = insights` (SD 5.1 note); not called for `getHolidayCalendar` |
 | `JsonResultSerializer.serialize(result: AnalysisResult) -> str` (Designed change: insight fields) | `analyzeBookings` (Designed change) / SD 1.2 message 2 with insights, after SD 5.1 message 27 |
 | `cli.build_parser() -> argparse.ArgumentParser` (Designed change: subcommands and `--insights`) | all three operations / SD 3.0 message 2, SD 4.0 message 2, SD 5.0 message 2 |
 | `cli.main(...) -> int` (Designed change: dispatch by subcommand) | all three operations / SD 3.0 message 1, SD 4.0 message 1, SD 5.0 message 1 |
@@ -2171,9 +2176,9 @@ Choices that [ADR-0008] to [ADR-0012] left open. They are not deviations, becaus
 
 | ID | Note |
 | --- | --- |
-| DN-1 | The designed messages keep the option `--config` as the parameter `configFile` of `getHolidayCalendar` and `getLlmProviders`, as [ADR-0008] gives it to every subcommand and as `analyzeBookings` has it. `holidays` uses no configuration value but validates the file ([ADR-0011]). |
-| DN-2 | `ProviderListing` is a design value object with no concept in [DM-001] (the model says the listing is an answer). `ProviderStatus` refers to its provider (and holds its models), instead of the provider holding its status as the association "reports" reads, because a status is created by a check of one provider and is immutable. |
-| DN-3 | `AiInsight` keeps the provider and the model as text, as [DM-001] and [ADR-0011] state for a stored insight, so the association "is produced by" is not drawn. `AiInsight` does not refer to its analysis; `InsightBatch` maps `AnalysisName` to `AiInsight`, and the Designed change to `Analysis` holds the insight. This keeps the module imports of `domain` acyclic. |
+| DN-1 | The designed messages keep the option `--config` as the parameter `configFile` of `getHolidayCalendar` and `getLlmProviders`, as [ADR-0008] gives it to every subcommand and as `analyzeBookings` has it. `holidays` uses no configuration value and only checks that the file parses; the `[llm]` values are validated only by `llm-providers` and `analyze --insights`, through the parameter `with_llm` of `ConfigurationLoader.load` ([ADR-0011], [ADR-0012]). |
+| DN-2 | `ProviderListing` is the design class of the concept LLM Provider Listing in [DM-001] (an answer like the holiday listing, not stored). `ProviderStatus` refers to its provider (and holds its models), instead of the provider holding its status as the association "reports" reads, because a status is created by a check of one provider and is immutable. |
+| DN-3 | `AiInsight` keeps the provider and the model as text, as [DM-001] and [ADR-0011] state for a stored insight, so the association "is produced by" is not drawn. `AiInsight` does not refer to its analysis; `InsightBatch` maps `AnalysisName` to `AiInsight`, and the Designed change to `Analysis` holds the insight. This keeps the module imports of `domain` acyclic. The `Analysis` owns its `AiInsight` (composition, one owner); `InsightBatch` is a transient collection of the insights of one run and holds them by aggregation `o--`, so that no `AiInsight` has two composite owners. |
 | DN-4 | `ListingOutcome` reuses the built `RunStatus`: `SUCCEEDED`, `INPUT_FAILED` (invalid years or configuration, exit code 2) and `DELIVERY_FAILED` (exit code 4). `HISTORY_FAILED` cannot occur for a listing, because it never touches the history, and `cli` reuses `_EXIT_CODES`. |
 | DN-5 | The `HolidayCalendar` port gains `source()` so that the notice `CALENDAR_SOURCE` can name the calendar source and its version ([ADR-0011]); it is the only change to a built port and adds one operation. |
 | DN-6 | `build_result` is split: its second half becomes the public `assemble_result`, and `AnalyzeBookings` runs the analyses itself only when insights are requested, so that the built path and the built diagrams (blocks 1.1 to 1.5) do not change. |
@@ -2184,6 +2189,7 @@ Choices that [ADR-0008] to [ADR-0012] left open. They are not deviations, becaus
 | DN-11 | The standard-library HTTP calls are in one module `http_json` with one internal error `HttpFailure` that carries the provider reason; the adapters translate it into a `ProviderStatus` (listing) or into `LlmTimeoutError` and `LlmError` (generation). |
 | DN-12 | The notebook shows the insight below each analysis view through the existing six analysis cells and a new pure `insight_view` module, not through a separate insights cell, so the insight always stays next to the findings it belongs to ([ADR-0010] residual risk, [UC-002]). |
 | DN-13 | Planned modules of the layers: `domain` gets `insight.py`, `llm.py`, `listing.py`, `insight_prompt.py`, `insight_validation.py`, `model_selection.py`, `year_selection.py` and additions to `errors.py`; `application` gets `listing_outcome.py`, `list_holidays.py`, `list_llm_providers.py`, `generate_insights.py`, `provider_discovery.py` and additions to `ports.py` and `configuration.py`; `adapters` gets `ollama_provider.py`, `lmstudio_provider.py`, `llm_registry.py`, `json_listing_serializers.py`, `http_json.py`; `interface` gets `insight_view.py`. The module of each class is in the Planned Class Table. |
+| DN-14 | The reason is typed differently on purpose: `AiInsight.reason` is the enumeration `InsightReason` (six closed codes of [ADR-0010] that the code branches on), while `HolidayCalendarYear.reason` is a single text code `NO_CALENDAR_DATA` ([ADR-0011]) because it has one value and no branch; `ProviderStatus.reason` is the enumeration `ProviderReason`. If a second holiday reason is added, `HolidayCalendarYear.reason` becomes an enumeration. |
 
 ## Excluded from the mechanical check
 

@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -49,7 +50,7 @@ The rules of the `--years` value and the JSON of the two listings are in [ADR-00
 | `analyze`, all outcomes of [ADR-0005] and its 2026-09-30 amendment | as in [ADR-0005] | as in [ADR-0005] | 0, 2, 3, 4 as in [ADR-0005] |
 | `analyze --insights`, some or all insights unavailable, the analysis completed | the result on standard output, status `completed_with_warnings` ([ADR-0011]) | result appended | 0, the same as without insights |
 | `holidays` or `llm-providers`, the listing was produced (including a year without calendar data, and no reachable provider) | the listing on standard output | not touched | 0 |
-| `holidays` or `llm-providers`, invalid `--years` value or invalid configuration | a failed document with `error` on standard output (as for `analyze`) | not touched | 2 |
+| `holidays` with an invalid `--years` value or a configuration file that does not parse; `llm-providers` with a configuration file that does not parse or an invalid `[llm]` value | a failed document with `error` on standard output (as for `analyze`) | not touched | 2 |
 | `holidays` or `llm-providers`, the listing cannot be written to the caller | an error message on standard error; nothing was stored, so a retry has no side effect | not touched | 4 |
 
 Exit code 3 is never used by `holidays` and `llm-providers`, because they never touch the history. Option errors that the argument parser itself rejects (an unknown option, a missing value) end with exit code 2 and a usage message on standard error and no JSON document; the `--years` value is passed to the application as text and checked there, so an invalid value gives the failed document. A failure of insights never changes the exit code of a completed analysis.
@@ -68,7 +69,7 @@ The command line is the only driving adapter now. Because the use cases sit behi
 **Negative:**
 
 - A caller on another machine, or one that cannot start processes, cannot call the application; it would need MIL-012.
-- The worst-case duration of `analyze --insights` is long: six analyses in sequence at the generation timeout of [ADR-0012] (120 s each) is 12 minutes plus discovery, so the caller must set a process timeout to match.
+- The worst-case duration of `analyze --insights` is long: six analyses in sequence at the generation deadline of [ADR-0012] (120 s each, a total limit per request, [ADR-0009]) is 12 minutes plus discovery (up to 4 s), so the caller must set a process timeout to match.
 - Each call pays a Python process start, and concurrent callers meet only at the history lock ([ADR-0003]).
 - The decision depends on S02's answer to OI-17; if S02 needs HTTP, ADR-0005's behavior for HTTP (which it notes would need revisiting) must be decided in MIL-012.
 
@@ -81,7 +82,7 @@ The command line is the only driving adapter now. Because the use cases sit behi
 - [ADR-0006] — its invocation decision gains two subcommands and the `--insights` option; the layering is reused.
 - [ADR-0009] — the discovery behind `llm-providers` and `--insights`.
 - [ADR-0011] — the JSON written to standard output.
-- [ADR-0012] — the configuration read by every subcommand through `--config`.
+- [ADR-0012] — the configuration read by every subcommand through `--config`; the `[llm]` values are validated only by `llm-providers` and `analyze --insights`.
 - [PP-001] — resolves OI-17 and closes OI-04 once S02 accepts; MIL-012 stays conditional.
 
 ---

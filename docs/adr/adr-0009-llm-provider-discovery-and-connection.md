@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -39,12 +40,12 @@ Ollama and LM Studio are queried over HTTP with the Python standard library (`ur
 
 **Discovery** (used by `llm-providers` and by `analyze --insights` before any model call):
 
-1. Both providers are checked, always in the order `ollama`, `lmstudio`, one after the other. Each check is one list request with the timeout `llm.discovery_timeout_seconds` (default 2 s), so the whole check takes at most twice that time.
+1. Both providers are checked, always in the order `ollama`, `lmstudio`, one after the other. Each check is one list request with the total deadline `llm.discovery_timeout_seconds` (default 2 s), so the whole check takes at most twice that time (see Deadlines below).
 2. A provider is `reachable` when the list request answers with HTTP 200 and a body in the expected structure; its models are the names listed (possibly none).
-3. A provider is `unreachable` with one reason code: `CONNECTION_REFUSED` (nothing is listening), `TIMEOUT` (no answer within the discovery timeout), `UNEXPECTED_ANSWER` (an HTTP error status or a body not in the expected structure) or `NETWORK_ERROR` (any other failure to connect, for example a name that does not resolve).
+3. A provider is `unreachable` with one reason code: `CONNECTION_REFUSED` (nothing is listening), `TIMEOUT` (no complete answer within the discovery deadline), `UNEXPECTED_ANSWER` (an HTTP error status or a body not in the expected structure) or `NETWORK_ERROR` (any other failure to connect, for example a name that does not resolve).
 4. An unreachable provider is a normal entry in the listing; the request still succeeds ([UC-004]). Discovery sends no booking data, asks no model to generate text and writes nothing.
 
-**Local only.** The host of every base URL must be loopback: `localhost`, `127.0.0.1` or `::1` (a name is compared as text and is not resolved), and the scheme `http` or `https`. A URL with any other host is rejected as a configuration error naming the key (for example `llm.ollama_url`) before any connection is made, unless `llm.allow_remote` is `true` (default `false`). This makes remote use a deliberate choice; it resolves the assumption of OI-14 as local only and leaves the decision to allow remote models, and to let aggregate findings leave the machine, to S03.
+**Local only.** The base URL is parsed, and its host name (the part without port and, for `[::1]`, without the brackets) must be one of `localhost`, `127.0.0.1` or `::1`; the host is compared as text after parsing and is not resolved, and the scheme must be `http` or `https`. A text that does not parse to a scheme and a host name is invalid. A URL with any other host is rejected as a configuration error naming the key (for example `llm.ollama_url`) before any connection is made, unless `llm.allow_remote` is `true` (default `false`). This makes remote use a deliberate choice; it resolves the assumption of OI-14 as local only and leaves the decision to allow remote models, and to let aggregate findings leave the machine, to S03.
 
 **Model choice** for insights, in this order:
 
@@ -53,9 +54,11 @@ Ollama and LM Studio are queried over HTTP with the Python standard library (`ur
 3. If only `llm.provider` is set, that provider is used, with the first model it lists.
 4. If neither is set, the first reachable provider in the order `ollama`, `lmstudio` is used, with the first model it lists.
 
-No reachable provider, or the chosen provider unreachable, means insights are unavailable with the reason `NO_PROVIDER`. A reachable provider with no model, or without the configured model, gives `NO_MODEL`. In both cases no model is contacted, the analysis is unaffected, and the reason is reported for every available analysis ([ADR-0010], [ADR-0011]). The default rule has no size or quality test, because the project has no acceptance rule for models (OI-13 stays partly open: the fixed order is the assumption, and S01 may add a rule later); the first listed model may be one that cannot follow the required answer structure, in which case the guardrails of [ADR-0010] reject its answers.
+Reason codes: `NO_PROVIDER` means no provider can be reached (none is reachable, or the provider named by `llm.provider` is unreachable). `NO_MODEL` means a provider is reachable but the configured or automatic model is not offered (it lists no model, or does not list the configured `llm.model`). In both cases no model is contacted, the analysis is unaffected, and the reason is reported for every available analysis ([ADR-0010], [ADR-0011]). The default rule has no size or quality test, because the project has no acceptance rule for models (OI-13 stays partly open: the fixed order is the assumption, and S01 may add a rule later); the first listed model may be one that cannot follow the required answer structure, in which case the guardrails of [ADR-0010] reject its answers.
 
-**Generation** is one request per available analysis, sequential, each with the timeout `llm.generation_timeout_seconds` (default 120 s) and the temperature `llm.temperature` (default 0). A request is not retried. A refused connection, an HTTP error, an unusable body or an exception during generation gives `MODEL_ERROR`; exceeding the timeout gives `TIMEOUT`. Text that the model returns is untrusted data ([ADR-0010]).
+**Generation** is one request per available analysis, sequential, each with the total deadline `llm.generation_timeout_seconds` (default 120 s) and the temperature `llm.temperature` (default 0). A request is not retried. A refused connection, an HTTP error, an unusable body or an exception during generation gives `MODEL_ERROR`; exceeding the deadline gives `TIMEOUT`.
+
+**Deadlines.** The timeout of `urllib` applies to each socket operation (connect, one read), not to the whole request, so a slow provider that keeps sending a few bytes would never trip it. The adapter therefore takes the start time, sets the socket timeout to the time that remains, reads the answer in chunks and checks the deadline before each read; when the deadline has passed it stops and reports `TIMEOUT`. The deadline covers connecting, sending and reading the whole answer, so the maximum durations stated elsewhere (2 s per provider, 120 s per analysis) are total limits, plus a small overhead. A name lookup is not covered by the socket timeout; with the loopback hosts allowed by default it takes no measurable time, and with `llm.allow_remote` a slow name lookup can add to the deadline. Text that the model returns is untrusted data ([ADR-0010]).
 
 ## Consequences
 
@@ -70,7 +73,8 @@ No reachable provider, or the chosen provider unreachable, means insights are un
 
 - The default model choice is arbitrary (the first listed model); it may be unsuitable (for example an embedding model), so users who care set `llm.model`. OI-13 is only partly resolved.
 - `urllib` has no retries, connection pooling or streaming; that is acceptable for four request kinds but would have to be revisited for streamed answers.
-- A local provider that is slow to start may be reported unreachable within the 2 s discovery timeout, and a large model on modest hardware may exceed 120 s and give `TIMEOUT`.
+- A local provider that is slow to start may be reported unreachable within the 2 s discovery deadline, and a large model on modest hardware may exceed 120 s and give `TIMEOUT`.
+- The chunked read and the deadline check are code the project writes itself; the contract tests of the coding gateway must cover a provider that answers slowly in small pieces.
 - Both providers' interfaces are external and can change; the `UNEXPECTED_ANSWER` reason and the contract tests of the coding gateway are the safety net.
 - With `llm.allow_remote` true, aggregate findings leave the machine; only S03 can accept that, and this ADR does not.
 

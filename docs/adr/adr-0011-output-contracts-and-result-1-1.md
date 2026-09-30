@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -37,9 +38,9 @@ The two listings are new documents with their own `kind`, and result schema vers
 | `status` | `completed`, or `failed` when the request was invalid |
 | `generated_at` | when the document was produced |
 | `notices` | list of `{code, message}`, as in the result |
-| `error` | present only when `status` is `failed`: `{code, message}`; the codes are `INVALID_YEARS` (the `--years` value) and `CONFIGURATION_ERROR` ([ADR-0004], naming the key) |
+| `error` | present only when `status` is `failed`: `{code, message}`; the codes are `INVALID_YEARS` (the `--years` value) and `CONFIGURATION_ERROR` ([ADR-0004], naming the key; for `holidays` only a file that does not parse, [ADR-0012]) |
 
-A failed document has no `years` or `providers` field and is never stored; it is delivered with exit code 2 ([ADR-0008]).
+A failed document has the `error` field and an empty `notices` list, has no `years` or `providers` field, and is never stored; it is delivered with exit code 2 ([ADR-0008]).
 
 **Holiday listing** (`kind` `holiday_calendar`):
 
@@ -58,7 +59,7 @@ A year is `available` when the calendar source returns at least one holiday for 
 - Omitted: the current year, taken from the clock port; the notice `DEFAULT_YEAR_USED` says which.
 - A year is a whole number from 1900 to 2100. Duplicates are removed and the years are sorted.
 - At most 30 years. More than 30, an empty value, a non-number, an out-of-range year, a reversed range or any other form gives a failed document with `INVALID_YEARS` and a message that names the problem.
-- `holidays` reads the configuration only so that an invalid file is reported the same way in every command; it uses no key from it.
+- `holidays` reads the configuration file only to check that it parses as TOML, so that an unreadable file is reported the same way as in the other commands; it uses no key from it and does not validate the `[llm]` values, which only `llm-providers` and `analyze --insights` validate ([ADR-0012]).
 
 **Provider listing** (`kind` `llm_providers`):
 
@@ -73,7 +74,7 @@ A year is `available` when the calendar source returns at least one holiday for 
 
 When no provider is reachable, `status` is still `completed` and the notice `NO_PROVIDER_REACHABLE` is added ([UC-004]). The document names only providers and models, never booking data.
 
-**Result schema version 1.1.** Rule for `schema_version`: it is `"1.1"` if and only if the run asked for insights (`--insights`) and produced a completed result; in every other case, including a failed result and every run without `--insights`, it is `"1.0"` and the result is identical in content and shape to the result of [ADR-0002]. Everything in [ADR-0002] is unchanged; 1.1 adds only:
+**Result schema version 1.1.** Rule for `schema_version`: it is `"1.1"` if and only if the run asked for insights (`--insights`) and the result `status` is `completed` or `completed_with_warnings`; in every other case, including a failed result (which stays `"1.0"`) and every run without `--insights`, it is `"1.0"` and the result is identical in content and shape to the result of [ADR-0002]. Everything in [ADR-0002] is unchanged; 1.1 adds only:
 
 - a top-level `insights`: `{requested, provider, model, prompt_version}`. `requested` is always `true` in a 1.1 result; `provider` and `model` are the selected ones or `null` when none could be selected ([ADR-0009]); `prompt_version` is the version of the prompt template ([ADR-0010]).
 - in each entry of `analyses`, an `insight`:
@@ -116,7 +117,7 @@ Rules: an analysis that is `unavailable` has `insight.status` `not_applicable`. 
 - [UC-003] — the holiday listing document and the `--years` rules.
 - [UC-004] — the provider listing document.
 - [UC-005] — the insight in each analysis and the top-level `insights`.
-- [ADR-0002] — extended, not superseded: version 1.1 adds fields as a MINOR change; version 1.0 is unchanged.
+- [ADR-0002] — extended, not superseded: version 1.1 adds fields as a MINOR change; version 1.0 is unchanged. An amendment section in [ADR-0002] records that `completed_with_warnings` also covers unavailable insights.
 - [ADR-0003] — 1.0 and 1.1 lines coexist in the history; retention is unchanged.
 - [ADR-0005] — a completed result with unavailable insights is delivered as usual.
 - [ADR-0008] — the listings are what the subcommands write to standard output.

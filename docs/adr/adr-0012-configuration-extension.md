@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -26,15 +27,15 @@ A new table `[llm]` extends the configuration file of [ADR-0004]; the existing k
 [llm]
 ollama_url = "http://localhost:11434"     # base URL of Ollama
 lmstudio_url = "http://localhost:1234"    # base URL of LM Studio
-discovery_timeout_seconds = 2             # per provider, listing models
-generation_timeout_seconds = 120          # per analysis, one model request
+discovery_timeout_seconds = 2             # total time limit per provider, listing models
+generation_timeout_seconds = 120          # total time limit per analysis, one model request
 provider = ""                             # "" = automatic; or "ollama" or "lmstudio"
 model = ""                                # "" = automatic; or a model name
 allow_remote = false                      # true allows a non-loopback base URL
 temperature = 0                           # 0.0 to 1.0
 ```
 
-| Key | Default | Validation (an invalid value fails the run before any work, naming the key, and guesses nothing) |
+| Key | Default | Validation (an invalid value fails the command that uses the key, before any work and naming the key, and guesses nothing) |
 | --- | --- | --- |
 | `llm.ollama_url` | `http://localhost:11434` | non-empty string; scheme `http` or `https`; a host; loopback host (`localhost`, `127.0.0.1`, `::1`) unless `llm.allow_remote` is true ([ADR-0009]) |
 | `llm.lmstudio_url` | `http://localhost:1234` | the same rules |
@@ -48,8 +49,9 @@ temperature = 0                           # 0.0 to 1.0
 Rules:
 
 - **Off or safe by default.** No key turns insights on: insights run only when the caller passes `--insights` ([ADR-0008]). With no `[llm]` table, both providers use the local defaults, discovery takes at most 4 s in total, and remote hosts are rejected.
-- **Where the keys are used.** The `llm-providers` command and `analyze --insights` read all `[llm]` keys; `analyze` without `--insights` and `holidays` validate them (an invalid file is an error in every command, as for the other keys) but use none.
+- **Where the keys are used.** The `llm-providers` command and `analyze --insights` read all `[llm]` keys; `analyze` without `--insights` and `holidays` use none of them and check only that the file parses as TOML (and that `llm`, when present, is a table), so a bad `[llm]` value stops only the two commands that use it. The values in the table below are therefore validated by `llm-providers` and `analyze --insights` only; the keys of the other tables are validated as in [ADR-0004].
 - **`llm.model` with an explicit `llm.provider`** is checked at run time against the provider's list ([ADR-0009]), not when the file is read, because reading the file must not contact a provider.
+- **The two timeouts are total limits.** Each is a wall-clock deadline for the whole request, from connecting to the last byte of the answer, and not a per-operation limit ([ADR-0009]).
 - **Unknown keys** in `[llm]` are ignored and listed in the existing notice `CONFIG_UNKNOWN_KEYS`, as `llm.<key>`; an unknown table is listed as before. `llm` must be a table.
 - **Retention** (`history.retention`, `history.path`) and the analysis keys ([ADR-0007]) behave exactly as in [ADR-0004]; insights are part of the stored result and count as one result toward retention ([ADR-0003]).
 - The file is read once at the start of each run, as before.
@@ -59,14 +61,14 @@ Rules:
 **Positive:**
 
 - All new behavior is configurable in one table and is safe with an empty or missing file.
-- Invalid values fail before any provider is contacted, with the key named, as for every other key.
+- Invalid values fail before any provider is contacted, with the key named, as for every other key, and only in the commands that use them.
 - Existing files and callers are unaffected: nothing existing changes meaning, and unknown-key detection works for the new table.
 - The local-only rule cannot be relaxed by accident; it needs one explicit key.
 
 **Negative:**
 
 - Eight more keys to document and test; a wrong `llm.model` is found only at run time, as `NO_MODEL`.
-- Validating `[llm]` in commands that do not use it can make a mistake in one section stop an unrelated command; this is consistent with [ADR-0004] but strict.
+- A bad `[llm]` value is not noticed by `analyze` without `--insights` or by `holidays`; it shows only when `llm-providers` or `analyze --insights` runs. That keeps an unrelated command from stopping over a section it does not use.
 - Values such as 2 s and 120 s are defaults chosen without measurement; slow hardware needs a larger `llm.generation_timeout_seconds`.
 - Strings and booleans are rejected for numbers, so a value such as `"120"` fails instead of being converted.
 
