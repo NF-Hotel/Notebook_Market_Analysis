@@ -13,6 +13,8 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -116,7 +118,9 @@ sequenceDiagram
 | 2a file not valid JSON or not matching the input contract | Diagram 1.2 | 2 |
 | 2b some records invalid | Diagram 1.1 with status `completed_with_warnings`; if no record holds a valid value, Diagram 1.2 (`NO_VALID_RECORDS`) | 0 or 2 |
 | 4a required field missing, 4b holiday calendar lacks a year | Diagram 1.1 with the Analysis marked unavailable | 0 |
-| 6a history cannot be written or retention fails | Diagram 1.3 | 3 |
+| 6a history cannot be written or its lock cannot be taken | Diagram 1.3 | 3 |
+| 6b malformed line or interrupted earlier write | Diagram 1.1 (the run continues; a warning goes to the diagnostic output) | 0 |
+| 7c retention cannot be applied after the append | Diagram 1.3 (the appended result stays) | 3 |
 | 7a configuration file missing | Diagram 1.1 with the notice `CONFIG_FILE_NOT_FOUND` | 0 |
 | 7b retention value invalid | Diagram 1.2 (error code `CONFIGURATION_ERROR`) | 2 |
 | 8a result cannot be returned | Diagram 1.4 | 4 |
@@ -216,7 +220,9 @@ The System instance is one marimo notebook session, created when the Analyst ope
 
 ## As-Built Deviations
 
-Differences between the built behavior, seen from the system boundary, and earlier decisions. They are recorded here and are not corrected in the diagrams; each is to be raised as an open issue or a new task through the MIL-007 review (Go/No-Go criterion 6).
+Update 2026-09-30: UC-001 was revised to state the differences AD-1, AD-5 and OD-1 (extensions 1a.2, 6a, 6b, 7b, 7c, 8a and the notes on the main scenario), so those three no longer differ from the use case. AD-2 is amended in ADR-0005, AD-3 in ADR-0003 and AD-4 in ADR-0006.
+
+Differences between the built behavior, seen from the system boundary, and earlier decisions. They are recorded here and are not corrected in the diagrams; each was raised as an open issue in the project plan (OI-21 to OI-27) through the MIL-007 review (Go/No-Go criterion 6), and the last column gives its status.
 
 | ID | Earlier decision | As built | Effect on this document |
 | --- | --- | --- | --- |

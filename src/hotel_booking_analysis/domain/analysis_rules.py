@@ -32,19 +32,6 @@ LEAD_TIME_BANDS: tuple[LeadTimeBand, ...] = (
 """Bands in days (ADR-0007): 0 to 7, 8 to 30, 31 to 90, 91 to 180, 181 and more."""
 
 
-def lead_time_band(days: int) -> str:
-    """Return the label of the band holding a lead time in days.
-
-    Raises `ValueError` for a negative lead time, which the input rules never let through.
-    """
-    if days < 0:
-        raise ValueError("A lead time cannot be negative.")
-    for band in LEAD_TIME_BANDS:
-        if band.upper is None or days <= band.upper:
-            return band.label
-    raise AssertionError("The last band is open-ended.")  # pragma: no cover
-
-
 @dataclass(frozen=True, slots=True)
 class Bucket:
     """A whole-number bucket; `upper` is None for the open-ended last bucket."""
@@ -65,20 +52,6 @@ STAY_BUCKETS: tuple[Bucket, ...] = (
 
 SPECIAL_REQUEST_CAP = 3
 BOOKING_CHANGE_CAP = 2
-
-
-def stay_bucket(nights: int) -> str:
-    """Return the label of the stay bucket holding a length of stay of one night or more."""
-    if nights < 1:
-        raise ValueError("A stay bucket needs at least one night.")
-    return next(b.label for b in STAY_BUCKETS if b.upper is None or nights <= b.upper)
-
-
-def capped_label(value: int, cap: int) -> str:
-    """Label a count, with `cap` and more written as `cap+` (special requests, changes)."""
-    if value < 0:
-        raise ValueError("A count cannot be negative.")
-    return f"{cap}+" if value >= cap else str(value)
 
 
 def capped_labels(cap: int) -> tuple[str, ...]:

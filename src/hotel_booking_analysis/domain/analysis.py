@@ -71,11 +71,3 @@ class Holiday:
 
     date: date
     name: str
-
-
-@dataclass(frozen=True, slots=True)
-class HolidayWindow:
-    """Days before and after a holiday compared with ordinary days (DM-001, US-001.03)."""
-
-    days_before: int
-    days_after: int

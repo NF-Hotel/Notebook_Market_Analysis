@@ -13,6 +13,8 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -155,7 +157,9 @@ The three operations of [UC-002] read only. Each postcondition states that the R
 
 ## As-Built Deviations
 
-The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones that change a contract are repeated here. Each is to be raised as an open issue or a new task through the MIL-007 review.
+Update 2026-09-30: UC-001 now states AD-1 and OD-1; AD-2 is amended in ADR-0005 and AD-3 in ADR-0003. The contracts are unchanged.
+
+The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones that change a contract are repeated here. Each was raised as an open issue in the project plan (OI-21 to OI-27) through the MIL-007 review; AD-1 and OD-1 are resolved in UC-001, AD-2 in ADR-0005, AD-3 in ADR-0003, and OD-2 stays with the DM-001 revision of MIL-009 task 1 (OI-25).
 
 | ID | Earlier decision | As built | Effect on the contracts |
 | --- | --- | --- | --- |

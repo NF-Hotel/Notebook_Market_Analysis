@@ -33,10 +33,6 @@ class DayClass:
     kind: DayKind
     distance: int | None = None
 
-    def in_window(self, kind: DayKind, window_days: int) -> bool:
-        """Tell whether the day is within `window_days` before or after a holiday."""
-        return self.kind is kind and self.distance is not None and self.distance <= window_days
-
 
 def classify_days(
     first: date, last: date, holidays: Iterable[date], windows: tuple[int, ...]

@@ -14,6 +14,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -48,11 +49,13 @@
 7. The system applies the retention limit to the history.
 8. The system returns the result to the Calling system as JSON, and reports success.
 
+The system also reads the configuration file before step 2. After a successful run it reads the history once more, only to count malformed lines and warn about them; this does not change the history.
+
 ### Extensions (Alternative / Exception Flows)
 
 - 1a. No JSON file is supplied:
   1. In development only, the system uses `./data/example/nf_hotel_bookings.csv`, and the result states that the fallback was used.
-  2. Outside development, the system reports that no input was supplied and stops without a result.
+  2. Outside development, the system returns a failed result with the error code `NO_INPUT`; nothing is stored in the history ([ADR-0005] defines the outcome).
 - 2a. The file is not valid JSON or does not match the input contract:
   1. The system returns a failed result naming the problem and does not append a history entry for an analysis that did not run.
 - 2b. Some records are invalid:
@@ -61,14 +64,18 @@
   1. The system marks that analysis unavailable with the missing field, and does not fabricate values.
 - 4b. The holiday calendar has no data for a year in the data:
   1. The system marks the holiday analysis unavailable for that year, and does not invent holidays.
-- 6a. The history cannot be written or a line is malformed or partly written:
-  1. The system reports the failure in the outcome and does not claim the history was updated; the remaining readable results stay intact.
+- 6a. The history cannot be written, or another run holds the history for longer than the allowed wait:
+  1. The system reports the failure, does not claim the history was updated, and delivers no result; the remaining readable results stay intact.
+- 6b. A line in the history is malformed or an earlier write was interrupted:
+  1. The system isolates the partial line, keeps every malformed line, continues the run, and warns the operator of the Calling system about the malformed lines.
 - 7a. The configuration file is missing:
   1. The system applies the default retention of 10.
 - 7b. The retention value is invalid:
-  1. The system reports the configuration error and does not apply a guessed limit.
+  1. The system reports the configuration error, before any analysis runs, as a failed result, and does not apply a guessed limit.
+- 7c. Retention cannot be applied after the result was appended:
+  1. The appended result stays in the history; the system reports the failure and delivers no result.
 - 8a. The result cannot be returned to the Calling system:
-  1. The system reports the delivery failure and does not report success. The order of steps 6 and 8, and how the history is treated in this case, are decided in ADR-0005.
+  1. The system reports the delivery failure and does not report success. The result stays saved in the history, so a retry by the Calling system creates a second result ([ADR-0005]). If the failed result of an input error cannot be delivered, nothing was stored.
 
 ### Special Requirements / Business Rules
 
@@ -85,7 +92,7 @@
 
 ### Open Issues
 
-- Invocation mechanism from the Calling system (OI-04) is undecided.
+- Invocation mechanism from the Calling system (OI-04): a command line as built; whether subcommands or an HTTP service is decided in ADR-0008 (planned).
 - Exact input and result schemas, history location and configuration location are decided in ADR-0001 to ADR-0004.
 - What counts as one retained result and behavior with concurrent callers (OI-10) are undecided.
 
@@ -96,3 +103,4 @@
 [SA-001]: ../stakeholder-analysis.md
 [DM-001]: ../domain-model.md
 [SSD-001]: ../ssd.md
+[ADR-0005]: ../adr/adr-0005-delivery-and-failure-semantics.md

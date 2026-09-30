@@ -12,6 +12,8 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -85,7 +87,7 @@ The five layers are ordered `interface` (outermost), `infrastructure`, `adapters
 
 ### Domain layer, part 1: booking, analysis and result
 
-Entities and value objects of the analysis core. `Notice` is drawn in part 3 with the errors. `GroupStatistic`, `Holiday` and `HolidayWindow` have no association in the built code (deviations DD-3 and DD-4).
+Entities and value objects of the analysis core. `Notice` is drawn in part 3 with the errors. `GroupStatistic` and `Holiday` have no association in the built code (deviations DD-3 and DD-4); `HolidayWindow` was removed on 2026-09-30.
 
 ```mermaid
 classDiagram
@@ -208,10 +210,6 @@ classDiagram
         +date : date
         +name : str
     }
-    class HolidayWindow {
-        +days_before : int
-        +days_after : int
-    }
     BookingSubmission "1" *-- "1..*" BookingRecord : supplies
     BookingSubmission "1" --> "1" InputSource : source
     AnalysisResult "1" *-- "0..1" ResultInput : input, refines is answered by
@@ -266,7 +264,6 @@ classDiagram
         +day : date
         +kind : DayKind
         +distance : int | None
-        +in_window(kind: DayKind, window_days: int) bool
     }
     class quality {
         <<module>>
@@ -277,9 +274,6 @@ classDiagram
     }
     class analysis_rules {
         <<module>>
-        +lead_time_band(days: int) str
-        +stay_bucket(nights: int) str
-        +capped_label(value: int, cap: int) str
         +capped_labels(cap: int) tuple[str, ...]
         +is_small_sample(group_size: int, min_group_size: int) bool
         +rate_statistic(group: str, numerator: int, denominator: int, min_group_size: int) GroupStatistic
@@ -415,7 +409,6 @@ classDiagram
         +summary : DataQualitySummary
         +availability : tuple[AnalysisAvailability, ...]
         +usable_fields : frozenset[str]
-        +availability_of(analysis: AnalysisName) AnalysisAvailability
         +records_for(*field_names: str) tuple[BookingRecord, ...]
     }
     class validate_bookings {
@@ -1035,16 +1028,15 @@ One row per class, `Protocol`, enumeration or module drawn above (`layer` after 
 | `AnalysisAvailability` (class, domain) | Analysis (availability, unavailable reason) | Holds availability, reason and missing fields of one analysis derived from the required fields before it runs. | `analysis`, `availability`, `reason`, `missing_fields` | `is_available` |
 | `GroupStatistic` (class, domain) | Group Statistic | Holds group, numerator, denominator and small-sample flag of one count-based figure. | `group`, `numerator`, `denominator`, `small_sample` | none |
 | `Holiday` (class, domain) | Holiday | Holds the date and name of one public holiday. | `date`, `name` | none |
-| `HolidayWindow` (class, domain) | Holiday Window (defined but unused, DD-3) | Holds the days before and after a holiday. | `days_before`, `days_after` | none |
 | `RetentionPolicy` (class, domain) | Retention Policy | Holds the retention limit and rejects a value below 1. | `limit` | none |
 | `HistoryReadout` (class, domain) | Result History (readable content) | Holds the valid retained results in file order and the count of malformed lines. | `results`, `malformed_line_count` | none |
 | `AnalysisRequirement` (class, domain) | Analysis (required fields, ADR-0001 matrix) | Holds the fields one analysis needs. | `analysis`, `all_of`, `any_of` | none |
 | `LeadTimeBand` (class, domain) | none (design value object of the bands in ADR-0007) | Holds one lead-time band with its bounds. | `label`, `lower`, `upper` | none |
 | `Bucket` (class, domain) | none (design value object of the stay buckets in ADR-0007) | Holds one whole-number bucket with its bounds. | `label`, `lower`, `upper` | none |
 | `DayKind` (enum, domain) | Holiday Window (design value object) | Classifies a calendar day as holiday, before, after or baseline. | `HOLIDAY`, `BEFORE`, `AFTER`, `BASELINE` | none |
-| `DayClass` (class, domain) | Holiday Window (design value object) | Holds the class and the distance to the closest holiday of one day. | `day`, `kind`, `distance` | `in_window` |
+| `DayClass` (class, domain) | Holiday Window (design value object) | Holds the class and the distance to the closest holiday of one day. | `day`, `kind`, `distance` | none |
 | `quality` (module, domain) | Data Quality Summary, Analysis (availability) | Summarizes records and assesses availability with no library. | none | records_with_valid, summarize, usable_fields, assess_availability |
-| `analysis_rules` (module, domain) | Group Statistic, Lead Time Analysis, Room Value Analysis | Holds the count, band, bucket and partial-period rules. | none | lead_time_band, stay_bucket, capped_label, capped_labels, is_small_sample, rate_statistic, count_statistic, figure_to_json, month_bounds, is_partial_period, iso_week_bounds, is_partial_month, is_partial_iso_week, decimal_string, mean_decimal_string, unavailable_marker, missing_field_reason |
+| `analysis_rules` (module, domain) | Group Statistic, Lead Time Analysis, Room Value Analysis | Holds the count, band, bucket and partial-period rules. | none | capped_labels, is_small_sample, rate_statistic, count_statistic, figure_to_json, month_bounds, is_partial_period, iso_week_bounds, is_partial_month, is_partial_iso_week, decimal_string, mean_decimal_string, unavailable_marker, missing_field_reason |
 | `holiday_days` (module, domain) | Holiday, Holiday Window | Classifies calendar days relative to holidays. | none | classify_days |
 | `wording` (module, domain) | Analysis (association wording, ADR-0007) | Holds the fixed wording and the forbidden-word check. | none | forbidden_words_in, finding_texts, forbidden_words_in_findings |
 | `Notice` (class, domain) | none (notices of the Analysis Result, ADR-0002) | Holds a code and message of a non-fatal condition. | `code`, `message` | none |
@@ -1062,7 +1054,7 @@ One row per class, `Protocol`, enumeration or module drawn above (`layer` after 
 | `LoadedConfiguration` (class, application) | none | Holds the settings and the notices raised while reading them. | `configuration`, `notices` | none |
 | `Environment` (enum, application) | none (configuration value) | States production or development; only development allows the CSV fallback. | `PRODUCTION`, `DEVELOPMENT` | none |
 | `BookingLoader` (class, application) | Booking Submission (chooses the source) | Chooses the supplied file or the development sample and loads it. | `supplied_reader`, `development_reader`, `development_sample_path` | `load` |
-| `ValidatedBookings` (class, application) | Booking Submission with Data Quality Summary and Analysis availability | Holds a submission with its summary and availability and hands out records with valid values. | `submission`, `summary`, `availability`, `usable_fields` | `availability_of`, `records_for` |
+| `ValidatedBookings` (class, application) | Booking Submission with Data Quality Summary and Analysis availability | Holds a submission with its summary and availability and hands out records with valid values. | `submission`, `summary`, `availability`, `usable_fields` | `records_for` |
 | `validate_bookings` (module, application) | Data Quality Summary | Validates a submission and summarizes its quality. | none | validate_bookings |
 | `build_result` (module, application) | Analysis Result | Assembles the result or the failed result. | none | build_result, build_failed_result |
 | `placeholder_analyses` (module, application) | Analysis | Applies the analyzers to the six analyses and reports placeholders. | none | run_analyses |
@@ -1147,7 +1139,7 @@ Every concept of [DM-001] is listed. The concepts that are **not** a class as bu
 | Lead Time Analysis, Holiday Analysis, Seasonality Analysis, Cancellation Analysis, Room Value Analysis, Guest Mix Analysis | **not classes in the domain** | One `Analysis` instance whose `name` is the matching `AnalysisName` member and whose `findings` are a JSON mapping (`Mapping[str, JsonValue]`); the computation is in the six strategy classes `LeadTimeAnalyzer`, `HolidayAnalyzer`, `SeasonalityAnalyzer`, `CancellationAnalyzer`, `RoomValueAnalyzer` and `GuestMixAnalyzer` (adapters). The generalization of DM-001 is realized by the `Analyzer` port (DD-1) |
 | Group Statistic | class, used only transiently | `GroupStatistic` (domain) is created by `analysis_rules.count_statistic` and `rate_statistic` and converted at once by `figure_to_json` into a JSON figure inside `Analysis.findings`; a stored result holds it as JSON, and the read side reads it as `Figure` (interface) (DD-4) |
 | Holiday | class | `Holiday` (domain), supplied by the `HolidayCalendar` port and `KhmerHolidayCalendar` |
-| Holiday Window | class defined, **not used** | `HolidayWindow` (domain) is not referenced by the production code; a window is an integer number of days (`AppConfiguration.holiday_windows_days`), each day is classified by `DayClass` and `DayKind`, and the windows appear as JSON in the holiday findings (DD-3) |
+| Holiday Window | **not a class** | the unused class `HolidayWindow` was removed on 2026-09-30; a window is an integer number of days (`AppConfiguration.holiday_windows_days`), each day is classified by `DayClass` and `DayKind`, and the windows appear as JSON in the holiday findings (DD-3) |
 | Analysis Result | class | `AnalysisResult` (domain) with `AnalysisStatus`, `ResultInput` and `ResultError` |
 | Result History | **not a class** | The JSONL file, the ports `HistoryWriter` and `HistoryReader`, their adapters `JsonlHistoryWriter` and `JsonlHistoryReader`, and the read result `HistoryReadout` (domain) (DD-2) |
 | Retention Policy | class | `RetentionPolicy` (domain), passed to `HistoryWriter.append` and applied by `jsonl_retention.enforce_retention` |
@@ -1185,14 +1177,10 @@ Every operation drawn above appears once, with the operation contract of [OC-001
 | `BookingRecord.has_valid(*field_names: str) -> bool` | `analyzeBookings` / SD 1.1 message 31 (`records_with_valid`) |
 | `DataQualitySummary.has_invalid_values() -> bool` | `analyzeBookings` / SD 1.1 message 36 (`_status`) |
 | `AnalysisAvailability.is_available() -> bool` | `analyzeBookings` / SD 1.1 messages 27 and 28 |
-| `DayClass.in_window(kind: DayKind, window_days: int) -> bool` | none / no SD message: not called in the production flow (DD-3) |
 | `quality.records_with_valid(records: Iterable[BookingRecord], *field_names: str) -> tuple[BookingRecord, ...]` | `analyzeBookings` / SD 1.1 message 31 |
 | `quality.summarize(records: tuple[BookingRecord, ...], unknown_fields: tuple[str, ...] = ...) -> DataQualitySummary` | `analyzeBookings` / SD 1.1 message 18 |
 | `quality.usable_fields(records: tuple[BookingRecord, ...]) -> frozenset[str]` | `analyzeBookings` / SD 1.1 message 17 |
 | `quality.assess_availability(records: tuple[BookingRecord, ...]) -> tuple[AnalysisAvailability, ...]` | `analyzeBookings` / SD 1.1 message 17 |
-| `analysis_rules.lead_time_band(days: int) -> str` | none: no production caller, the lead-time analyzer uses the band expression built from `LEAD_TIME_BANDS`; tested only (DD-3) |
-| `analysis_rules.stay_bucket(nights: int) -> str` | none / no SD message: not called by the production code (DD-3) |
-| `analysis_rules.capped_label(value: int, cap: int) -> str` | none: no production caller, only `capped_labels` is used; tested only (DD-3) |
 | `analysis_rules.capped_labels(cap: int) -> tuple[str, ...]` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
 | `analysis_rules.is_small_sample(group_size: int, min_group_size: int) -> bool` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
 | `analysis_rules.rate_statistic(group: str, numerator: int, denominator: int, min_group_size: int) -> GroupStatistic` | `analyzeBookings` / SD 1.1 messages 28 to 33 (called inside `Analyzer.analyze`) |
@@ -1217,7 +1205,6 @@ Every operation drawn above appears once, with the operation contract of [OC-001
 | `AnalyzeBookings._deliver_failure(error: InputError, notices: tuple[Notice, ...]) -> AnalyzeOutcome` | `analyzeBookings` / SD 1.3 message 17 |
 | `AnalyzeBookings._malformed_lines(configuration: AppConfiguration) -> int \| None` | `analyzeBookings` / SD 1.2 message 20, SD 1.5 message 7 |
 | `BookingLoader.load(input_path: Path \| None, environment: Environment) -> BookingSubmission` | `analyzeBookings` / SD 1.1 message 8, SD 1.3 message 6 |
-| `ValidatedBookings.availability_of(analysis: AnalysisName) -> AnalysisAvailability` | none / no SD message: not called in the production flow (DD-3) |
 | `ValidatedBookings.records_for(*field_names: str) -> tuple[BookingRecord, ...]` | `analyzeBookings` / SD 1.1 message 31 |
 | `validate_bookings.validate_bookings(submission: BookingSubmission) -> ValidatedBookings` | `analyzeBookings` / SD 1.1 message 16 |
 | `build_result.build_result(validated: ValidatedBookings, config_notices: tuple[Notice, ...], result_id: str, generated_at: datetime, configuration: AppConfiguration \| None = None, analyzers: tuple[Analyzer, ...] = ...) -> AnalysisResult` | `analyzeBookings` / SD 1.1 message 25 |
@@ -1413,36 +1400,38 @@ The script `verify_dcd.py` (a throw-away check that is not committed to the repo
 | Check | Result |
 | --- | --- |
 | Mermaid blocks read (layer diagrams; the overview is excluded) | 10 |
-| Classes, ports and enumerations drawn per layer (domain, application, adapters, infrastructure, interface) | domain 30, application 18, adapters 11, infrastructure 6, interface 22, total 87 |
+| Classes, ports and enumerations drawn per layer (domain, application, adapters, infrastructure, interface) | domain 29, application 18, adapters 11, infrastructure 6, interface 22, total 86 |
 | Module boxes (`<<module>>`) per layer | domain 4, application 3, adapters 0, infrastructure 4, interface 14, total 25 |
-| Domain classes in `src/hotel_booking_analysis/domain` versus drawn | 30 in src, 30 drawn, 0 missing, 0 not in src |
+| Domain classes in `src/hotel_booking_analysis/domain` versus drawn | 29 in src, 29 drawn, 0 missing, 0 not in src |
 | Drawn class exists in `src/` under the same name and layer | all 87 found, 0 mismatches |
 | Drawn module exists as `<layer>/<name>.py` | all 25 found, 0 mismatches |
-| Attributes and operations drawn (members checked against the class body or module functions) | 436 checked, 0 mismatches |
+| Attributes and operations drawn (members checked against the class body or module functions) | 429 checked, 0 mismatches |
 | Relationship end names that are not declared in any diagram | 1 (the built-in `Exception` only); every other referenced class is declared, and found in `src/`, in the diagram of its own layer |
 | Public classes of `application`, `adapters`, `infrastructure` and `interface` not drawn | 0 (the omitted classes are the private helpers listed above) |
 | Relationship arrows read / arrows between different layers / arrows against the layer direction | 150 / 58 / 0 |
 | Class graph nodes / strongly connected components with more than one node | 103 / 0 |
 | Problems reported | 0 |
 
+Update 2026-09-30: after the removal of the unused definitions (DD-3) the counts were recomputed with `ast` over `src/`: 29 domain classes, all drawn; the members drawn fell by seven (`HolidayWindow` with two attributes, `DayClass.in_window`, `ValidatedBookings.availability_of`, `analysis_rules.lead_time_band`, `stay_bucket` and `capped_label`), giving 429.
+
 Mermaid check: every `mermaid` block of this document and of [SD-001] was parsed and rendered with Mermaid 11 in a browser without error.
 
 ## As-Built Deviations
 
-Differences found while drawing the built classes, continuing the numbering of the earlier documents. They are recorded here and are not corrected in the diagrams; each is to be raised as an open issue or a new task through the MIL-007 review (Go/No-Go criterion 6). Those that repeat a deviation of [SSD-001], [OC-001] or [SD-001] say so.
+Differences found while drawing the built classes, continuing the numbering of the earlier documents. They are recorded here and are not corrected in the diagrams; each was raised as an open issue in the project plan (OI-21 to OI-27) through the MIL-007 review (Go/No-Go criterion 6), and the last column gives its status. Those that repeat a deviation of [SSD-001], [OC-001] or [SD-001] say so.
 
 | ID | Earlier decision | As built | Proposed follow-up |
 | --- | --- | --- | --- |
-| DD-1 | [DM-001] Generalizations: Lead Time Analysis, Holiday Analysis, Seasonality Analysis, Cancellation Analysis, Room Value Analysis and Guest Mix Analysis are kinds (subclasses) of Analysis. [ADR-0006] puts "polars-based analyzers implementing the analyzer ports" in `adapters`. | No subclass of `Analysis` exists. One `Analysis` value class plus `AnalysisName` represents all six; six `Analyzer` strategy classes in `adapters` compute them. The six kinds are therefore not domain classes (same as SD-4). | Open issue: amend DM-001 (kinds are analyzers, not entity subclasses) or accept the Strategy realization. |
-| DD-2 | [DM-001] Result History (with location) is a concept that retains Analysis Results and is limited by a Retention Policy; [ADR-0006] speaks of one "history repository" port. | There is no `ResultHistory` class. The history is the JSONL file reached through two ports `HistoryWriter` (append and retention, the policy is an argument of `append`) and `HistoryReader` (read, never modifies); `HistoryReadout` holds a read result; `AppConfiguration.history_path` holds the location. | Open issue: state in DM-001 or ADR-0006 that the Result History is a file behind two ports. |
-| DD-3 | [DM-001] Holiday Window is a concept with days before and after; [ADR-0006] and the design work assume everything defined is used. | `HolidayWindow` (domain) is defined but not referenced by any production module; windows are integers and `DayClass` and `DayKind` classify days. Also not called by the production flow: `ValidatedBookings.availability_of`, `DayClass.in_window`, `analysis_rules.stay_bucket`, `analysis_rules.lead_time_band`, `analysis_rules.capped_label`; `wording.forbidden_words_in`, `wording.finding_texts` and `wording.forbidden_words_in_findings` are used by the tests only. | New task: remove the unused definitions or use them; if kept, state that they are test support. |
-| DD-4 | [DM-001] Analysis reports Group Statistic (association 1 to 0..*), and [ADR-0002] defines the numerator and denominator. | `GroupStatistic` exists but is transient: it is created by `count_statistic` or `rate_statistic` and converted at once to JSON by `figure_to_json`; `Analysis.findings` holds `Mapping[str, JsonValue]`, and the read side reads the stored figure as `Figure` (interface). The association is not drawn. | Open issue: accept that statistics are JSON inside findings, or type the findings. |
-| DD-5 | [DM-001] Booking Submission is answered by Analysis Result (1 to 1). | `AnalysisResult` has `input: ResultInput | None`, a copy of the source, reference, record count and content hash; no reference to the submission or its records exists (the result holds no raw record, [ADR-0002]). Repeats SD-7. | Open issue: accept as the realization of "no raw records in the result". |
-| DD-6 | [ADR-0006] lists four layers, puts the marimo notebook in `infrastructure` and says the notebook reads through the same history reader port as the command line. | There are five layers; the notebook and its view models are in the outermost `interface` package (the `pyproject.toml` comment states this). `interface/history_source.py` imports the concrete `TomlConfigurationLoader` (adapters) and `JsonlHistoryReader` (infrastructure), which the `layers` contract allows. The contract named "Only the composition root imports adapters and infrastructure" forbids only `domain`, `application` and `adapters` from importing `infrastructure`; it does not restrict `interface`, so its name says more than it enforces. Repeats AD-4, SD-1 and SD-2. | Open issue: amend ADR-0006 for the fifth layer and rename or extend the contract; decide whether `history_source` should use the `HistoryReader` port. |
-| DD-7 | [ADR-0006] application layer holds the use cases "analyze bookings, list results, load a result". | Only `AnalyzeBookings` exists; there are no list-results or load-result use cases. The UC-002 operations are realized by functions and view models in `interface` (same as AD-4 and SD-1). | Open issue: add the use cases, or amend ADR-0006. |
-| DD-8 | [ADR-0006] names the ports "booking reader, holiday calendar, analyzers, history repository, result serializer, clock". | Ten ports are built: additionally `ConfigurationLoader`, `ResultSink` and `ResultIdGenerator`, and the history repository is `HistoryWriter` plus `HistoryReader`. Also `ValidatedBookings`, `AppConfiguration`, `LoadedConfiguration`, `Environment`, `AnalyzeOutcome` and `RunStatus` are application-layer classes that no earlier document names. | Open issue: update ADR-0006 or record the ports in a later ADR. |
-| DD-9 | [OC-001] postconditions of UC-002 speak of Analysis Result instances retained by the Result History. | On the read side `HistoryReadout.results` and the notebook hold parsed JSON mappings (`Result` in `json_access`), not `AnalysisResult` instances; no code rebuilds the domain objects from a stored line. Repeats SD-6. | Open issue: state in DM-001 or the ADRs that the retained result is a JSON document on the read side. |
-| DD-10 | [ADR-0007] fixes six analyses; no decision covers an analysis without an analyzer. | `placeholder_analyses.run_analyses` creates a placeholder `Analysis` with the notice `ANALYSIS_NOT_IMPLEMENTED` when no analyzer is registered; with the six analyzers of `build_analyzers` this path is not used in production. Repeats SD-5. | Open issue: keep as an extension point or remove. |
+| DD-1 | [DM-001] Generalizations: Lead Time Analysis, Holiday Analysis, Seasonality Analysis, Cancellation Analysis, Room Value Analysis and Guest Mix Analysis are kinds (subclasses) of Analysis. [ADR-0006] puts "polars-based analyzers implementing the analyzer ports" in `adapters`. | No subclass of `Analysis` exists. One `Analysis` value class plus `AnalysisName` represents all six; six `Analyzer` strategy classes in `adapters` compute them. The six kinds are therefore not domain classes (same as SD-4). | Open issue OI-25: resolved by the DM-001 revision of MIL-009 task 1 (analysis kinds are analyzers, not entity subclasses); pending. |
+| DD-2 | [DM-001] Result History (with location) is a concept that retains Analysis Results and is limited by a Retention Policy; [ADR-0006] speaks of one "history repository" port. | There is no `ResultHistory` class. The history is the JSONL file reached through two ports `HistoryWriter` (append and retention, the policy is an argument of `append`) and `HistoryReader` (read, never modifies); `HistoryReadout` holds a read result; `AppConfiguration.history_path` holds the location. | Open issue OI-25: resolved by the DM-001 revision of MIL-009 task 1 (the Result History is a file behind two ports); pending. |
+| DD-3 | [DM-001] Holiday Window is a concept with days before and after; [ADR-0006] and the design work assume everything defined is used. | **Resolved 2026-09-30 (MIL-007 task 13):** the unused definitions were removed from the code and this document: `HolidayWindow`, `ValidatedBookings.availability_of`, `DayClass.in_window`, `analysis_rules.stay_bucket`, `analysis_rules.lead_time_band` and `analysis_rules.capped_label`. Kept on purpose: `wording.forbidden_words_in`, `wording.finding_texts` and `wording.forbidden_words_in_findings`, which only the tests call today and which back the wording guardrail. | None: the differences are resolved. |
+| DD-4 | [DM-001] Analysis reports Group Statistic (association 1 to 0..*), and [ADR-0002] defines the numerator and denominator. | `GroupStatistic` exists but is transient: it is created by `count_statistic` or `rate_statistic` and converted at once to JSON by `figure_to_json`; `Analysis.findings` holds `Mapping[str, JsonValue]`, and the read side reads the stored figure as `Figure` (interface). The association is not drawn. | Open issue OI-25: resolved by the DM-001 revision of MIL-009 task 1 (statistics are JSON inside findings); pending. |
+| DD-5 | [DM-001] Booking Submission is answered by Analysis Result (1 to 1). | `AnalysisResult` has `input: ResultInput | None`, a copy of the source, reference, record count and content hash; no reference to the submission or its records exists (the result holds no raw record, [ADR-0002]). Repeats SD-7. | Open issue OI-25: resolved by the DM-001 revision of MIL-009 task 1 (a copy of the input metadata keeps raw records out of the result); pending. |
+| DD-6 | [ADR-0006] lists four layers, puts the marimo notebook in `infrastructure` and says the notebook reads through the same history reader port as the command line. | There are five layers; the notebook and its view models are in the outermost `interface` package (the `pyproject.toml` comment states this). `interface/history_source.py` imports the concrete `TomlConfigurationLoader` (adapters) and `JsonlHistoryReader` (infrastructure), which the `layers` contract allows. The contract named "Only the composition root imports adapters and infrastructure" forbids only `domain`, `application` and `adapters` from importing `infrastructure`; it does not restrict `interface`, so its name says more than it enforces. Repeats AD-4, SD-1 and SD-2. | Open issue OI-24: resolved by the amendment of ADR-0006 (MIL-007 task 12), which records the fifth layer; acceptance pending. |
+| DD-7 | [ADR-0006] application layer holds the use cases "analyze bookings, list results, load a result". | Only `AnalyzeBookings` exists; there are no list-results or load-result use cases. The UC-002 operations are realized by functions and view models in `interface` (same as AD-4 and SD-1). | Open issue OI-24: resolved by the amendment of ADR-0006, which accepts that the use cases were not built and says when to add one; acceptance pending. |
+| DD-8 | [ADR-0006] names the ports "booking reader, holiday calendar, analyzers, history repository, result serializer, clock". | Ten ports are built: additionally `ConfigurationLoader`, `ResultSink` and `ResultIdGenerator`, and the history repository is `HistoryWriter` plus `HistoryReader`. Also `ValidatedBookings`, `AppConfiguration`, `LoadedConfiguration`, `Environment`, `AnalyzeOutcome` and `RunStatus` are application-layer classes that no earlier document names. | Open issue OI-24: resolved by the amendment of ADR-0006, which lists the ten built ports; acceptance pending. |
+| DD-9 | [OC-001] postconditions of UC-002 speak of Analysis Result instances retained by the Result History. | On the read side `HistoryReadout.results` and the notebook hold parsed JSON mappings (`Result` in `json_access`), not `AnalysisResult` instances; no code rebuilds the domain objects from a stored line. Repeats SD-6. | Open issue OI-25: resolved by the DM-001 revision of MIL-009 task 1 (the retained result is a JSON document on the read side); pending. |
+| DD-10 | [ADR-0007] fixes six analyses; no decision covers an analysis without an analyzer. | `placeholder_analyses.run_analyses` creates a placeholder `Analysis` with the notice `ANALYSIS_NOT_IMPLEMENTED` when no analyzer is registered; with the six analyzers of `build_analyzers` this path is not used in production. Repeats SD-5. | Open issue OI-26: resolved by the amendment of ADR-0006 (the placeholder analysis is kept as an extension point). |
 
 ---
 

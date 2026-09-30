@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from hotel_booking_analysis.domain.analysis import AnalysisAvailability, AnalysisName
+from hotel_booking_analysis.domain.analysis import AnalysisAvailability
 from hotel_booking_analysis.domain.booking import (
     BookingRecord,
     BookingSubmission,
@@ -29,9 +29,6 @@ class ValidatedBookings:
     summary: DataQualitySummary
     availability: tuple[AnalysisAvailability, ...]
     usable_fields: frozenset[str]
-
-    def availability_of(self, analysis: AnalysisName) -> AnalysisAvailability:
-        return next(a for a in self.availability if a.analysis is analysis)
 
     def records_for(self, *field_names: str) -> tuple[BookingRecord, ...]:
         """Return the records holding a valid value in every named field."""
