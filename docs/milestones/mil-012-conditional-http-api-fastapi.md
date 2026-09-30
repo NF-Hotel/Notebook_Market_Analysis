@@ -28,7 +28,7 @@ A FastAPI application with routes for the analysis (with the optional insights),
 
 | # | Criterion (objectively checkable) | Go | No-Go |
 | --- | --- | --- | --- |
-| 0 | ADR-0008 selects an HTTP interface and S02 has accepted it; otherwise the gateway is closed as not needed | Selected | Not selected: close without work |
+| 0 | ADR-0008 selects an HTTP interface and S02 has accepted it; otherwise the gateway is closed as not needed | Selected: met by the amendment of ADR-0008 of 2026-09-30 | Not selected: close without work |
 | 1 | The test suite passes, import-linter reports no layer violation (the API imports use cases only through the composition root), mypy strict and ruff are clean, and the coverage report is produced by pytest | All clean | Any failure |
 | 2 | Every route returns the same JSON as the command with the same input, and the analysis route returns the result that was appended to the history | Verified by test | Any difference |
 | 3 | The outcomes of ADR-0005 map to documented HTTP status codes, and success is never returned when the history write or delivery failed | Verified by test | Success on failure |

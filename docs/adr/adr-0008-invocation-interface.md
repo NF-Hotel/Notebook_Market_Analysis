@@ -85,6 +85,18 @@ The command line is the only driving adapter now. Because the use cases sit behi
 - [ADR-0012] — the configuration read by every subcommand through `--config`; the `[llm]` values are validated only by `llm-providers` and `analyze --insights`.
 - [PP-001] — resolves OI-17 and closes OI-04 once S02 accepts; MIL-012 stays conditional.
 
+## Amendment 2026-09-30 (MIL-012, open issues OI-04 and OI-17)
+
+The calling-system owner (S02) accepts an HTTP interface, as stated by the project owner (S01) on 2026-09-30. The decision above is amended in one point: **a FastAPI service is added as a second driving adapter, and the command line stays.** Nothing else in the decision changes.
+
+- **Both interfaces stay.** `analyze`, `holidays` and `llm-providers` on `python -m hotel_booking_analysis` are unchanged, with the same JSON and exit codes. The service calls the same three use cases through the composition root, so a route gives the same JSON as the command with the same input, and the analysis route returns the result that was appended to the history. The domain and application layers do not change; the service is an adapter in the outer layers ([ADR-0006]).
+- **Conditions of the gateway.** MIL-012 is no longer closed as not needed. It is built after MIL-010 and MIL-011 and its criterion 0 is met by this amendment.
+- **New dependencies.** FastAPI and an ASGI server (for example uvicorn) are added, and only those. They are listed in the pull request of MIL-012 and used only in the outer layers.
+- **Left to MIL-012.** The routes and their arguments, the mapping of the outcomes of [ADR-0005] and the listings to HTTP status codes (success is never returned when the history write or the delivery failed), the timeout of a long insight request, how the history lock and the model calls are shared safely inside one process, and how the service is bound and secured. The negative consequences listed above (long calls, concurrency, a server to run and protect, exposure of booking analysis results) become design points of MIL-012 and are decided and documented there, in an amendment of this ADR or a new ADR.
+- **The 12-minute worst case** of `analyze --insights` still applies to the command line. The service must not block the listings while an insight request runs and must state a timeout for it (criterion 5 of MIL-012).
+
+This amendment needs the written confirmation of S02 (open issue OI-17) and the acceptance of S04.
+
 ---
 
 [UC-003]: ../use-cases/uc-003-get-holiday-calendar.md
