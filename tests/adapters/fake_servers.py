@@ -12,12 +12,13 @@ import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import Any
 
 Behavior = Callable[[BaseHTTPRequestHandler, threading.Event], None]
 
 
 def json_answer(document: object, status: int = 200) -> Behavior:
-    """Answer every GET with `document` as JSON."""
+    """Answer every GET or POST with `document` as JSON."""
 
     def behave(handler: BaseHTTPRequestHandler, stop: threading.Event) -> None:
         body = json.dumps(document).encode("utf-8")
@@ -80,14 +81,20 @@ def endless_body(handler: BaseHTTPRequestHandler, stop: threading.Event) -> None
 
 
 def _handler_class(
-    behavior: Behavior, stop: threading.Event, requests: list[str], keep_alive: bool
+    behavior: Behavior, stop: threading.Event, server: "FakeServer", keep_alive: bool
 ) -> type[BaseHTTPRequestHandler]:
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1" if keep_alive else "HTTP/1.0"
 
         def do_GET(self) -> None:
-            requests.append(self.path)
+            server.requests.append(self.path)
             with contextlib.suppress(OSError):  # the client hung up
+                behavior(self, stop)
+
+        def do_POST(self) -> None:
+            server.requests.append(self.path)
+            server.bodies.append(self.rfile.read(int(self.headers.get("Content-Length", "0"))))
+            with contextlib.suppress(OSError):
                 behavior(self, stop)
 
         def log_message(self, format: str, *args: object) -> None:
@@ -97,25 +104,31 @@ def _handler_class(
 
 
 class FakeServer:
-    """A running fake provider: its base URL and the paths that were requested."""
+    """A running fake provider: its base URL, the paths requested and the POST bodies received."""
 
-    def __init__(self, base_url: str, requests: list[str]) -> None:
-        self.base_url = base_url
-        self.requests = requests
+    def __init__(self) -> None:
+        self.base_url = ""
+        self.requests: list[str] = []
+        self.bodies: list[bytes] = []
+
+    def posted_documents(self) -> list[Any]:
+        """The POST bodies parsed as JSON (test data, so any shape)."""
+        return [json.loads(body) for body in self.bodies]
 
 
 @contextmanager
 def serve(behavior: Behavior, keep_alive: bool = False) -> Iterator[FakeServer]:
-    """Run a server that plays `behavior` for every GET request (HTTP/1.1 when `keep_alive`)."""
+    """Run a server that plays `behavior` for every GET or POST (HTTP/1.1 when `keep_alive`)."""
     stop = threading.Event()
-    requests: list[str] = []
-    handler = _handler_class(behavior, stop, requests, keep_alive)
+    fake = FakeServer()
+    handler = _handler_class(behavior, stop, fake, keep_alive)
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     server.daemon_threads = True
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        yield FakeServer(f"http://127.0.0.1:{server.server_address[1]}", requests)
+        fake.base_url = f"http://127.0.0.1:{server.server_address[1]}"
+        yield fake
     finally:
         stop.set()
         server.shutdown()

@@ -20,12 +20,17 @@ from hotel_booking_analysis.domain.llm import (
     ProviderStatus,
 )
 from hotel_booking_analysis.domain.result import ResultError
-from tests.support import FakeConfigurationLoader, FixedClock, RecordingSink
+from tests.support import (
+    DiscoveryOnlyProvider,
+    FakeConfigurationLoader,
+    FixedClock,
+    RecordingSink,
+)
 
 MOMENT = datetime(2026, 9, 30, 8, 0, tzinfo=UTC)
 
 
-class FakeProvider:
+class FakeProvider(DiscoveryOnlyProvider):
     """A provider with a fixed answer; records that it was asked and with which deadline."""
 
     def __init__(

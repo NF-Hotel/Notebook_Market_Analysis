@@ -1,9 +1,11 @@
 """Analysis entities and value objects (DM-001, ADR-0002, ADR-0007)."""
 
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date
 from enum import StrEnum
+
+from hotel_booking_analysis.domain.insight import AiInsight
 
 type JsonValue = str | int | float | bool | list[JsonValue] | dict[str, JsonValue] | None
 """Plain JSON-shaped data; money is carried as a decimal string (ADR-0002)."""
@@ -63,6 +65,11 @@ class Analysis:
     availability: Availability
     reason: str | None = None
     findings: Mapping[str, JsonValue] = field(default_factory=dict)
+    insight: AiInsight | None = None
+
+    def with_insight(self, insight: AiInsight | None) -> "Analysis":
+        """A copy of this analysis that holds `insight` (UC-005); the analysis is unchanged."""
+        return replace(self, insight=insight)
 
 
 @dataclass(frozen=True, slots=True)

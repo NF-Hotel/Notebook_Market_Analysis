@@ -1,6 +1,8 @@
-"""Domain errors and notices (ADR-0001, ADR-0004, ADR-0005)."""
+"""Domain errors and notices (ADR-0001, ADR-0004, ADR-0005, ADR-0009, ADR-0010)."""
 
 from dataclasses import dataclass
+
+from hotel_booking_analysis.domain.insight import InsightReason
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,3 +55,20 @@ class HistoryReadError(HistoryError):
 
 class ResultDeliveryError(Exception):
     """The result could not be written to the caller (ADR-0005 exit code 4)."""
+
+
+class InsightRejectedError(Exception):
+    """A model answer failed the validator (ADR-0010); `detail` never quotes the answer."""
+
+    def __init__(self, reason: InsightReason, detail: str) -> None:
+        super().__init__(detail)
+        self.reason = reason
+        self.detail = detail
+
+
+class LlmError(Exception):
+    """A generation request failed: refused connection, error status or unusable body."""
+
+
+class LlmTimeoutError(LlmError):
+    """No complete answer came within the total generation deadline (ADR-0009)."""

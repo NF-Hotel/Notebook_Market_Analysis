@@ -17,6 +17,7 @@ from hotel_booking_analysis.domain.errors import (
     ResultDeliveryError,
 )
 from hotel_booking_analysis.domain.history import HistoryReadout, RetentionPolicy
+from hotel_booking_analysis.domain.insight_prompt import InsightPrompt
 from hotel_booking_analysis.domain.result import AnalysisResult
 
 
@@ -103,6 +104,15 @@ class FakeConfigurationLoader:
         if isinstance(self.loaded, InputError):
             raise self.loaded
         return self.loaded
+
+
+class DiscoveryOnlyProvider:
+    """Base of fake providers that only list models: generating text is a test failure."""
+
+    def generate(
+        self, model: str, prompt: InsightPrompt, temperature: float, timeout_seconds: float
+    ) -> str:
+        raise AssertionError("This fake provider must not be asked to generate text.")
 
 
 class FakeSerializer:

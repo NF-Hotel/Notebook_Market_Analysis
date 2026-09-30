@@ -8,9 +8,10 @@ from hotel_booking_analysis.domain.llm import (
     ProviderReason,
     ProviderStatus,
 )
+from tests.support import DiscoveryOnlyProvider
 
 
-class FakeProvider:
+class FakeProvider(DiscoveryOnlyProvider):
     """Answers with a fixed status and records the order and timeout of the calls."""
 
     def __init__(

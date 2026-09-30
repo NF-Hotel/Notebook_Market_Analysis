@@ -14,6 +14,7 @@ from hotel_booking_analysis.domain.analysis import Analysis, AnalysisName, Holid
 from hotel_booking_analysis.domain.booking import BookingSubmission
 from hotel_booking_analysis.domain.errors import Notice
 from hotel_booking_analysis.domain.history import HistoryReadout, RetentionPolicy
+from hotel_booking_analysis.domain.insight_prompt import InsightPrompt
 from hotel_booking_analysis.domain.listing import HolidayCalendarListing
 from hotel_booking_analysis.domain.llm import LanguageModelProvider, ProviderListing, ProviderStatus
 from hotel_booking_analysis.domain.result import AnalysisResult, ResultError
@@ -125,15 +126,22 @@ class HolidayListingSerializer(Protocol):
 
 
 class LlmProvider(Protocol):
-    """One language model provider (ADR-0009). Discovery only reads; it never generates text.
-
-    Generation (`generate`) is added with the AI insights (MIL-011).
-    """
+    """One language model provider (ADR-0009): discovery of its models and text generation."""
 
     def provider(self) -> LanguageModelProvider: ...
 
     def list_models(self, timeout_seconds: float) -> ProviderStatus:
         """Check the provider within a total deadline; a failure is a status, never raised."""
+        ...
+
+    def generate(
+        self, model: str, prompt: InsightPrompt, temperature: float, timeout_seconds: float
+    ) -> str:
+        """Send one request and return the answer text within a total deadline; no retry.
+
+        Raises `LlmTimeoutError` when no complete answer came in time and `LlmError` for a
+        refused connection, an error status or an unusable response (ADR-0009, ADR-0010).
+        """
         ...
 
 

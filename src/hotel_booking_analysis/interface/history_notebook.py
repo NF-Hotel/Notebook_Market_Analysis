@@ -5,7 +5,8 @@ the directory that holds `hotel_analysis.toml` (or set HOTEL_ANALYSIS_CONFIG). T
 reads the history. Cells stay thin: they call the pure view-model functions and render.
 
 To add an analysis view, add a cell that depends on `selected`, builds its view model, and shows
-`render_limitations(build_limitations(selected, "<analysis name>"))` with it.
+`render_limitations(build_limitations(selected, "<analysis name>"))` and
+`render_insight(build_insight_view(selected, "<analysis name>"))` with it.
 """
 
 import marimo
@@ -20,6 +21,7 @@ with app.setup:
     from hotel_booking_analysis.interface.guest_mix_view import build_guest_mix_view
     from hotel_booking_analysis.interface.history_view import HistoryView
     from hotel_booking_analysis.interface.holiday_view import build_holiday_view
+    from hotel_booking_analysis.interface.insight_view import build_insight_view
     from hotel_booking_analysis.interface.json_access import Result
     from hotel_booking_analysis.interface.lead_time_view import build_lead_time_view
     from hotel_booking_analysis.interface.limitations import build_limitations
@@ -27,6 +29,7 @@ with app.setup:
         render_cancellations,
         render_guest_mix,
         render_holidays,
+        render_insight,
         render_lead_time,
         render_limitations,
         render_quality,
@@ -115,6 +118,7 @@ def _(lead_time_split: marimo.ui.dropdown, mo: ModuleType, selected: Result | No
         [
             render_lead_time(build_lead_time_view(selected), lead_time_split.value),
             render_limitations(build_limitations(selected, "lead_time")),
+            render_insight(build_insight_view(selected, "lead_time")),
         ]
     ) if selected is not None else None
 
@@ -149,6 +153,7 @@ def _(
                 seasonality_grain.value,
             ),
             render_limitations(build_limitations(selected, "seasonality")),
+            render_insight(build_insight_view(selected, "seasonality")),
         ]
     ) if selected is not None else None
 
@@ -169,6 +174,7 @@ def _(holiday_window: marimo.ui.dropdown, mo: ModuleType, selected: Result | Non
         [
             render_holidays(build_holiday_view(selected), holiday_window.value),
             render_limitations(build_limitations(selected, "holidays")),
+            render_insight(build_insight_view(selected, "holidays")),
         ]
     ) if selected is not None else None
 
@@ -189,6 +195,7 @@ def _(cancellation_split: marimo.ui.dropdown, mo: ModuleType, selected: Result |
         [
             render_cancellations(build_cancellation_view(selected), cancellation_split.value),
             render_limitations(build_limitations(selected, "cancellations")),
+            render_insight(build_insight_view(selected, "cancellations")),
         ]
     ) if selected is not None else None
 
@@ -199,6 +206,7 @@ def _(mo: ModuleType, selected: Result | None) -> None:
         [
             render_room_value(build_room_value_view(selected)),
             render_limitations(build_limitations(selected, "room_value")),
+            render_insight(build_insight_view(selected, "room_value")),
         ]
     ) if selected is not None else None
 
@@ -219,6 +227,7 @@ def _(guest_mix_attribute: marimo.ui.dropdown, mo: ModuleType, selected: Result 
         [
             render_guest_mix(build_guest_mix_view(selected), guest_mix_attribute.value),
             render_limitations(build_limitations(selected, "guest_mix")),
+            render_insight(build_insight_view(selected, "guest_mix")),
         ]
     ) if selected is not None else None
 

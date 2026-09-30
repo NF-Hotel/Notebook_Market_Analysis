@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nf-hotel.example/schemas/analysis-result-1.1.json",
+  "title": "Hotel booking analysis result, schema_version 1.1: 1.0 plus AI insights (ADR-0011)",
+  "description": "Used only when insights were requested and the run did not fail. Every part that 1.1 shares with 1.0 is referenced from the 1.0 schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "result_id",
+    "generated_at",
+    "status",
+    "input",
+    "data_quality",
+    "insights",
+    "analyses",
+    "notices"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1"
+    },
+    "result_id": {
+      "$ref": "https://nf-hotel.example/schemas/analysis-result-1.0.json#/properties/result_id"
+    },
+    "generated_at": {
+      "$ref": "https://nf-hotel.example/schemas/analysis-result-1.0.json#/properties/generated_at"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "completed_with_warnings"
+      ]
+    },
+    "input": {
+      "$ref": "https://nf-hotel.example/schemas/analysis-result-1.0.json#/properties/input"
+    },
+    "data_quality": {
+      "$ref": "https://nf-hotel.example/schemas/analysis-result-1.0.json#/properties/data_quality"
+    },
+    "notices": {
+      "$ref": "https://nf-hotel.example/schemas/analysis-result-1.0.json#/properties/notices"
+    },
+    "insights": {
+      "$ref": "#/$defs/insights"
+    },
+    "analyses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lead_time",
+        "holidays",
+        "seasonality",
+        "cancellations",
+        "room_value",
+        "guest_mix"
+      ],
+      "properties": {
+        "lead_time": {
+          "$ref": "#/$defs/analysis"
+        },
+        "holidays": {
+          "$ref": "#/$defs/analysis"
+        },
+        "seasonality": {
+          "$ref": "#/$defs/analysis"
+        },
+        "cancellations": {
+          "$ref": "#/$defs/analysis"
+        },
+        "room_value": {
+          "$ref": "#/$defs/analysis"
+        },
+        "guest_mix": {
+          "$ref": "#/$defs/analysis"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "insights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested",
+        "provider",
+        "model",
+        "prompt_version"
+      ],
+      "properties": {
+        "requested": {
+          "const": true
+        },
+        "provider": {
+          "enum": [
+            "ollama",
+            "lmstudio",
+            null
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "findings",
+        "insight"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "findings": {
+          "type": "object"
+        },
+        "insight": {
+          "$ref": "#/$defs/insight"
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "unavailable"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "insight": {
+            "properties": {
+              "status": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "insight": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "available",
+                  "unavailable"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "suggestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suggestion",
+        "evidence",
+        "sample_size"
+      ],
+      "properties": {
+        "suggestion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "insight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reason",
+        "label",
+        "provider",
+        "model",
+        "generated_at",
+        "executive_summary",
+        "improvement_suggestions"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "available",
+            "unavailable",
+            "not_applicable"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "NO_PROVIDER",
+            "NO_MODEL",
+            "TIMEOUT",
+            "MODEL_ERROR",
+            "BAD_STRUCTURE",
+            "GUARDRAIL_REJECTED",
+            null
+          ]
+        },
+        "label": {
+          "enum": [
+            "AI-generated",
+            null
+          ]
+        },
+        "provider": {
+          "enum": [
+            "ollama",
+            "lmstudio",
+            null
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+        },
+        "executive_summary": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 600
+        },
+        "improvement_suggestions": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/suggestion"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "type": "null"
+              },
+              "label": {
+                "const": "AI-generated"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "model": {
+                "type": "string"
+              },
+              "generated_at": {
+                "type": "string"
+              },
+              "executive_summary": {
+                "type": "string"
+              },
+              "improvement_suggestions": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "label": {
+                "type": "null"
+              },
+              "generated_at": {
+                "type": "null"
+              },
+              "executive_summary": {
+                "type": "null"
+              },
+              "improvement_suggestions": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "unavailable"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "not_applicable"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "type": "null"
+              },
+              "provider": {
+                "type": "null"
+              },
+              "model": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

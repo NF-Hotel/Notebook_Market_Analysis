@@ -19,6 +19,7 @@ from tests.interface.builders import (
     with_identity,
     write_history,
 )
+from tests.interface.insight_builders import with_insights
 from tests.support import make_line
 
 
@@ -102,6 +103,44 @@ def test_history_view_states_version_for_older_major_result(tmp_path: Path) -> N
     assert notice is not None
     assert "0.9" in notice
     assert "cannot be fully displayed" in notice
+
+
+def test_history_view_lists_1_0_and_1_1_results_of_one_history_as_fully_supported(
+    tmp_path: Path,
+) -> None:
+    base = run_analysis(tmp_path)
+    old = with_identity(base, "old-1-0", "2026-01-01T10:00:00.000Z")
+    new = with_identity(with_insights(base), "new-1-1", "2026-02-01T10:00:00.000Z")
+    path = write_history(tmp_path, old, new)
+    before = path.read_bytes()
+
+    view = _view(tmp_path)
+
+    assert [(r.result_id, r.schema_version) for r in view.rows] == [
+        ("new-1-1", "1.1"),
+        ("old-1-0", "1.0"),
+    ]
+    assert all(row.fully_supported for row in view.rows)
+    assert all(version_notice(result) is None for result in view.results)
+    assert view.malformed_message is None
+    assert path.read_bytes() == before
+
+
+def test_history_view_shows_unknown_major_result_with_its_version_and_readable_parts(
+    tmp_path: Path,
+) -> None:
+    base = with_insights(run_analysis(tmp_path))
+    future = {**with_identity(base, "future", "2027-01-01T00:00:00.000Z"), "schema_version": "2.0"}
+    write_history(tmp_path, future)
+
+    view = _view(tmp_path)
+
+    assert view.rows[0].schema_version == "2.0"
+    assert view.rows[0].record_count == 7
+    assert view.rows[0].fully_supported is False
+    notice = version_notice(view.results[0])
+    assert notice is not None
+    assert "2.0" in notice
 
 
 def test_version_notice_is_none_for_supported_minor_versions() -> None:
