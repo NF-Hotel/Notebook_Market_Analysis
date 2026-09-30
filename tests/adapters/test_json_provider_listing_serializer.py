@@ -140,8 +140,8 @@ def _valid() -> dict[str, Any]:
     return _listing(*_reachable())
 
 
-def _drop_provider(document: dict[str, Any]) -> None:
-    document["providers"].pop()
+def _no_providers(document: dict[str, Any]) -> None:
+    document["providers"].clear()
 
 
 def _swap_order(document: dict[str, Any]) -> None:
@@ -206,7 +206,7 @@ def _failed_with_providers(document: dict[str, Any]) -> None:
 @pytest.mark.parametrize(
     "corrupt",
     [
-        _drop_provider,
+        _no_providers,
         _swap_order,
         _third_provider,
         _reachable_with_reason,
@@ -231,3 +231,10 @@ def test_schema_rejects_a_document_that_breaks_the_contract(
 
     with pytest.raises(ValidationError):
         VALIDATOR.validate(document)
+
+
+def test_schema_accepts_a_listing_with_one_provider() -> None:
+    document = _valid()
+    document["providers"].pop()
+
+    VALIDATOR.validate(document)

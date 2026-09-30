@@ -65,7 +65,7 @@ A year is `available` when the calendar source returns at least one holiday for 
 
 | Field | Meaning |
 | --- | --- |
-| `providers` | always two entries, in the order `ollama`, `lmstudio`: `{provider, base_url, status, reason, models}` |
+| `providers` | one or two entries (minimum 1, maximum 2), in the order `ollama`, `lmstudio`: `{provider, base_url, status, reason, models}` |
 | `providers[].provider` | `ollama` or `lmstudio` |
 | `providers[].base_url` | the configured base URL ([ADR-0012]) |
 | `providers[].status` | `reachable` or `unreachable` ([ADR-0009]) |
