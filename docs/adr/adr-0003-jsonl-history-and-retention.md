@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -53,6 +54,12 @@ Each completed result is appended to a local JSONL history that marimo reads, an
 - [ADR-0002] — line content.
 - [ADR-0004] — path and retention settings.
 - [ADR-0005] — failure behavior.
+
+## Amendment 2026-09-30 (MIL-007 task 11, open issue OI-23)
+
+The decision says "latest" means later in the file, not later by `generated_at`. Retention and the append order keep that rule. The history viewer lists the retained results by `generated_at`, newest first, with the file position breaking ties and unreadable times sorted last, because [UC-002] asks for the newest first by time produced.
+
+The two orders agree unless the system clock goes backwards or histories are merged. In that case retention still removes the oldest results by file position, and the viewer still shows time order. This difference is accepted and recorded here. This amendment is proposed and needs acceptance by S01 and S04.
 
 ---
 

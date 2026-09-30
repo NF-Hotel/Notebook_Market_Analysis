@@ -18,6 +18,7 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -215,13 +216,13 @@ Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are
 - **OI-18:** Parameters of the holiday listing: which years (the years in the data, a given range, or the current year) and whether Cambodia only. Resolve in G8 and G9 (ADR-0011). Owner S02.
 - **OI-19:** Whether insights are cached or regenerated, and how latency and model cost are limited. Resolve in G9 (ADR-0010, ADR-0012). Owner S01.
 - **OI-20:** The request says marked analyst, read here as market analyst, the Analyst actor S05; confirm, and confirm whether the Calling system also consumes the suggestions. Resolve in G8. Owner S01.
-- **OI-21:** UC-001 differs from the built system in three places: no input outside development gives a failed result (AD-1), retention failure and lock timeout have no extension (OD-1), and configuration reading and the history check are not steps (AD-5). Resolve in G7 (MIL-007 task 9). Owner S01.
-- **OI-22:** ADR-0005 does not cover a failed result that cannot be delivered (exit code 4, nothing stored, AD-2). Resolve in G7 (MIL-007 task 10). Owner S02.
-- **OI-23:** Retention uses file order while the notebook lists by generated time (AD-3). Resolve in G7 (MIL-007 task 11). Owner S01.
-- **OI-24:** ADR-0006 differs from the build: a fifth interface layer, the notebook using concrete adapters, ten ports instead of the listed ones, and no list-results or load-result use cases (AD-4, SD-1, SD-2, DD-6 to DD-8). Resolve in G7 (MIL-007 task 12). Owner S01.
+- **OI-21:** UC-001 differs from the built system in three places: no input outside development gives a failed result (AD-1), retention failure and lock timeout have no extension (OD-1), and configuration reading and the history check are not steps (AD-5). Resolve in G7 (MIL-007 task 9). Owner S01. Resolved 2026-09-30 by the revision of UC-001 (MIL-007 task 9); acceptance by S02 pending.
+- **OI-22:** ADR-0005 does not cover a failed result that cannot be delivered (exit code 4, nothing stored, AD-2). Resolve in G7 (MIL-007 task 10). Owner S02. Resolved 2026-09-30 by the amendment of ADR-0005 (task 10); acceptance by S02 and S04 pending.
+- **OI-23:** Retention uses file order while the notebook lists by generated time (AD-3). Resolve in G7 (MIL-007 task 11). Owner S01. Resolved 2026-09-30 by the amendment of ADR-0003 (task 11); acceptance by S01 and S04 pending.
+- **OI-24:** ADR-0006 differs from the build: a fifth interface layer, the notebook using concrete adapters, ten ports instead of the listed ones, and no list-results or load-result use cases (AD-4, SD-1, SD-2, DD-6 to DD-8). Resolve in G7 (MIL-007 task 12). Owner S01. Resolved 2026-09-30 by the amendment of ADR-0006 (task 12); acceptance by S01 and S04 pending.
 - **OI-25:** DM-001 differs from the build: analysis kinds are strategies, there is no Result History class, the result holds a copy of the input metadata instead of a link, group statistics are transient, and retained results are JSON on the read side (OD-2, SD-4, SD-6, SD-7, DD-1, DD-2, DD-4, DD-5, DD-9). Resolve in G9 (MIL-009 task 1). Owner S01.
-- **OI-26:** Definitions with no production caller and a placeholder analysis branch that production never reaches (SD-5, DD-3, DD-10). Resolve in G7 (MIL-007 task 13). Owner S01.
-- **OI-27:** The history is read a second time after every run only to count malformed lines (SD-3, AD-5). Resolve in G7 (MIL-007 task 13). Owner S01.
+- **OI-26:** Definitions with no production caller and a placeholder analysis branch that production never reaches (SD-5, DD-3, DD-10). Resolve in G7 (MIL-007 task 13). Owner S01. Resolved 2026-09-30: the unused definitions were removed, the placeholder analysis and the wording helpers are kept on purpose (task 13, ADR-0006 amendment).
+- **OI-27:** The history is read a second time after every run only to count malformed lines (SD-3, AD-5). Resolve in G7 (MIL-007 task 13). Owner S01. Resolved 2026-09-30: the history check after a run is kept on purpose and stated in UC-001 (tasks 9 and 13).
 
 ---
 

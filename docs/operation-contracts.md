@@ -13,6 +13,7 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -154,6 +155,8 @@ The three operations of [UC-002] read only. Each postcondition states that the R
 | The Analysis is unavailable in the selected Analysis Result or offers no options | No option list is offered for it; the view shows the unavailable reason or the single default view |
 
 ## As-Built Deviations
+
+Update 2026-09-30: UC-001 now states AD-1 and OD-1; AD-2 is amended in ADR-0005 and AD-3 in ADR-0003. The contracts are unchanged.
 
 The differences of [SSD-001] (AD-1 to AD-5) apply to these contracts; the ones that change a contract are repeated here. Each is to be raised as an open issue or a new task through the MIL-007 review.
 

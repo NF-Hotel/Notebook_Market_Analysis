@@ -11,7 +11,6 @@ from hotel_booking_analysis.domain.analysis_rules import (
     LEAD_TIME_BANDS,
     SPECIAL_REQUEST_CAP,
     STAY_BUCKETS,
-    capped_label,
     capped_labels,
     count_statistic,
     decimal_string,
@@ -21,38 +20,12 @@ from hotel_booking_analysis.domain.analysis_rules import (
     is_partial_period,
     is_small_sample,
     iso_week_bounds,
-    lead_time_band,
     mean_decimal_string,
     missing_field_reason,
     month_bounds,
     rate_statistic,
-    stay_bucket,
     unavailable_marker,
 )
-
-
-@pytest.mark.parametrize(
-    ("days", "band"),
-    [
-        (0, "0-7"),
-        (7, "0-7"),
-        (8, "8-30"),
-        (30, "8-30"),
-        (31, "31-90"),
-        (90, "31-90"),
-        (91, "91-180"),
-        (180, "91-180"),
-        (181, "181+"),
-        (5000, "181+"),
-    ],
-)
-def test_lead_time_band_uses_adr_0007_edges(days: int, band: str) -> None:
-    assert lead_time_band(days) == band
-
-
-def test_lead_time_band_rejects_negative_days() -> None:
-    with pytest.raises(ValueError, match="negative"):
-        lead_time_band(-1)
 
 
 def test_lead_time_bands_are_contiguous_and_end_open() -> None:
@@ -116,39 +89,13 @@ def test_missing_field_reason_names_every_field() -> None:
     assert "'is_canceled'" in reason
 
 
-@pytest.mark.parametrize(
-    ("nights", "bucket"),
-    [(1, "1"), (2, "2"), (3, "3"), (4, "4-7"), (7, "4-7"), (8, "8+"), (30, "8+")],
-)
-def test_stay_bucket_puts_edges_in_the_adr_buckets(nights: int, bucket: str) -> None:
-    assert stay_bucket(nights) == bucket
-
-
-def test_stay_bucket_rejects_zero_nights() -> None:
-    with pytest.raises(ValueError, match="at least one night"):
-        stay_bucket(0)
-
-
 def test_stay_buckets_are_the_five_adr_buckets() -> None:
     assert [b.label for b in STAY_BUCKETS] == ["1", "2", "3", "4-7", "8+"]
-
-
-@pytest.mark.parametrize(
-    ("value", "cap", "label"),
-    [(0, 3, "0"), (2, 3, "2"), (3, 3, "3+"), (9, 3, "3+"), (1, 2, "1"), (2, 2, "2+")],
-)
-def test_capped_label_groups_the_cap_and_more(value: int, cap: int, label: str) -> None:
-    assert capped_label(value, cap) == label
 
 
 def test_capped_labels_follow_the_adr_groups() -> None:
     assert capped_labels(SPECIAL_REQUEST_CAP) == ("0", "1", "2", "3+")
     assert capped_labels(BOOKING_CHANGE_CAP) == ("0", "1", "2+")
-
-
-def test_capped_label_rejects_negative_counts() -> None:
-    with pytest.raises(ValueError, match="negative"):
-        capped_label(-1, 3)
 
 
 def test_iso_week_bounds_of_week_53_span_the_year_end() -> None:

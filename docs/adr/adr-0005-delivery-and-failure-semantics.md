@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -59,6 +60,12 @@ Options: return first then save (the caller may hold a result that was never kep
 - [ADR-0002] — the serialized result.
 - [ADR-0003] — history write and retention failures.
 - [ADR-0006] — invocation and exit codes.
+
+## Amendment 2026-09-30 (MIL-007 task 10, open issue OI-22)
+
+The outcome table does not cover a failed result that cannot be written to the caller. As built, when the failed result of an input or configuration error cannot be delivered, the run ends with exit code 4 and nothing was stored, because a failed result is never stored ([ADR-0003]). The error message names the result identifier and says it was not stored.
+
+Exit code 4 therefore has two meanings that the caller tells apart by the message on the diagnostic output: a completed result saved but not delivered, or a failed result neither stored nor delivered. Everything else in this decision is unchanged. This amendment is proposed and needs acceptance by S02 (the caller-facing behavior) and S04.
 
 ---
 

@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -56,6 +57,18 @@ Options for invocation: a command-line program run as a process (simple, languag
 - [UC-002] — marimo read-only notebook.
 - [ADR-0005] — exit codes and delivery.
 - [ADR-0007] — analyses implemented as adapters behind ports.
+
+## Amendment 2026-09-30 (MIL-007 task 12, open issue OI-24)
+
+The build differs from this decision in the following ways, and the differences are now the decision:
+
+- **Five layers.** The marimo notebook and its view models live in an outermost `interface` layer, above `infrastructure`, not inside it. The import-linter contracts enforce the direction interface, infrastructure, adapters, application, domain, and allow marimo only in `interface`. The composition root stays in `infrastructure` (`bootstrap`).
+- **The notebook reads through concrete adapters.** `interface/history_source.load_history` creates the TOML configuration loader and the JSONL history reader directly. This is accepted because the notebook only presents stored JSON and contains no analysis logic.
+- **No list-results or load-result use cases.** They were not built. If a second consumer needs the same listing (for example the HTTP interface of ADR-0008 or MIL-012), a list-results use case is added in `application` at that time.
+- **Ten ports were built**: `BookingReader`, `ConfigurationLoader`, `ResultSerializer`, `HistoryWriter`, `HistoryReader`, `ResultSink`, `Clock`, `ResultIdGenerator`, `Analyzer` and `HolidayCalendar`. The history repository is the pair `HistoryWriter` and `HistoryReader`.
+- **Kept on purpose:** the placeholder analysis that `run_analyses` uses when an analysis has no registered analyzer stays as an extension point, and the history read after a run, which only counts malformed lines, stays.
+
+This amendment is proposed and needs acceptance by S01 and S04.
 
 ---
 

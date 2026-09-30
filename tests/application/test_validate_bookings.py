@@ -4,11 +4,18 @@ from datetime import date
 
 import pytest
 
-from hotel_booking_analysis.application.validate_bookings import validate_bookings
-from hotel_booking_analysis.domain.analysis import AnalysisName, Availability
+from hotel_booking_analysis.application.validate_bookings import (
+    ValidatedBookings,
+    validate_bookings,
+)
+from hotel_booking_analysis.domain.analysis import AnalysisAvailability, AnalysisName, Availability
 from hotel_booking_analysis.domain.booking import FIELD_NAMES, BookingRecord
 from hotel_booking_analysis.domain.errors import InputError
 from tests.support import make_submission
+
+
+def _availability(validated: ValidatedBookings, analysis: AnalysisName) -> AnalysisAvailability:
+    return next(a for a in validated.availability if a.analysis is analysis)
 
 
 def test_validate_returns_summary_and_availability_for_all_analyses() -> None:
@@ -22,7 +29,7 @@ def test_validate_returns_summary_and_availability_for_all_analyses() -> None:
     assert validated.summary.record_count == 1
     assert validated.summary.unknown_fields == ("extra",)
     assert len(validated.availability) == len(AnalysisName)
-    assert validated.availability_of(AnalysisName.LEAD_TIME).is_available
+    assert _availability(validated, AnalysisName.LEAD_TIME).is_available
     assert validated.usable_fields == frozenset({"booking_id", "lead_time", "arrival_date"})
 
 
@@ -31,7 +38,7 @@ def test_unavailable_analysis_names_field_and_carries_no_value() -> None:
         make_submission(BookingRecord(lead_time=4, missing_fields=frozenset({"is_canceled"})))
     )
 
-    cancellations = validated.availability_of(AnalysisName.CANCELLATIONS)
+    cancellations = _availability(validated, AnalysisName.CANCELLATIONS)
 
     assert cancellations.availability is Availability.UNAVAILABLE
     assert cancellations.missing_fields == ("is_canceled",)

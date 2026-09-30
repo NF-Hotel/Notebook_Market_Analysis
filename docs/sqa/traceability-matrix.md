@@ -18,6 +18,7 @@
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -46,7 +47,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [MIL-011] | Milestone / Gateway | [PP-001] | - | - |
 | [MIL-012] | Milestone / Gateway | [PP-001] | - | - |
 | [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | [RC-010] |
-| [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-011] |
+| [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-011], [RC-018] |
 | [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-012] |
 | [DM-001] | Domain Model | [UC-001], [UC-002], [UCD-001] | [ADR-0001], [ADR-0002], [ADR-0003], [ADR-0007], [SSD-001], [DCD-001] | [RC-013] |
 | [ADR-0001] | Architecture Decision Record | [US-001], [UC-001] | - | - |
@@ -65,7 +66,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 
 - ADR instances have no QC checklist, so no RC record is possible for them (OI-07); they are approved by the S04 reviewer instead.
 - `-` in Upstream means foundational, in Downstream means nothing is built on it yet, and in Last Reviewed means no `RC-*` record exists yet.
-- RC-001 to RC-017 are AI-assisted draft reviews with verdict Go-with-conditions, awaiting confirmation by S04. ADR and PP have no QC checklist, so no RC record is possible for them.
+- RC-001 to RC-018 are AI-assisted draft reviews with verdict Go-with-conditions, awaiting confirmation by S04. ADR and PP have no QC checklist, so no RC record is possible for them.
 
 ---
 
@@ -117,3 +118,4 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [MIL-010]: ./../milestones/mil-010-implementation-holidays-and-llm-discovery.md
 [MIL-011]: ./../milestones/mil-011-implementation-ai-insights.md
 [MIL-012]: ./../milestones/mil-012-conditional-http-api-fastapi.md
+[RC-018]: ./reviews/rc-018-uc-001-revision.md
