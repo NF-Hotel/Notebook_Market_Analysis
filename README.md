@@ -53,6 +53,7 @@ import-linter.
 | MIL-008, MIL-009 | Requirements and design for holidays, LLM discovery and AI insights | Approved |
 | MIL-010 | `holidays` and `llm-providers` commands, `[llm]` configuration | Implemented |
 | MIL-011 | AI insights (`analyze --insights`), result schema 1.1, insight view | Implemented |
+| MIL-012 | HTTP service (`serve`), a second entry beside the command line | Implemented |
 
 Not built yet: charts (the notebook shows tables), and real production input, whose schema is a
 proposal until the calling-system owner confirms it (ADR-0001).
@@ -141,6 +142,54 @@ and the result is exactly the result of version 1.0.
   analysis it belongs to. The notebook shows the sample size with every suggestion.
 - `[llm]` values are validated when `--insights` is given; an invalid value gives exit code 2 and
   names the key.
+
+## HTTP service (optional)
+
+```powershell
+.venv\Scripts\python.exe -m hotel_booking_analysis serve --port 8000 --config hotel_analysis.toml
+```
+
+A FastAPI service that calls the same use cases as the command line (ADR-0008 amendment, ADR-0013).
+The command line is unchanged and stays the reference. Every route returns exactly the JSON the
+command with the same input writes, and `POST /analyze` returns the line that was appended to the
+history.
+
+| Route | Same as | Notes |
+| --- | --- | --- |
+| `POST /analyze?insights=false` | `analyze [--insights]` | body: the JSON array of bookings (ADR-0001), header `Content-Type: application/json` |
+| `GET /holidays?years=2024-2026` | `holidays` | `years` as for `--years`; omitted means the current year |
+| `GET /llm-providers` | `llm-providers` | |
+| `GET /health` | | `{"status":"ok"}` |
+
+```powershell
+curl.exe -X POST "http://127.0.0.1:8000/analyze" -H "Content-Type: application/json" --data-binary "@bookings.json"
+curl.exe "http://127.0.0.1:8000/holidays?years=2026"
+curl.exe "http://127.0.0.1:8000/llm-providers"
+```
+
+The interactive API description is at `/docs` and `/redoc`, and the OpenAPI document at
+`/openapi.json`; its response schemas are the JSON Schemas of the repository.
+
+Status codes follow the exit codes of the command (ADR-0005, ADR-0013):
+
+| Status | Meaning | Body |
+| --- | --- | --- |
+| 200 | Completed (also `completed_with_warnings`, unavailable years, unreachable providers) | the document |
+| 422 | Input or configuration error, invalid `years`, invalid `[llm]` value | the failed document the command prints; nothing stored |
+| 500 | History write or retention failure, or the answer could not be built | `{"status":"error","error":{"code":"HISTORY_FAILED" or "DELIVERY_FAILED",...}}`; with `result_id` for `/analyze` when a result was saved |
+| 415 | `Content-Type` is not `application/json` | framework default |
+
+- **Bind and security:** the service listens on `127.0.0.1` by default and has no authentication, no
+  TLS, no rate limit and no limit on the size of a request body. `serve` warns when the host is not
+  local. Put it behind a gateway before exposing it. The request body is never read from a
+  client-named path; `input.reference` of the result is `request-body.json`.
+- **Timeouts:** the service has no cutoff. A request with `insights=true` lasts as long as the
+  bound of ADR-0009 and ADR-0012: up to 2 x `llm.discovery_timeout_seconds` plus 6 x
+  `llm.generation_timeout_seconds`, 12 minutes and 4 seconds with the defaults. Set the timeout of
+  the HTTP client, and of any proxy in front, to match. There is no job-and-poll design.
+- **Concurrency:** routes run in the framework's thread pool (40 threads), so a long insight request
+  does not block the listings; the history lock file serializes the appends.
+- Stop the service with Ctrl+C. The exit status after a signal depends on the platform.
 
 ## Holiday listing
 

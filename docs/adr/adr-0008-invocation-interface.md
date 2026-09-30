@@ -95,7 +95,7 @@ The calling-system owner (S02) accepts an HTTP interface, as stated by the proje
 - **Left to MIL-012.** The routes and their arguments, the mapping of the outcomes of [ADR-0005] and the listings to HTTP status codes (success is never returned when the history write or the delivery failed), the timeout of a long insight request, how the history lock and the model calls are shared safely inside one process, and how the service is bound and secured. The negative consequences listed above (long calls, concurrency, a server to run and protect, exposure of booking analysis results) become design points of MIL-012 and are decided and documented there, in an amendment of this ADR or a new ADR.
 - **The 12-minute worst case** of `analyze --insights` still applies to the command line. The service must not block the listings while an insight request runs and must state a timeout for it (criterion 5 of MIL-012).
 
-This amendment needs the written confirmation of S02 (open issue OI-17) and the acceptance of S04.
+The design of the service is decided in [ADR-0013]. This amendment needs the written confirmation of S02 (open issue OI-17) and the acceptance of S04.
 
 ---
 
@@ -110,4 +110,5 @@ This amendment needs the written confirmation of S02 (open issue OI-17) and the 
 [ADR-0009]: ./adr-0009-llm-provider-discovery-and-connection.md
 [ADR-0011]: ./adr-0011-output-contracts-and-result-1-1.md
 [ADR-0012]: ./adr-0012-configuration-extension.md
+[ADR-0013]: ./adr-0013-http-api.md
 [UC-001]: ../use-cases/uc-001-analyze-hotel-bookings.md

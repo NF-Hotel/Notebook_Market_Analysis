@@ -11,6 +11,8 @@ dependencies = [
     "polars",
     "holidays",
     "marimo",
+    "fastapi",
+    "uvicorn",
 ]
 
 [project.optional-dependencies]
@@ -18,6 +20,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "import-linter",
+    "httpx",
     "jsonschema",
     "mypy",
     "ruff",
@@ -135,3 +138,14 @@ source_modules = [
     "hotel_booking_analysis.infrastructure",
 ]
 forbidden_modules = ["marimo"]
+
+[[tool.importlinter.contracts]]
+name = "Only the composition root uses the web framework and server"
+type = "forbidden"
+source_modules = [
+    "hotel_booking_analysis.domain",
+    "hotel_booking_analysis.application",
+    "hotel_booking_analysis.adapters",
+    "hotel_booking_analysis.interface",
+]
+forbidden_modules = ["fastapi", "uvicorn", "starlette"]

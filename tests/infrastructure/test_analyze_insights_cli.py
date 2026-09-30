@@ -8,56 +8,25 @@ import io
 import json
 import subprocess
 import sys
-from collections.abc import Iterator
-from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
 
 import pytest
 
 from hotel_booking_analysis.infrastructure.cli import main
-from tests.adapters import fake_servers as servers
+from tests.infrastructure.insight_servers import (
+    answer_for,
+    fake_providers,
+    ollama_answering,
+)
 from tests.insight_fakes import result_1_1_validator
 from tests.insight_samples import SAMPLE_CSV
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RECORD_COUNT = 8538
 VALIDATOR = result_1_1_validator()
-ANSWER = json.dumps(
-    {
-        "executive_summary": "The findings describe the observed bookings only.",
-        "improvement_suggestions": [
-            {
-                "suggestion": "Consider testing a change; it may or may not help.",
-                "evidence": f"Observed across {RECORD_COUNT} records.",
-                "sample_size": RECORD_COUNT,
-            }
-        ],
-    }
-)
+ANSWER = answer_for(RECORD_COUNT)
 
 pytestmark = pytest.mark.skipif(not SAMPLE_CSV.is_file(), reason="development CSV is not present")
-
-
-def _ollama(answer: str = ANSWER) -> servers.Behavior:
-    """Lists one model on GET and answers every chat request with `answer`."""
-
-    def behave(handler: Any, stop: Any) -> None:  # noqa: ANN401 - the handler type of http.server
-        if handler.command == "GET":
-            document: object = {"models": [{"name": "m1"}]}
-        else:
-            document = {"message": {"role": "assistant", "content": answer}, "done": True}
-        servers.json_answer(document)(handler, stop)
-
-    return behave
-
-
-@contextmanager
-def _providers(ollama: servers.Behavior | None = None) -> Iterator[tuple[servers.FakeServer, str]]:
-    """A fake Ollama (broken when `ollama` is None) and a broken LM Studio; returns the config."""
-    broken = servers.json_answer({"error": "x"}, status=500)
-    with servers.serve(ollama or broken) as first, servers.serve(broken) as second:
-        yield first, f'[llm]\nollama_url = "{first.base_url}"\nlmstudio_url = "{second.base_url}"\n'
 
 
 def _config(tmp_path: Path, llm_table: str) -> Path:
@@ -78,7 +47,7 @@ def _analyze(config: Path, *args: str) -> tuple[int, bytes, str]:
 def test_analyze_with_insights_returns_six_labeled_insights_that_validate_against_schema_1_1(
     tmp_path: Path,
 ) -> None:
-    with _providers(_ollama()) as (ollama, llm_table):
+    with fake_providers(ollama_answering(ANSWER)) as (ollama, llm_table):
         code, stdout, stderr = _analyze(_config(tmp_path, llm_table), "--insights")
 
         assert ollama.requests == ["/api/tags", *["/api/chat"] * 6]
@@ -97,7 +66,7 @@ def test_analyze_with_insights_returns_six_labeled_insights_that_validate_agains
 
 
 def test_analyze_with_insights_and_no_provider_still_exits_0_with_warnings(tmp_path: Path) -> None:
-    with _providers() as (_, llm_table):
+    with fake_providers() as (_, llm_table):
         code, stdout, stderr = _analyze(_config(tmp_path, llm_table), "--insights")
 
     document = json.loads(stdout)
@@ -113,7 +82,7 @@ def test_analyze_with_insights_and_no_provider_still_exits_0_with_warnings(tmp_p
 def test_analyze_with_insights_and_a_bad_answer_keeps_the_analyses_and_exits_0(
     tmp_path: Path,
 ) -> None:
-    with _providers(_ollama("this is not json")) as (ollama, llm_table):
+    with fake_providers(ollama_answering("this is not json")) as (ollama, llm_table):
         code, stdout, _ = _analyze(_config(tmp_path, llm_table), "--insights")
 
         assert len(ollama.requests) == 7
@@ -140,7 +109,7 @@ def test_analyze_with_insights_and_invalid_llm_value_fails_naming_the_key(tmp_pa
 def test_analyze_without_insights_ignores_the_llm_table_and_contacts_no_provider(
     tmp_path: Path,
 ) -> None:
-    with _providers(_ollama()) as (ollama, llm_table):
+    with fake_providers(ollama_answering(ANSWER)) as (ollama, llm_table):
         code, stdout, _ = _analyze(_config(tmp_path, llm_table + "temperature = 9\n"))
 
         assert ollama.requests == []
@@ -161,7 +130,7 @@ def _module(config: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
 
 
 def test_module_run_without_insights_does_not_contact_the_fake_provider(tmp_path: Path) -> None:
-    with _providers(_ollama()) as (ollama, llm_table):
+    with fake_providers(ollama_answering(ANSWER)) as (ollama, llm_table):
         completed = _module(_config(tmp_path, llm_table))
 
         assert ollama.requests == []
@@ -172,7 +141,7 @@ def test_module_run_without_insights_does_not_contact_the_fake_provider(tmp_path
 
 
 def test_module_run_with_insights_delivers_the_insights(tmp_path: Path) -> None:
-    with _providers(_ollama()) as (ollama, llm_table):
+    with fake_providers(ollama_answering(ANSWER)) as (ollama, llm_table):
         completed = _module(_config(tmp_path, llm_table), "--insights")
 
         assert len(ollama.requests) == 7

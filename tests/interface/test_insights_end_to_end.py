@@ -9,7 +9,6 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -20,17 +19,20 @@ from hotel_booking_analysis.interface.insight_view import (
     STATE_AVAILABLE,
     STATE_SAVED_WITHOUT,
     STATE_UNAVAILABLE,
-    InsightView,
-    build_insight_view,
     reason_text,
 )
 from tests.adapters import fake_servers as servers
-from tests.infrastructure.test_analyze_insights_cli import RECORD_COUNT, _ollama, _providers
+from tests.infrastructure.insight_servers import answer_for, fake_providers, ollama_answering
+from tests.infrastructure.test_analyze_insights_cli import RECORD_COUNT
 from tests.insight_fakes import result_1_1_validator
 from tests.insight_samples import SAMPLE_CSV
 from tests.interface.builders import export_notebook
 from tests.interface.conftest import REPO_ROOT
 from tests.interface.insight_builders import ANALYSES
+from tests.interface.insight_view_checks import (
+    assert_view_matches_stored_insight,
+    views_of_history,
+)
 
 VALIDATOR = result_1_1_validator()
 
@@ -59,37 +61,10 @@ def _analyze(config: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
     return completed
 
 
-def _views(config: Path, tmp_path: Path) -> list[tuple[dict[str, Any], dict[str, InsightView]]]:
-    """Every listed result (newest first) with its six insight views built from the history."""
-    loaded = load_history(tmp_path, {"HOTEL_ANALYSIS_CONFIG": str(config)})
-    assert loaded.error is None
-    listed = build_history_view(loaded.readout)
-    return [
-        (dict(result), {name: build_insight_view(result, name) for name in ANALYSES})
-        for result in listed.results
-    ]
-
-
-def _assert_view_matches_stored_insight(view: InsightView, stored: dict[str, Any]) -> None:
-    assert view.state == STATE_AVAILABLE == stored["status"]
-    assert (view.label, view.provider, view.model) == ("AI-generated", "ollama", "m1")
-    assert view.label == stored["label"]
-    assert view.provider == stored["provider"]
-    assert view.model == stored["model"]
-    assert view.generated_at == stored["generated_at"]
-    assert view.executive_summary == stored["executive_summary"]
-    assert [(s.suggestion, s.evidence, s.sample_size) for s in view.suggestions] == [
-        (s["suggestion"], s["evidence"], s["sample_size"])
-        for s in stored["improvement_suggestions"]
-    ]
-    assert [s.sample_size for s in view.suggestions] == [RECORD_COUNT]
-    assert {row["sample size"] for row in view.suggestion_table()} == {str(RECORD_COUNT)}
-
-
 def test_insights_are_the_same_in_the_returned_json_the_history_line_and_the_views(
     tmp_path: Path,
 ) -> None:
-    with _providers(_ollama()) as (ollama, llm_table):
+    with fake_providers(ollama_answering(answer_for(RECORD_COUNT))) as (ollama, llm_table):
         config = _write_config(tmp_path, llm_table)
         completed = _analyze(config, "--insights")
 
@@ -100,18 +75,20 @@ def test_insights_are_the_same_in_the_returned_json_the_history_line_and_the_vie
     assert returned["schema_version"] == "1.1"
     assert (tmp_path / "history.jsonl").read_bytes() == completed.stdout
 
-    [(stored, views)] = _views(config, tmp_path)
+    [(stored, views)] = views_of_history(config, tmp_path)
 
     assert stored == returned
     assert set(views) == set(returned["analyses"]) == set(ANALYSES)
     for name, view in views.items():
-        _assert_view_matches_stored_insight(view, returned["analyses"][name]["insight"])
+        assert_view_matches_stored_insight(
+            view, returned["analyses"][name]["insight"], RECORD_COUNT
+        )
     assert returned["insights"]["provider"] == "ollama"
     assert returned["insights"]["model"] == "m1"
 
 
 def test_a_history_of_a_1_0_and_a_1_1_result_is_listed_and_displayed(tmp_path: Path) -> None:
-    with _providers(_ollama()) as (_, llm_table):
+    with fake_providers(ollama_answering(answer_for(RECORD_COUNT))) as (_, llm_table):
         config = _write_config(tmp_path, llm_table)
         first = json.loads(_analyze(config).stdout)
         second = json.loads(_analyze(config, "--insights").stdout)
@@ -119,7 +96,7 @@ def test_a_history_of_a_1_0_and_a_1_1_result_is_listed_and_displayed(tmp_path: P
 
     loaded = load_history(tmp_path, {"HOTEL_ANALYSIS_CONFIG": str(config)})
     listed = build_history_view(loaded.readout)
-    (newer, newer_views), (older, older_views) = _views(config, tmp_path)
+    (newer, newer_views), (older, older_views) = views_of_history(config, tmp_path)
 
     assert loaded.readout.malformed_line_count == 0
     assert [row.schema_version for row in listed.rows] == ["1.1", "1.0"]
@@ -138,7 +115,7 @@ def test_a_history_of_a_1_0_and_a_1_1_result_is_listed_and_displayed(tmp_path: P
 
 
 def test_the_notebook_shows_a_result_saved_without_insights_clearly(tmp_path: Path) -> None:
-    with _providers(_ollama()) as (_, llm_table):
+    with fake_providers(ollama_answering(answer_for(RECORD_COUNT))) as (_, llm_table):
         config = _write_config(tmp_path, llm_table)
         _analyze(config)
 
@@ -164,7 +141,7 @@ def test_unreachable_provider_leaves_the_analyses_intact_and_viewable(tmp_path: 
     assert returned["insights"]["provider"] is None
     assert all(entry["findings"] for entry in returned["analyses"].values())
     assert (tmp_path / "history.jsonl").read_bytes() == completed.stdout
-    [(stored, views)] = _views(config, tmp_path)
+    [(stored, views)] = views_of_history(config, tmp_path)
     assert stored == returned
     for name, view in views.items():
         assert returned["analyses"][name]["insight"]["reason"] == "NO_PROVIDER"

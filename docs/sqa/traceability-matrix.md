@@ -67,6 +67,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [ADR-0010] | Architecture Decision Record | [UC-005], [ADR-0007], [ADR-0009] | - | - |
 | [ADR-0011] | Architecture Decision Record | [UC-003], [UC-004], [UC-005], [ADR-0002], [ADR-0010] | - | - |
 | [ADR-0012] | Architecture Decision Record | [ADR-0004], [ADR-0009] | - | - |
+| [ADR-0013] | Architecture Decision Record | [UC-001], [UC-003], [UC-004], [UC-005], [ADR-0005], [ADR-0008] | - | - |
 | [SSD-001] | System Sequence Diagram | [UC-001], [UC-002], [DM-001] | [OC-001] | [RC-014], [RC-027] |
 | [OC-001] | Operation Contract | [SSD-001], [DM-001] | [SD-001] | [RC-015], [RC-028] |
 | [SD-001] | Sequence Diagram | [OC-001] | [DCD-001] | [RC-016], [RC-029] |
@@ -144,6 +145,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [ADR-0010]: ./../adr/adr-0010-ai-insight-generation-and-guardrails.md
 [ADR-0011]: ./../adr/adr-0011-output-contracts-and-result-1-1.md
 [ADR-0012]: ./../adr/adr-0012-configuration-extension.md
+[ADR-0013]: ./../adr/adr-0013-http-api.md
 [RC-026]: ./reviews/rc-026-domain-model-mil-009.md
 [RC-027]: ./reviews/rc-027-ssd-mil-009.md
 [RC-028]: ./reviews/rc-028-operation-contracts-mil-009.md
