@@ -3,10 +3,8 @@
 import io
 import json
 import subprocess
-import sys
 from importlib.metadata import version
 from pathlib import Path
-from typing import Any
 
 import holidays
 import pytest
@@ -16,27 +14,10 @@ from hotel_booking_analysis.adapters.json_holiday_listing_serializer import (
     load_holiday_listing_schema,
 )
 from hotel_booking_analysis.infrastructure.cli import main
+from tests.infrastructure.cli_support import BrokenStdout, Run, run_module
 
 VALIDATOR = Draft202012Validator(load_holiday_listing_schema())
 REPO_ROOT = Path(__file__).resolve().parents[2]
-
-
-class Run:
-    def __init__(self, code: int, stdout: bytes, stderr: str) -> None:
-        self.code = code
-        self.stdout = stdout
-        self.stderr = stderr
-
-    @property
-    def document(self) -> dict[str, Any]:
-        parsed: dict[str, Any] = json.loads(self.stdout)
-        VALIDATOR.validate(parsed)
-        return parsed
-
-
-class BrokenStdout(io.BytesIO):
-    def write(self, buffer: Any) -> int:  # noqa: ANN401 - matches io.BytesIO.write signature
-        raise OSError("broken pipe")
 
 
 def _holidays(
@@ -50,7 +31,7 @@ def _holidays(
         path.write_text(config, encoding="utf-8")
         extra = ["--config", str(path)]
     code = main(["holidays", *args, *extra], out, err, tmp_path, {})
-    return Run(code, out.getvalue(), err.getvalue())
+    return Run(code, out.getvalue(), err.getvalue(), VALIDATOR)
 
 
 def test_holidays_with_years_lists_khmer_holidays_from_the_holidays_package(
@@ -173,13 +154,7 @@ def test_holidays_rejects_unknown_option_with_usage_error(tmp_path: Path) -> Non
 
 
 def _subprocess(cwd: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
-    return subprocess.run(
-        [sys.executable, "-m", "hotel_booking_analysis", "holidays", *args],
-        cwd=cwd,
-        capture_output=True,
-        check=False,
-        timeout=60,
-    )
+    return run_module("holidays", cwd, *args)
 
 
 def test_module_run_holidays_writes_valid_khmer_listing_to_stdout(tmp_path: Path) -> None:

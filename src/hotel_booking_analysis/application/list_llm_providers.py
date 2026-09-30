@@ -8,7 +8,7 @@ An unreachable provider is a normal entry, not a failure.
 from dataclasses import dataclass
 from pathlib import Path
 
-from hotel_booking_analysis.application.analyze_bookings import RunStatus
+from hotel_booking_analysis.application.listing_delivery import deliver_listing
 from hotel_booking_analysis.application.listing_outcome import ListingOutcome
 from hotel_booking_analysis.application.ports import (
     Clock,
@@ -18,7 +18,7 @@ from hotel_booking_analysis.application.ports import (
     ResultSink,
 )
 from hotel_booking_analysis.application.provider_discovery import discover_providers
-from hotel_booking_analysis.domain.errors import InputError, Notice, ResultDeliveryError
+from hotel_booking_analysis.domain.errors import InputError, Notice
 from hotel_booking_analysis.domain.llm import ProviderListing
 from hotel_booking_analysis.domain.result import ResultError
 
@@ -56,15 +56,4 @@ class ListLlmProviders:
         )
 
     def _deliver(self, line: str, failure: InputError | None) -> ListingOutcome:
-        try:
-            self.sink.write(line)
-        except ResultDeliveryError as delivery_error:
-            what = "The listing" if failure is None else f"The failed listing ({failure.code})"
-            return ListingOutcome(
-                RunStatus.DELIVERY_FAILED,
-                message=f"{what} could not be written to standard output; "
-                f"nothing was stored: {delivery_error}",
-            )
-        if failure is not None:
-            return ListingOutcome(RunStatus.INPUT_FAILED, line, failure.message)
-        return ListingOutcome(RunStatus.SUCCEEDED, line)
+        return deliver_listing(self.sink, line, failure)

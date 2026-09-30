@@ -3,12 +3,10 @@
 import io
 import json
 import subprocess
-import sys
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
 
 import pytest
 from jsonschema import Draft202012Validator
@@ -18,28 +16,11 @@ from hotel_booking_analysis.adapters.json_provider_listing_serializer import (
 )
 from hotel_booking_analysis.infrastructure.cli import main
 from tests.adapters import fake_servers as servers
+from tests.infrastructure.cli_support import BrokenStdout, Run, run_module
 
 VALIDATOR = Draft202012Validator(load_provider_listing_schema())
 OLLAMA_TAGS = {"models": [{"name": "llama3:8b"}, {"name": "qwen2:7b"}]}
 LMSTUDIO_MODELS = {"data": [{"id": "phi-3"}]}
-
-
-class Run:
-    def __init__(self, code: int, stdout: bytes, stderr: str) -> None:
-        self.code = code
-        self.stdout = stdout
-        self.stderr = stderr
-
-    @property
-    def document(self) -> dict[str, Any]:
-        parsed: dict[str, Any] = json.loads(self.stdout)
-        VALIDATOR.validate(parsed)
-        return parsed
-
-
-class BrokenStdout(io.BytesIO):
-    def write(self, buffer: Any) -> int:  # noqa: ANN401 - matches io.BytesIO.write signature
-        raise OSError("broken pipe")
 
 
 def _config(tmp_path: Path, ollama_url: str, lmstudio_url: str, extra: str = "") -> Path:
@@ -74,7 +55,7 @@ def _llm_providers(
     if config is not None:
         args += ["--config", str(config)]
     code = main(args, out, err, tmp_path, {})
-    return Run(code, out.getvalue(), err.getvalue())
+    return Run(code, out.getvalue(), err.getvalue(), VALIDATOR)
 
 
 def test_llm_providers_lists_both_providers_and_their_models(tmp_path: Path) -> None:
@@ -260,13 +241,7 @@ def test_llm_providers_rejects_unknown_option_with_usage_error(tmp_path: Path) -
 
 
 def _subprocess(cwd: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
-    return subprocess.run(
-        [sys.executable, "-m", "hotel_booking_analysis", "llm-providers", *args],
-        cwd=cwd,
-        capture_output=True,
-        check=False,
-        timeout=60,
-    )
+    return run_module("llm-providers", cwd, *args)
 
 
 def test_module_run_llm_providers_writes_valid_listing_to_stdout(tmp_path: Path) -> None:

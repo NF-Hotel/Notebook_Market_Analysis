@@ -109,7 +109,10 @@ def test_serialize_failure_accepts_configuration_error_code() -> None:
 
 
 def test_serialize_is_deterministic_for_the_same_listing() -> None:
-    assert _listing(_available()) == _listing(_available())
+    first = _listing(_available())
+    second = _listing(_available())
+
+    assert first == second
 
 
 @pytest.mark.parametrize(
