@@ -13,7 +13,7 @@ each document lives in *this* project and the next version to use.
 | MIL | Milestone / Gateway | docs/milestones/*.md | 013 |
 | UCD | Use Case Diagram | docs/use-case-diagram.md | 002 |
 | US | User Story | docs/user-stories.md | 002 |
-| UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 003 |
+| UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 006 |
 | DM | Domain Model | docs/domain-model.md | 002 |
 | SSD | System Sequence Diagram | docs/ssd.md | 002 |
 | OC | Operation Contract | docs/operation-contracts.md | 002 |
