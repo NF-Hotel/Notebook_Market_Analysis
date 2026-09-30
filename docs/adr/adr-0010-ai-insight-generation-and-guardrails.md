@@ -111,6 +111,22 @@ A failure of one insight does not affect another analysis's insight (the next an
 - [UC-002] — the history view shows the label, model, provider, sample sizes and reasons.
 - [PP-001] — OI-14, OI-15 and OI-19 (assumptions stated, confirmations pending) and the AI risks in the Plan Risks table.
 
+## Amendment 2026-09-30 (MIL-011, DCD-001 DD-17 and DD-18)
+
+The insights were built in MIL-011. The decision, the seven rules, the reason codes and the failure semantics are unchanged. The build makes these points exact where the text above leaves room:
+
+- **Rule 3, promises.** Each phrase is matched by its stem plus any ending, from a word start, ignoring case: the last word of the phrase loses a final "e" and is followed by any letters, so "will increase" also matches "will increases" and "will increasing", "ensure" matches "ensuring" and "ensured", and "guarantee", "predict" and "forecast" match "guaranteed", "predicts" and "forecasting".
+- **Rule 4, figures.** A figure is a number followed by `%` or "percent"/"percentage", or a number with a currency symbol (`$ € £ ¥ ₹`) or one of the codes USD, EUR, GBP, KHR, DKK, SEK, NOK, CHF, JPY, CNY, THB, VND, AUD, CAD, INR, before or after it. Thousands separators are read. The figure is compared as a decimal number with every plain number in the data block sent, so `19` matches `19.0` and `$91,467.27` matches `91467.27`. A percentage that the model computed from counts is therefore rejected.
+- **Rule 5, sample sizes.** The sample sizes are the values of `numerator`, `denominator` and `records_used`, the integers of fields whose name ends in `_days` (except fields that start with `median_` or `mean_`, because a median is not a sample size), and the record count of the data-quality counts. A boolean never counts.
+- **Rule 6, small sample.** The phrase is "small sample", ignoring case, in the `evidence`.
+- **Rule 7, hypothesis wording.** The words are matched as whole words ("maybe" does not count), ignoring case, in the `suggestion`.
+- **What is sent.** The data block has exactly the keys `analysis`, `findings` and `data_quality` (record count, duplicate booking ID count, zero-price count, and the missing and invalid counts per field). The findings are sent as in the result, except that a group label under the key `group` is cut to 60 characters, and a finding sentence that repeats a longer label gets the same cut. The data coverage dates that this ADR allows are not sent. The scanner test also flags a full date that is not a coverage date, an object with three or more scalar booking fields, and any marker string from its fixtures.
+- **Texts.** An accepted text is stored with the blanks around it removed and is measured against its limit after that; a text of blanks only is empty. An empty answer is `BAD_STRUCTURE`. A provider answer without any text, or with a text that is not a string, is `MODEL_ERROR`.
+- **Model choice with neither provider nor model set.** When the first reachable provider lists no model, the reason is `NO_MODEL`; the next reachable provider is not tried ([ADR-0009]).
+- **Small models are often rejected.** In a trial on 2026-09-30 with the local model `gemma4:e2b` on the development sample, five of six insights were rejected (`GUARDRAIL_REJECTED`) and one timed out. This is the negative consequence stated above, not a defect; a larger model or `llm.model` gives more accepted insights.
+
+This amendment records the built behavior and needs acceptance by S04 (and by S01 and S05 for the residual risk, as stated above).
+
 ---
 
 [UC-005]: ../use-cases/uc-005-get-ai-insights-for-analyses.md
