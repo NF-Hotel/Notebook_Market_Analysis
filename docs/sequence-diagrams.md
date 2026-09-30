@@ -14,10 +14,13 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
 This document shows how the **built** objects of `src/hotel_booking_analysis` collaborate to realize the postconditions of the four operation contracts of [OC-001] (gateway MIL-007, sequence caveat: the documents describe the system as built and were checked against the code). Each block names the contract it realizes, gives one Mermaid `sequenceDiagram`, annotates the GRASP and GoF patterns, lists which message satisfies which postcondition, and checks that no object is a god object. Object and method names are the real names in the code; the class structure is in [DCD-001].
+
+**Scope note (MIL-009, 2026-09-30).** Everything above the heading **Designed Additions (MIL-009, not yet built)** at the end of this document describes the built objects and is unchanged. That last part is a design made before the code: the collaborations that realize the contracts of `getHolidayCalendar`, `getLlmProviders`, the insights of `analyzeBookings` and the insight display of `selectResult`, implemented in MIL-010 and MIL-011.
 
 The operation `analyzeBookings` has one block for the object construction (1.0) and one block per scenario of [SSD-001] diagrams 1.1 to 1.5 (1.1 to 1.5 below); the three operations of [UC-002] have one block each (2.1 to 2.3).
 
@@ -845,6 +848,829 @@ Differences between the built collaboration and earlier decisions ([ADR-0001] to
 | SD-6 | [OC-001] postconditions speak of Analysis Result instances retained by the Result History. | The Result History retains one JSON line per result and the read side never rebuilds `AnalysisResult` objects: `HistoryReadout.results` holds parsed JSON mappings and the notebook builds view models from them (block 2.1 messages 14 and 15, block 2.2 message 24). | Open issue OI-25: resolved by the DM-001 revision of MIL-009 task 1 (the retained result is a JSON document); pending. |
 | SD-7 | [DM-001] association "Analysis Result is answered by Booking Submission". | The result does not point to the submission: `build_result` copies its source, reference, record count and content hash into `ResultInput` (block 1.1 message 37), so no submission object survives. | Open issue OI-25: resolved by the DM-001 revision of MIL-009 task 1 (a copy of the input metadata); pending. |
 
+## Designed Additions (MIL-009, not yet built)
+
+Design made before the code (gateway MIL-009, task 9). The blocks above show the built objects and stay true. The blocks below show the **intended** objects that realize the designed contracts of [OC-001]: `getHolidayCalendar`, `getLlmProviders`, the Designed change to `analyzeBookings` (insights) and the Designed change to `selectResult` (insight display). Every block is marked `Designed` in its heading and every planned object carries the word `planned` in its lifelines; the built objects it reuses (`cli`, `bootstrap`, `TomlConfigurationLoader`, `KhmerHolidayCalendar`, `StreamResultSink`, `SystemClock`, `AnalyzeBookings`, `build_result`, `run_analyses`, `history_notebook`, `json_access`, `marimo_render`) keep the names of the code. The planned objects are implemented in MIL-010 (blocks 3.x, 4.x) and MIL-011 (blocks 5.x, 2.4) and are checked against these diagrams then; the class structure is in the section Designed Additions of [DCD-001]. The notation is the one above.
+
+| Block | Realizes (contract in [OC-001]) | Scenario |
+| --- | --- | --- |
+| 3.0 | `getHolidayCalendar` (lifecycle) | Composition root builds `ListHolidays` (Designed) |
+| 3.1 | `getHolidayCalendar` | Main success: years, calendar, listing, delivery, exit code 0 (Designed) |
+| 3.2 | `getHolidayCalendar` | Invalid years, invalid configuration (exit code 2), delivery failure (exit code 4) (Designed) |
+| 4.0 | `getLlmProviders` (lifecycle) | Composition root builds `ListLlmProviders` and the provider registry (Designed) |
+| 4.1 | `getLlmProviders` | Discovery of the two providers, listing, delivery, exit code 0, also none reachable (Designed) |
+| 4.2 | `getLlmProviders` | Invalid configuration (exit code 2), delivery failure (exit code 4) (Designed) |
+| 5.0 | `analyzeBookings` (lifecycle, Designed change) | Composition root builds `GenerateInsights` and hands it to `AnalyzeBookings` (Designed) |
+| 5.1 | `analyzeBookings` (Designed change) | Insights requested: generate after the analyses, assemble result 1.1; not requested: unchanged path (Designed) |
+| 5.2 | `analyzeBookings` (Designed change) | Failure alternatives per reason: `NO_PROVIDER`, `NO_MODEL`, `TIMEOUT`, `MODEL_ERROR`, `BAD_STRUCTURE`, `GUARDRAIL_REJECTED`, and the result status (Designed) |
+| 2.4 | `selectResult` (Designed change) | The notebook shows the insight of each analysis, or that the result was saved without insights (Designed) |
+
+## Sequence 3.0: getHolidayCalendar, object construction (Designed)
+
+**Realizes:** `getHolidayCalendar` in [OC-001] (the [SSD-001] lifecycle note for UC-003: the composition root wires the calendar, the serializer, the clock and the stream when the process starts; a prerequisite of blocks 3.1 and 3.2).
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    participant PM as "__main__<br/>module"
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant BS as ":bootstrap<br/>module, composition root"
+    PM->>+CLI: 1: main(argv, sys.stdout.buffer, sys.stderr, Path.cwd(), os.environ)
+    CLI->>CLI: 2: build_parser().parse_args(argv), subcommand holidays with --years and --config
+    CLI->>CLI: 3: _attach_stderr(stderr)
+    CLI->>+BS: 4: build_list_holidays(stdout, working_directory, environ)
+    create participant CL as ":TomlConfigurationLoader<br/>adapters"
+    BS->>CL: 5: create(working_directory, environ)
+    create participant HC as ":KhmerHolidayCalendar<br/>adapters"
+    BS->>HC: 6: create()
+    create participant HS as ":JsonHolidayListingSerializer<br/>adapters, planned"
+    BS->>HS: 7: create()
+    create participant SNK as ":StreamResultSink<br/>infrastructure"
+    BS->>SNK: 8: create(stdout)
+    create participant CK as ":SystemClock<br/>infrastructure"
+    BS->>CK: 9: create()
+    create participant LH as ":ListHolidays<br/>application, planned"
+    BS->>LH: 10: create(configuration_loader, calendar, serializer, sink, clock)
+    BS-->>-CLI: 11: use_case
+    CLI->>+LH: 12: run(arguments.years, arguments.config)
+    Note over CLI,LH: run continues in block 3.1, or 3.2 on failure
+    LH-->>-CLI: 13: outcome
+    CLI-->>-PM: 14: exit code from _EXIT_CODES[outcome.status]
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Factory (Factory Method style function) and Pure Fabrication (GRASP) | `bootstrap.build_list_holidays` | Same role as `build_analyze_bookings` in block 1.0: the one place that names concrete adapter classes; the use case never does. |
+| Dependency Injection and Protected Variations (GRASP) | `ListHolidays` (message 10) | Collaborators are passed as `Protocol` ports (`ConfigurationLoader`, `HolidayCalendar`, `HolidayListingSerializer`, `ResultSink`, `Clock`); tests use fakes. |
+| Adapter (GoF) | `JsonHolidayListingSerializer`, reused `KhmerHolidayCalendar`, `StreamResultSink` | Each adapts a format, a library or a stream to a port. The calendar adapter is reused as built. |
+| Controller (GRASP), command-line entry | `cli.main` | Receives the subcommand from the process boundary, delegates to the use case and maps the outcome to the exit code. |
+
+### Postcondition Coverage
+
+No postcondition of its own; it supplies the objects of blocks 3.1 and 3.2 and realizes the precondition "Standard output of the process can be written" (message 8 passes the stream to the sink).
+
+| Postcondition (from contract) | Satisfied by message |
+| --- | --- |
+| Not applicable: construction only. It supplies the objects (messages 5 to 10) that realize every postcondition in blocks 3.1 and 3.2 | 5 to 10, and 12 to 14 for the hand-over to and the return from `run` |
+
+### Responsibility Check
+
+`cli.main` sends 5 of the 14 messages and `bootstrap` sends 7 (six creations and one return); neither computes anything. `ListHolidays` receives one message (`run`). No participant receives all messages.
+
+## Sequence 3.1: getHolidayCalendar, main success (Designed)
+
+**Realizes:** `getHolidayCalendar` in [OC-001], main success postconditions (UC-003 messages of [SSD-001] diagrams 3.1 and 3.2): exit code 0, including the year without calendar data.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    actor C as Calling system
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant LH as ":ListHolidays<br/>application, planned"
+    participant CL as ":TomlConfigurationLoader<br/>adapters"
+    participant CK as ":SystemClock<br/>infrastructure"
+    participant YS as ":year_selection<br/>module, domain, planned"
+    participant HC as ":KhmerHolidayCalendar<br/>adapters"
+    participant HS as ":JsonHolidayListingSerializer<br/>adapters, planned"
+    participant SNK as ":StreamResultSink<br/>infrastructure"
+    C->>+CLI: 1: python -m hotel_booking_analysis holidays --years 2024-2026 --config file
+    CLI->>+LH: 2: run(years_text, config_path)
+    LH->>+CL: 3: load(config_path)
+    CL-->>-LH: 4: LoadedConfiguration (the llm values are validated and not used)
+    LH->>+CK: 5: now()
+    CK-->>-LH: 6: generated_at
+    LH->>+YS: 7: parse_years(years_text, generated_at.year)
+    YS-->>-LH: 8: years, ascending, without duplicates
+    opt years_text is absent
+        LH->>LH: 9: notice DEFAULT_YEAR_USED naming the year used
+    end
+    loop for each requested year
+        LH->>+HC: 10: holidays_in_year(year)
+        HC-->>-LH: 11: tuple of Holiday, empty when the source has none
+        alt at least one Holiday
+            create participant HY as ":HolidayCalendarYear<br/>domain, planned"
+            LH->>HY: 12: create(year, AVAILABLE, holidays)
+        else no Holiday (SSD diagram 3.2)
+            LH->>HY: 13: create(year, UNAVAILABLE, no holidays, reason NO_CALENDAR_DATA)
+        end
+    end
+    LH->>+HC: 14: source()
+    HC-->>-LH: 15: source text with the package version, notice CALENDAR_SOURCE
+    create participant HL as ":HolidayCalendarListing<br/>domain, planned"
+    LH->>HL: 16: create("KH", generated_at, years, notices)
+    LH->>+HS: 17: serialize(listing)
+    HS-->>-LH: 18: line, one compact JSON line
+    LH->>+SNK: 19: write(line)
+    SNK->>C: 20: standard output receives the line and a newline, then flush
+    SNK-->>-LH: 21: None
+    create participant OUT as ":ListingOutcome<br/>application, planned"
+    LH->>OUT: 22: create(SUCCEEDED, serialized=line)
+    LH-->>-CLI: 23: outcome
+    CLI->>CLI: 24: _report_listing(outcome)
+    CLI-->>-C: 25: exit code 0 from _EXIT_CODES[SUCCEEDED]
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Controller (GRASP), use-case controller | `ListHolidays.run` (messages 2 to 23) | Receives the system event `getHolidayCalendar` and delegates every step; it holds no rule of the year syntax, the calendar or the JSON. |
+| Information Expert (GRASP) | `year_selection.parse_years` (message 7) | The function that knows the syntax and the limits of the `--years` value owns the rule and raises `InvalidYearsError`; `ListHolidays` does not parse. |
+| Pure Fabrication (GRASP) | `year_selection` (a module of pure functions) | A rule with no counterpart among the domain objects; no library is needed, so it sits in `domain`. |
+| Creator (GRASP) | `ListHolidays` creates `HolidayCalendarYear` and `HolidayCalendarListing` (messages 12, 13, 16) | It holds the years, the holidays, the time and the notices that initialize them. |
+| Adapter (GoF) | `HC` (the `HolidayCalendar` port, reused as built), `HS` | The calendar package and the JSON format are reached through ports. |
+| Value Object | `HolidayCalendarYear`, `HolidayCalendarListing`, `ListingOutcome` | Frozen dataclasses; the listing is assembled once. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract) | Satisfied by message |
+| --- | --- |
+| A Holiday Calendar Listing instance was created with country `KH` and the generated time | 5 and 6 (time from the clock port), 16 (creation with `"KH"` and `generated_at`) |
+| A Holiday Calendar Year instance per requested year, ascending, without duplicates, associated with the listing; the requested years are those selected by `years`, or the current year when absent | 7 and 8 (`parse_years` selects, sorts and removes duplicates, and uses the current year of the clock when the text is absent), 10 to 13 (one `HolidayCalendarYear` per year, in the loop), 16 (the tuple of years is passed to the listing) |
+| An available year lists exactly the Holidays the source supplies, in date order, with date and name | 10 and 11 (`holidays_in_year` returns them in date order), 12 (created available with those holidays) |
+| An unavailable year has reason `NO_CALENDAR_DATA`, lists no Holiday, and no Holiday was invented | 11 (empty tuple), 13 (created unavailable with the reason and no holidays); no message creates a `Holiday` outside the calendar port |
+| Notices `CALENDAR_SOURCE` and, when `years` was absent, `DEFAULT_YEAR_USED` | 9 (default year notice), 14 and 15 (source and version), 16 (notices in the listing) |
+| No Analysis, Analysis Result or AI Insight created, no analysis ran, the Result History unchanged, the listing not associated with it | The lifelines of the diagram hold no history writer, history reader, analyzer or booking loader; `ListHolidays` has no such collaborator (block 3.0 message 10) |
+| The Calling system received the serialized listing on standard output and the exit code 0 | 17 and 18 (serialization), 19 to 21 (delivery), 22 (outcome `SUCCEEDED` only after the write returned), 25 (exit code 0) |
+
+### Responsibility Check
+
+`ListHolidays` sends 13 of the 25 messages (calls to the loader, the clock, the year parser, the calendar (once per requested year and once for the source), the serializer and the sink; one notice; the creation of three value objects; and the return); every one is a delegation or the creation of a value object, and it contains no parsing, no formatting and no file handling. Year rules are in `year_selection`, holidays in the calendar adapter, JSON in the serializer, delivery in the sink and the exit code in `cli`. No participant receives all messages (the controller receives one).
+
+## Sequence 3.2: getHolidayCalendar, invalid request and delivery failure (Designed)
+
+**Realizes:** `getHolidayCalendar` in [OC-001], the exceptions "`years` is not valid" (`INVALID_YEARS`), "the configuration is invalid" (`CONFIGURATION_ERROR`) and "standard output cannot be written" ([SSD-001] diagrams 3.3 and 3.4); exit codes 2 and 4.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    actor C as Calling system
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant LH as ":ListHolidays<br/>application, planned"
+    participant CL as ":TomlConfigurationLoader<br/>adapters"
+    participant YS as ":year_selection<br/>module, domain, planned"
+    participant CK as ":SystemClock<br/>infrastructure"
+    participant HS as ":JsonHolidayListingSerializer<br/>adapters, planned"
+    participant SNK as ":StreamResultSink<br/>infrastructure"
+    C->>+CLI: 1: python -m hotel_booking_analysis holidays --years text --config file
+    CLI->>+LH: 2: run(years_text, config_path)
+    LH->>+CL: 3: load(config_path)
+    alt the file cannot be parsed or a value is invalid (CONFIGURATION_ERROR)
+        CL--xLH: 4: raise ConfigurationError(message, key)
+        LH->>LH: 5: error = ConfigurationError
+    else the configuration is valid
+        CL-->>LH: 6: LoadedConfiguration
+    end
+    deactivate CL
+    opt the configuration was valid
+        LH->>+YS: 7: parse_years(years_text, current_year)
+        alt the value is not a valid selection (INVALID_YEARS)
+            YS--xLH: 8: raise InvalidYearsError(message naming the problem)
+            LH->>LH: 9: error = InvalidYearsError
+        else the value is valid
+            YS-->>LH: 10: years
+        end
+        deactivate YS
+    end
+    alt an error was recorded
+        LH->>+CK: 11: now()
+        CK-->>-LH: 12: generated_at
+        LH->>+HS: 13: serialize_failure(ResultError(code, message), notices, generated_at)
+        HS-->>-LH: 14: line, a failed document with no years
+    else the years are valid
+        LH->>LH: 15: the listing is built and serialized as in block 3.1 messages 5 to 18
+    end
+    LH->>+SNK: 16: write(line)
+    alt standard output accepts the line
+        SNK->>C: 17: the failed document or the listing on standard output
+        SNK-->>LH: 18: None
+        LH->>LH: 19: status = INPUT_FAILED when an error was recorded, else SUCCEEDED
+    else standard output cannot be written (exit code 4)
+        SNK--xLH: 20: raise ResultDeliveryError
+        LH->>LH: 21: status = DELIVERY_FAILED, message names the delivery error, nothing was stored
+    end
+    deactivate SNK
+    create participant OUT as ":ListingOutcome<br/>application, planned"
+    LH->>OUT: 22: create(status, serialized, message)
+    LH-->>-CLI: 23: outcome
+    CLI->>CLI: 24: _report_listing(outcome), error message on standard error when the status is not SUCCEEDED
+    CLI-->>-C: 25: exit code 2 for INPUT_FAILED, exit code 4 for DELIVERY_FAILED
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Controller (GRASP) with exception translation | `ListHolidays.run` (messages 5, 9, 19, 21) | Domain exceptions (`ConfigurationError`, `InvalidYearsError`, `ResultDeliveryError`) are caught at one place and turned into a failed document and a status; none reaches `cli`. Same idea as block 1.3. |
+| Information Expert (GRASP) | `TomlConfigurationLoader` (message 4), `year_selection.parse_years` (message 8) | Each raises the error for the rule it owns. |
+| Adapter (GoF) | `HS`, `SNK` | The failed document is written by the same serializer and sink as the listing; a stream problem appears as `ResultDeliveryError`, not as a library exception. |
+| Exception hierarchy | `InputError`, `ConfigurationError`, `InvalidYearsError` | `InvalidYearsError` is an `InputError` with the code `INVALID_YEARS`, so the controller catches both alike, as `AnalyzeBookings` does. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract, exception row) | Satisfied by message |
+| --- | --- |
+| `INVALID_YEARS`: no listing was created; the Calling system received a failed listing with the code and a message naming the problem, no years, on standard output; exit code 2; the Result History unchanged | 7 to 9 (the error), 11 to 14 (`serialize_failure`, no years), 16 and 17 (delivered), 19, 25 (exit code 2). No message reaches a history port |
+| `CONFIGURATION_ERROR`: as above | 3 to 5, then 11 to 25 as above |
+| Standard output cannot be written: nothing stored, no document, standard error names the delivery error, exit code 4 | 16, 20, 21 (status `DELIVERY_FAILED`, the message), 22 to 25 (exit code 4); nothing was stored because no store is involved |
+| A year without calendar data is not a failure | Block 3.1 messages 11 and 13 (exit code 0) |
+
+### Responsibility Check
+
+`ListHolidays` sends 12 of the 25 messages, 5 of them self messages that only record the error or the status; the rules stay in the loader, the year parser, the serializer and the sink, and `cli` chooses the exit code. No participant receives all messages.
+
+## Sequence 4.0: getLlmProviders, object construction (Designed)
+
+**Realizes:** `getLlmProviders` in [OC-001] (the [SSD-001] lifecycle note for UC-004: the composition root wires the configuration loader, the provider adapters, the serializer, the clock and the stream; a prerequisite of blocks 4.1 and 4.2).
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    participant PM as "__main__<br/>module"
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant BS as ":bootstrap<br/>module, composition root"
+    PM->>+CLI: 1: main(argv, sys.stdout.buffer, sys.stderr, Path.cwd(), os.environ)
+    CLI->>CLI: 2: build_parser().parse_args(argv), subcommand llm-providers with --config
+    CLI->>CLI: 3: _attach_stderr(stderr)
+    CLI->>+BS: 4: build_list_llm_providers(stdout, working_directory, environ)
+    create participant CL as ":TomlConfigurationLoader<br/>adapters"
+    BS->>CL: 5: create(working_directory, environ)
+    BS->>+BS: 6: build_llm_registry()
+    create participant REG as ":ConfiguredLlmProviders<br/>adapters, planned"
+    BS->>REG: 7: create()
+    BS-->>-BS: 8: registry
+    create participant PS as ":JsonProviderListingSerializer<br/>adapters, planned"
+    BS->>PS: 9: create()
+    create participant SNK as ":StreamResultSink<br/>infrastructure"
+    BS->>SNK: 10: create(stdout)
+    create participant CK as ":SystemClock<br/>infrastructure"
+    BS->>CK: 11: create()
+    create participant LP as ":ListLlmProviders<br/>application, planned"
+    BS->>LP: 12: create(configuration_loader, registry, serializer, sink, clock)
+    BS-->>-CLI: 13: use_case
+    CLI->>+LP: 14: run(arguments.config)
+    Note over CLI,LP: run continues in block 4.1, or 4.2 on failure
+    LP-->>-CLI: 15: outcome
+    CLI-->>-PM: 16: exit code from _EXIT_CODES[outcome.status]
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Factory and Pure Fabrication | `bootstrap.build_list_llm_providers`, `bootstrap.build_llm_registry` | The composition root is the only module that names `ConfiguredLlmProviders`; the use cases see only the port `LlmProviderRegistry`. |
+| Factory (registry as object factory) | `ConfiguredLlmProviders` (message 7) | The provider addresses come from the configuration, which is read inside `run`, after construction; the registry therefore creates the provider adapters from the configuration when asked (block 4.1 messages 5 to 7). |
+| Dependency Injection and Protected Variations (GRASP) | `ListLlmProviders` (message 12) | Ports only; a fake registry serves the tests without any HTTP. |
+| Controller (GRASP), command-line entry | `cli.main` | As in block 3.0. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract) | Satisfied by message |
+| --- | --- |
+| Not applicable: construction only. It supplies the objects (messages 5 to 12) that realize the postconditions of blocks 4.1 and 4.2 | 5 to 12, and 14 to 16 for the hand-over to and the return from `run` |
+
+### Responsibility Check
+
+`cli.main` sends 5 of the 16 messages and `bootstrap` sends 9 (six creations, two self messages and one return); neither computes anything. No participant receives all messages.
+
+## Sequence 4.1: getLlmProviders, discovery and listing (Designed)
+
+**Realizes:** `getLlmProviders` in [OC-001], main success postconditions ([SSD-001] diagrams 4.1 and 4.2), exit code 0; a provider that cannot be reached is a normal entry.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    actor C as Calling system
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant LP as ":ListLlmProviders<br/>application, planned"
+    participant CL as ":TomlConfigurationLoader<br/>adapters"
+    participant REG as ":ConfiguredLlmProviders<br/>adapters, planned"
+    participant DP as ":provider_discovery<br/>module, application, planned"
+    participant HJ as ":http_json<br/>module, adapters, planned"
+    participant CK as ":SystemClock<br/>infrastructure"
+    participant PS as ":JsonProviderListingSerializer<br/>adapters, planned"
+    participant SNK as ":StreamResultSink<br/>infrastructure"
+    C->>+CLI: 1: python -m hotel_booking_analysis llm-providers --config file
+    CLI->>+LP: 2: run(config_path)
+    LP->>+CL: 3: load(config_path)
+    CL-->>-LP: 4: LoadedConfiguration (the addresses passed the loopback rule before any connection)
+    LP->>+REG: 5: providers(configuration.llm)
+    create participant PV as ":LlmProvider<br/>OllamaProvider and LmStudioProvider, adapters, planned"
+    REG->>PV: 6: create(base_url) for ollama, then for lmstudio
+    REG-->>-LP: 7: providers, in the order ollama, lmstudio
+    LP->>+DP: 8: discover_providers(providers, llm.discovery_timeout_seconds)
+    loop for each provider in the order ollama, lmstudio
+        DP->>+PV: 9: list_models(timeout_seconds)
+        PV->>+HJ: 10: get_json(models url, timeout_seconds)
+        alt HTTP 200 with a body in the expected structure
+            HJ-->>PV: 11: parsed body
+            create participant PST as ":ProviderStatus<br/>domain, planned"
+            PV->>PST: 12: create(provider, reachable True, no reason, models)
+        else refused, timed out, unexpected answer or other network failure
+            HJ--xPV: 13: raise HttpFailure(reason)
+            PV->>PST: 14: create(provider, reachable False, reason, no models)
+        end
+        deactivate HJ
+        PV-->>-DP: 15: status
+    end
+    DP-->>-LP: 16: statuses, ollama then lmstudio
+    LP->>+CK: 17: now()
+    CK-->>-LP: 18: generated_at
+    opt no status is reachable
+        LP->>LP: 19: notice NO_PROVIDER_REACHABLE
+    end
+    create participant PL as ":ProviderListing<br/>domain, planned"
+    LP->>PL: 20: create(generated_at, statuses, notices)
+    LP->>+PS: 21: serialize(listing)
+    PS-->>-LP: 22: line, one compact JSON line
+    LP->>+SNK: 23: write(line)
+    SNK->>C: 24: standard output receives the line and a newline, then flush
+    SNK-->>-LP: 25: None
+    create participant OUT as ":ListingOutcome<br/>application, planned"
+    LP->>OUT: 26: create(SUCCEEDED, serialized=line)
+    LP-->>-CLI: 27: outcome
+    CLI->>CLI: 28: _report_listing(outcome)
+    CLI-->>-C: 29: exit code 0 from _EXIT_CODES[SUCCEEDED]
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Controller (GRASP), use-case controller | `ListLlmProviders.run` (messages 2 to 27) | Delegates the discovery, the timing and the serialization; holds no HTTP or JSON rule. |
+| Strategy (GoF) | `PV`, the `LlmProvider` port (messages 9 to 15) | `OllamaProvider` and `LmStudioProvider` are interchangeable implementations of `list_models` and `generate`; the discovery treats them alike and adding a provider does not change it. |
+| Adapter (GoF) | `PV`, `HJ`, `PS` | Ollama's and LM Studio's HTTP interfaces, the standard-library HTTP client and the JSON format are adapted to ports; a network problem becomes a `reason`, never an exception outside the adapter. |
+| Factory (GoF) | `REG` (`ConfiguredLlmProviders.providers`, messages 5 to 7) | Creates the provider adapters from the configured addresses. |
+| Pure Fabrication (GRASP) | `provider_discovery.discover_providers`, `http_json` | Shared by `ListLlmProviders` and `GenerateInsights` so that the listing and the choice made for insights cannot disagree ([ADR-0009]); the HTTP helper has no domain counterpart. |
+| Information Expert (GRASP) | `OllamaProvider.list_models` (messages 12 and 14) | The adapter knows the endpoint and the shape of its answer and decides `reachable` and the reason. |
+| Value Object | `ProviderStatus`, `ProviderListing`, `ListingOutcome` | Frozen dataclasses. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract) | Satisfied by message |
+| --- | --- |
+| One Language Model Provider instance per supported provider, `ollama` then `lmstudio`, each with its name and configured address | 5 to 7 (the registry creates the two provider adapters from `configuration.llm`, each holding its name and address), 9 (the discovery visits them in that order) |
+| Each provider is associated with a Provider Status: reachable with the Language Models it lists, or unreachable with one of the four reasons and no model | 9 to 15 (per provider: 12 reachable with `models`, 14 unreachable with `reason` from `HttpFailure`), 16 (all statuses) |
+| When no status is reachable the listing carries `NO_PROVIDER_REACHABLE` and the operation still succeeds | 19 (notice), 26 and 29 (outcome `SUCCEEDED`, exit code 0) |
+| No model was asked to generate text, no booking data was sent, no Analysis or AI Insight created, the Result History unchanged | Only `list_models` (message 9) and `get_json` (message 10) are sent to a provider; `generate` and `post_json` do not occur in the diagram; `ListLlmProviders` has no history, booking or analyzer collaborator (block 4.0 message 12) |
+| The Calling system received the serialized listing, naming only providers and models, and exit code 0 | 20 to 22 (listing holds only providers, statuses, models and notices), 23 to 25 (delivery), 29 (exit code 0) |
+
+### Responsibility Check
+
+`ListLlmProviders` sends 10 of the 29 messages; the discovery, the two provider adapters and the HTTP helper carry the checks (`provider_discovery` sends the calls of the loop, the adapters the requests), `cli` the exit code. The two provider adapters are one lifeline here because they play the same role. No participant receives all messages.
+
+## Sequence 4.2: getLlmProviders, invalid configuration and delivery failure (Designed)
+
+**Realizes:** `getLlmProviders` in [OC-001], the exceptions "the configuration is invalid" (including a non-loopback address without `llm.allow_remote`) and "standard output cannot be written" ([SSD-001] diagrams 4.3 and 4.4); exit codes 2 and 4.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    actor C as Calling system
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant LP as ":ListLlmProviders<br/>application, planned"
+    participant CL as ":TomlConfigurationLoader<br/>adapters"
+    participant CK as ":SystemClock<br/>infrastructure"
+    participant PS as ":JsonProviderListingSerializer<br/>adapters, planned"
+    participant SNK as ":StreamResultSink<br/>infrastructure"
+    C->>+CLI: 1: python -m hotel_booking_analysis llm-providers --config file
+    CLI->>+LP: 2: run(config_path)
+    LP->>+CL: 3: load(config_path)
+    alt a value is invalid, or a provider address is not a loopback host while llm.allow_remote is false (CONFIGURATION_ERROR)
+        CL--xLP: 4: raise ConfigurationError(message, key such as llm.ollama_url), no provider was contacted
+        LP->>LP: 5: error = ConfigurationError
+    else the configuration is valid
+        CL-->>LP: 6: LoadedConfiguration
+    end
+    deactivate CL
+    alt an error was recorded
+        LP->>+CK: 7: now()
+        CK-->>-LP: 8: generated_at
+        LP->>+PS: 9: serialize_failure(ResultError(code, message), notices, generated_at)
+        PS-->>-LP: 10: line, a failed document with no providers
+    else the configuration is valid
+        LP->>LP: 11: discovery and listing as in block 4.1 messages 5 to 22
+    end
+    LP->>+SNK: 12: write(line)
+    alt standard output accepts the line
+        SNK->>C: 13: the failed document or the listing on standard output
+        SNK-->>LP: 14: None
+        LP->>LP: 15: status = INPUT_FAILED when an error was recorded, else SUCCEEDED
+    else standard output cannot be written (exit code 4)
+        SNK--xLP: 16: raise ResultDeliveryError
+        LP->>LP: 17: status = DELIVERY_FAILED, message names the delivery error, nothing was stored
+    end
+    deactivate SNK
+    create participant OUT as ":ListingOutcome<br/>application, planned"
+    LP->>OUT: 18: create(status, serialized, message)
+    LP-->>-CLI: 19: outcome
+    CLI->>CLI: 20: _report_listing(outcome), error message on standard error when the status is not SUCCEEDED
+    CLI-->>-C: 21: exit code 2 for INPUT_FAILED, exit code 4 for DELIVERY_FAILED
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Controller (GRASP) with exception translation | `ListLlmProviders.run` (messages 5, 15, 17) | Same translation as block 3.2: the exception becomes a failed document and a status. |
+| Information Expert (GRASP) | `TomlConfigurationLoader` (message 4) | The loader owns the configuration rules, including the loopback rule of [ADR-0009], so the failure occurs before a registry or a connection exists. |
+| Adapter (GoF) | `PS`, `SNK` | As in block 4.1. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract, exception row) | Satisfied by message |
+| --- | --- |
+| Invalid configuration: no provider contacted and no instance created; a failed listing on standard output; exit code 2; Result History unchanged | 3 to 5 (the error; the diagram has no registry or provider lifeline, so none is contacted), 7 to 10 (failed document, no providers), 12 and 13 (delivered), 15, 21 (exit code 2) |
+| Standard output cannot be written: nothing stored, no document, exit code 4 | 12, 16, 17, 18 to 21 |
+| A provider that is not reachable is not a failure | Block 4.1 messages 13 and 14 (exit code 0) |
+
+### Responsibility Check
+
+`ListLlmProviders` sends 10 of the 21 messages, 4 of them self messages that record the error or the status. Rules stay in the loader (configuration), the serializer and the sink; `cli` chooses the exit code. No participant receives all messages.
+
+## Sequence 5.0: analyzeBookings, construction with insights (Designed change)
+
+**Realizes:** `analyzeBookings` in [OC-001], Designed change (the composition root wires the provider registry and `GenerateInsights` and hands them to `AnalyzeBookings`; a prerequisite of blocks 5.1 and 5.2). It continues block 1.0: messages 5 to 18 of that block create the built adapters unchanged.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    participant PM as "__main__<br/>module"
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant BS as ":bootstrap<br/>module, composition root"
+    PM->>+CLI: 1: main(argv, sys.stdout.buffer, sys.stderr, Path.cwd(), os.environ)
+    CLI->>CLI: 2: build_parser().parse_args(argv), subcommand analyze with the new option --insights
+    CLI->>CLI: 3: _attach_stderr(stderr)
+    CLI->>+BS: 4: build_analyze_bookings(stdout, working_directory, environ, lock_wait_seconds)
+    Note over BS: the built adapters are created as in block 1.0 messages 5 to 18
+    BS->>+BS: 5: build_llm_registry()
+    create participant REG as ":ConfiguredLlmProviders<br/>adapters, planned"
+    BS->>REG: 6: create()
+    BS-->>-BS: 7: registry
+    create participant GI as ":GenerateInsights<br/>application, planned"
+    BS->>GI: 8: create(registry, clock)
+    create participant UC as ":AnalyzeBookings<br/>application"
+    BS->>UC: 9: create(configuration_loader, booking_loader, serializer, history_writer, history_reader, sink, clock, ids, analyzers, insight_generator)
+    BS-->>-CLI: 10: use_case
+    CLI->>+UC: 11: run(arguments.input, arguments.config, arguments.insights)
+    Note over CLI,UC: run continues in block 5.1 (insights true), or in blocks 1.1 and 1.2 unchanged (insights false)
+    UC-->>-CLI: 12: outcome
+    CLI-->>-PM: 13: exit code from _EXIT_CODES[outcome.status]
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Factory and Pure Fabrication | `bootstrap.build_analyze_bookings` (changed), `build_llm_registry` | The only module that names the concrete provider registry; it is built on every run, but no provider is contacted unless `insights` is true. |
+| Dependency Injection (constructor injection) | `GenerateInsights` (message 8), `AnalyzeBookings` (message 9) | `AnalyzeBookings` receives the insight generator as a collaborator (optional, default none), so the built construction and the tests without insights are unchanged. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract) | Satisfied by message |
+| --- | --- |
+| Not applicable: construction only. It supplies `GenerateInsights` and passes the request (`arguments.insights`) into `run` | 5 to 9 create the objects; 11 passes `insights`; the default `false` of the option keeps the built behavior |
+
+### Responsibility Check
+
+`cli.main` sends 5 of the 13 messages and `bootstrap` sends 6; neither computes anything. Creation is separated from use. No participant receives all messages.
+
+## Sequence 5.1: analyzeBookings, insights requested (Designed change)
+
+**Realizes:** `analyzeBookings` in [OC-001], the Designed change: the added postconditions on the AI Insight instances, their association with the Analyses, the labels, the format version 1.1 and the unchanged path when insights are not requested ([SSD-001] diagrams 5.1 and 5.5). It continues block 1.1: messages 2 to 24 of that block (configuration, load, validation, identifier, time) run first and are unchanged; this block replaces messages 25 to 38 of block 1.1 when `insights` is true.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    participant CLI as ":cli<br/>module, infrastructure"
+    participant UC as ":AnalyzeBookings<br/>application"
+    participant RA as ":run_analyses<br/>module, application"
+    participant GI as ":GenerateInsights<br/>application, planned"
+    participant REG as ":ConfiguredLlmProviders<br/>adapters, planned"
+    participant DP as ":provider_discovery<br/>module, application, planned"
+    participant SEL as ":model_selection<br/>module, domain, planned"
+    participant IP as ":insight_prompt<br/>module, domain, planned"
+    participant PV as ":LlmProvider<br/>OllamaProvider or LmStudioProvider, adapters, planned"
+    participant IV as ":insight_validation<br/>module, domain, planned"
+    participant CK as ":SystemClock<br/>infrastructure"
+    participant BR as ":build_result<br/>module, application"
+    CLI->>+UC: 1: run(input_path, config_path, insights)
+    Note over UC: messages 2 to 24 of block 1.1 run first, unchanged
+    alt insights requested, the extension point after step 4 of UC-001
+        UC->>+RA: 2: run_analyses(validated, configuration, analyzers)
+        RA-->>-UC: 3: (analyses, analysis_notices), block 1.1 messages 27 to 35
+        UC->>+GI: 4: generate(analyses, validated.summary, configuration)
+        GI->>+REG: 5: providers(configuration.llm)
+        REG-->>-GI: 6: providers, ollama then lmstudio
+        GI->>+DP: 7: discover_providers(providers, llm.discovery_timeout_seconds)
+        DP-->>-GI: 8: statuses, as block 4.1 messages 9 to 16
+        GI->>+SEL: 9: select_model(statuses, llm.provider, llm.model)
+        SEL-->>-GI: 10: ModelSelection(provider, model, reason)
+        loop for each Analysis of analyses, one after the other
+            alt the Analysis is unavailable (extension 3a)
+                create participant AIN as ":AiInsight<br/>domain, planned"
+                GI->>AIN: 11: not_applicable()
+            else the selection has no model (extension 2a, block 5.2)
+                GI->>AIN: 12: unavailable(reason NO_PROVIDER or NO_MODEL)
+            else a model is selected
+                GI->>+IP: 13: build_prompt(analysis, validated.summary)
+                IP-->>-GI: 14: InsightPrompt, aggregate findings and counts only
+                GI->>+PV: 15: generate(model, prompt, llm.temperature, llm.generation_timeout_seconds)
+                PV-->>-GI: 16: answer text, failures in block 5.2
+                GI->>+IV: 17: validate_answer(answer text, prompt, configuration.min_group_size)
+                IV-->>-GI: 18: (ExecutiveSummary, ImprovementSuggestions), rejections in block 5.2
+                GI->>+CK: 19: now()
+                CK-->>-GI: 20: generated_at
+                GI->>AIN: 21: available(provider, model, generated_at, summary, suggestions)
+            end
+        end
+        create participant IB as ":InsightBatch<br/>application, planned"
+        GI->>IB: 22: create(InsightsMetadata(provider, model, PROMPT_VERSION), insights by analysis name)
+        GI-->>-UC: 23: batch
+        UC->>+BR: 24: assemble_result(validated, config notices, result_id, generated_at, analyses, analysis_notices, batch)
+        BR->>BR: 25: attach the insight of each Analysis by name, _insight_notices(batch), _status(...)
+        create participant AR as ":AnalysisResult<br/>domain"
+        BR->>AR: 26: create(..., insights=batch.metadata, schema_version 1.1)
+        BR-->>-UC: 27: result
+    else insights not requested, the default (SSD diagram 5.5)
+        UC->>+BR: 28: build_result(validated, config notices, result_id, generated_at, configuration, analyzers), as block 1.1 message 25
+        BR-->>-UC: 29: result, schema_version 1.0, no insights
+    end
+    Note over UC: run continues with _store_and_deliver, block 1.2 unchanged
+    UC-->>-CLI: 30: outcome, see block 1.2
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Controller (GRASP), use-case controller | `AnalyzeBookings.run` (messages 1 to 30) | Still receives one system event and delegates; the extension is one added call (`generate`) at the extension point of [UC-001], guarded by the request. It holds no prompt, provider or guardrail rule. |
+| Creator (GRASP) | `GenerateInsights` creates `AiInsight` and `InsightBatch` (messages 11, 12, 21, 22); `assemble_result` creates `AnalysisResult` (message 26) | The creator holds the analysis, the model selection, the validated answer and the time that initialize the created object. |
+| Strategy (GoF) | `PV`, the `LlmProvider` port (messages 15 and 16) | Ollama and LM Studio are interchangeable behind `generate`; the service calls the selected one without knowing which. |
+| Information Expert (GRASP) | `model_selection.select_model` (message 9), `insight_validation.validate_answer` (message 17) | The selector holds the order and the rules of [ADR-0009] and sees all statuses; the validator holds the rules 1 to 7 of [ADR-0010] and sees the answer and the data that was sent. |
+| Pure Fabrication (GRASP) | `insight_prompt.build_prompt` (message 13), `model_selection`, `insight_validation`, `provider_discovery` | The prompt text, the choice of a model and the checks have no counterpart among the domain objects; as pure functions they are testable without a model, and the prompt builder is the single place where the data allowed to leave the analysis is defined ([ADR-0010]). |
+| Adapter (GoF) | `REG`, `PV` | The two HTTP interfaces are adapted to the ports `LlmProviderRegistry` and `LlmProvider`; a failure becomes a domain error (block 5.2). |
+| Dependency Injection and Protected Variations (GRASP) | `AnalyzeBookings` receiving `GenerateInsights`; `GenerateInsights` receiving the registry and the clock | The provider technology can change (or a fake can serve tests) without changing the use case; the analysis without insights does not depend on a provider. |
+| Value Object | `AiInsight`, `InsightBatch`, `InsightsMetadata`, the changed `AnalysisResult` and `Analysis` | Frozen dataclasses; the insights are created once and attached, nothing is mutated. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract, Designed change) | Satisfied by message |
+| --- | --- |
+| Insights not requested: no AI Insight, no provider contacted, format version 1.0, identical to the built result | 28 and 29 (the built `build_result`, block 1.1 message 25); messages 4 to 27 do not occur in this branch |
+| One AI Insight instance per Analysis, associated with it (has); the Analyses and findings are identical to those of a run without insights | 11, 12 and 21 create one `AiInsight` per Analysis of the loop; 22 collects them; 25 attaches each to its Analysis by name; 2 and 3 produce the Analyses before any insight, and no message changes an `Analysis` except the attachment of its `insight` |
+| Each AI Insight has exactly one status: available, unavailable with a reason, or not applicable | 11 (not applicable), 12 (unavailable, `NO_PROVIDER` or `NO_MODEL`), 21 (available); the other unavailable reasons are created in block 5.2 messages 9 to 17 |
+| An available AI Insight has the label AI-generated, generated time and prompt version, one Executive Summary and one to five Improvement Suggestions, and the Language Model that produced it | 17 and 18 (the validator returns the summary and 1 to 5 suggestions only for an accepted answer), 19 and 20 (generated time), 21 (creation: `label()` is AI-generated for an available insight, provider and model as text), 22 (prompt version in the metadata) |
+| Each suggestion has hypothesis wording, evidence, a sample size from the findings, no causal word, no promise of earnings, no invented figure, and a small-sample statement when needed | 17 and 18: `validate_answer` applies rules 1 to 7 of [ADR-0010] against the `InsightPrompt` (message 14) that holds exactly the data sent |
+| An unavailable or not applicable insight has no label, no summary, no suggestion, and no text of a failed or rejected answer was kept | 11 and 12 create insights without texts; block 5.2 messages 9 to 17 create the others without texts and drop the answer |
+| No Booking Record, booking identifier, input reference, fingerprint, file name, path or booking date was sent to any model | 13 and 14: `build_prompt` takes only one `Analysis` (its findings) and the `DataQualitySummary` (counts); no `BookingSubmission`, `BookingRecord` or `ResultInput` is a parameter of `build_prompt` or of `generate` (message 15) |
+| The Analysis Result has format version 1.1 and insights information (requested true, provider, model or absent, prompt version) | 22 (metadata), 26 (`AnalysisResult` created with `insights` and `schema_version` 1.1) |
+| Status `completed_with_warnings` and the notice `INSIGHTS_UNAVAILABLE` when an insight of an available Analysis is unavailable; the result is retained and delivered as before, exit code unchanged | 25 (`_insight_notices`, `_status`), block 5.2 messages 22 to 25; the run then continues with `_store_and_deliver` of block 1.2 unchanged (note before message 30), which appends, delivers and returns exit code 0 |
+
+### Responsibility Check
+
+`AnalyzeBookings` sends 5 of the 30 messages here (`run_analyses`, `generate`, `assemble_result`, `build_result` and the return). `GenerateInsights` sends 12 (the most of any participant, 40 percent), and every one is a delegation to the registry, the discovery, the selector, the prompt builder, the provider, the validator, the clock or the creation of a value object; it holds no HTTP, no prompt text and no guardrail rule. Selection, prompt, validation and HTTP are in four different collaborators (high cohesion), and `assemble_result` builds the result. No participant receives all messages.
+
+## Sequence 5.2: analyzeBookings, insight failures per reason (Designed change)
+
+**Realizes:** `analyzeBookings` in [OC-001], the added exceptions: no reachable provider (`NO_PROVIDER`), no usable model (`NO_MODEL`), timeout (`TIMEOUT`), model failure (`MODEL_ERROR`), answer not in the structure (`BAD_STRUCTURE`), answer rejected by a guardrail (`GUARDRAIL_REJECTED`), and the resulting status and notice ([SSD-001] diagrams 5.2, 5.3 and 5.4). It elaborates messages 9 to 27 of block 5.1.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    participant UC as ":AnalyzeBookings<br/>application"
+    participant GI as ":GenerateInsights<br/>application, planned"
+    participant SEL as ":model_selection<br/>module, domain, planned"
+    participant IP as ":insight_prompt<br/>module, domain, planned"
+    participant PV as ":LlmProvider<br/>OllamaProvider or LmStudioProvider, adapters, planned"
+    participant IV as ":insight_validation<br/>module, domain, planned"
+    participant BR as ":build_result<br/>module, application"
+    Note over UC,GI: continues block 5.1 message 8, the statuses of both providers are known
+    activate UC
+    activate GI
+    GI->>+SEL: 1: select_model(statuses, llm.provider, llm.model)
+    SEL-->>-GI: 2: ModelSelection(provider, model, reason)
+    alt no reachable provider, or the provider named by llm.provider is not reachable (NO_PROVIDER)
+        loop for each available Analysis
+            create participant AIN as ":AiInsight<br/>domain, planned"
+            GI->>AIN: 3: unavailable(NO_PROVIDER), no model contacted
+        end
+    else a reachable provider lists no model, or not the model named by llm.model (NO_MODEL)
+        loop for each available Analysis
+            GI->>AIN: 4: unavailable(NO_MODEL), no model contacted
+        end
+    else a model is selected
+        loop for each available Analysis, one after the other
+            GI->>+IP: 5: build_prompt(analysis, summary)
+            IP-->>-GI: 6: InsightPrompt
+            GI->>+PV: 7: generate(model, prompt, temperature, generation timeout)
+            alt no answer within llm.generation_timeout_seconds (TIMEOUT)
+                PV--xGI: 8: raise LlmTimeoutError
+                GI->>AIN: 9: unavailable(TIMEOUT, provider, model), no retry
+            else connection refused, error status or unusable body (MODEL_ERROR)
+                PV--xGI: 10: raise LlmError
+                GI->>AIN: 11: unavailable(MODEL_ERROR, provider, model), no retry
+            else an answer text was received
+                PV-->>GI: 12: answer text
+                GI->>+IV: 13: validate_answer(answer text, prompt, min_group_size)
+                alt not JSON, a key missing, a wrong type, an empty text or a limit exceeded (BAD_STRUCTURE)
+                    IV--xGI: 14: raise InsightRejectedError(BAD_STRUCTURE)
+                    GI->>AIN: 15: unavailable(BAD_STRUCTURE, provider, model), text dropped
+                else a guardrail rule fails (GUARDRAIL_REJECTED)
+                    IV--xGI: 16: raise InsightRejectedError(GUARDRAIL_REJECTED)
+                    GI->>AIN: 17: unavailable(GUARDRAIL_REJECTED, provider, model), text dropped
+                else the answer is accepted
+                    IV-->>GI: 18: (ExecutiveSummary, ImprovementSuggestions)
+                    GI->>AIN: 19: available(provider, model, generated_at, summary, suggestions)
+                end
+                deactivate IV
+            end
+            deactivate PV
+        end
+    end
+    create participant IB as ":InsightBatch<br/>application, planned"
+    GI->>IB: 20: create(InsightsMetadata(provider, model, PROMPT_VERSION), insights by analysis name)
+    GI-->>UC: 21: batch
+    deactivate GI
+    UC->>+BR: 22: assemble_result(validated, config notices, result_id, generated_at, analyses, analysis_notices, batch)
+    alt at least one available Analysis has an unavailable insight
+        BR->>BR: 23: notice INSIGHTS_UNAVAILABLE with the count, status COMPLETED_WITH_WARNINGS
+    else every available Analysis has an available insight
+        BR->>BR: 24: status by the built rules, no insight notice
+    end
+    BR-->>-UC: 25: result, delivered and stored by block 1.2 unchanged
+    deactivate UC
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Controller (GRASP) with exception translation | `GenerateInsights` (messages 9, 11, 15, 17) | `LlmTimeoutError`, `LlmError` and `InsightRejectedError` are caught at one place per analysis and turned into an unavailable `AiInsight` with one reason code; nothing propagates to `AnalyzeBookings`, so a failed insight never fails the run or changes the exit code ([ADR-0008]). |
+| Information Expert (GRASP) | `model_selection.select_model` (messages 2 to 4), `OllamaProvider.generate` (messages 8, 10, 12), `insight_validation.validate_answer` (messages 14, 16, 18) | Each raises or decides for the rule it owns: the selection rules, the timeout and the meaning of a bad answer body, and the guardrails. |
+| Exception hierarchy | `LlmError`, `LlmTimeoutError`, `InsightRejectedError` (carrying the reason code) | The class tells the controller which reason applies, so the reason is exact. |
+| Strategy (GoF) | `PV` | The same failure behavior for both providers behind one port. |
+| Information Expert (GRASP) | `build_result.assemble_result` (messages 23 and 24) | The function that holds the analyses, insights and notices decides the notice and the status. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract, added exception row) | Satisfied by message |
+| --- | --- |
+| No reachable provider (or the named provider unreachable): every available Analysis has an unavailable insight `NO_PROVIDER`, no provider asked to generate text; exit code 0 | 1 to 3 (no `generate` occurs in this branch); 20 and 21, 22 to 25 (result assembled; delivery of block 1.2 gives exit code 0) |
+| A reachable provider without a model or without the configured model: `NO_MODEL`, as above | 2 and 4 |
+| No answer within the generation timeout: that Analysis `TIMEOUT`, no retry, the next is still tried | 7 to 9 (the loop continues with the next Analysis after message 9) |
+| Connection refused, error status or unusable body: `MODEL_ERROR`, no retry | 7, 10, 11 |
+| Answer not in the structure: `BAD_STRUCTURE`, the text dropped | 12 to 15 (the exception carries only the reason, the text is not passed on) |
+| Answer fails a guardrail: `GUARDRAIL_REJECTED`, the text dropped | 12, 13, 16, 17 |
+| An unavailable insight has no label, summary or suggestion | 3, 4, 9, 11, 15, 17 (`unavailable(...)` has no texts); only 19 (`available`) carries texts |
+| `completed_with_warnings` and the notice `INSIGHTS_UNAVAILABLE` with the count; the result is still delivered as a completed result | 22, 23 (notice and status), 24 (no notice when all insights are available), 25 (delivery by block 1.2) |
+| An unavailable Analysis is not applicable (no request made) | Block 5.1 message 11; the loops of this diagram range over the available Analyses only |
+
+### Responsibility Check
+
+`GenerateInsights` sends 13 of the 25 messages, of which 7 create an `AiInsight` in one of its states; the decisions (selection, wording rules, timeout, answer shape) are made by `model_selection`, `insight_validation` and the provider adapter. `AnalyzeBookings` sends 1 message and receives 2 in this block; `build_result.assemble_result` holds the status decision. No participant receives all messages.
+
+## Sequence 2.4: selectResult, the insight view (Designed change)
+
+**Realizes:** `selectResult` in [OC-001], the Designed change: the insight of each Analysis, the statement for a result saved without insights and the unavailable and unreadable cases ([SSD-001] diagrams 2.6 to 2.8). It continues block 2.2: messages 1 to 12 of that block set the selection; this block adds one step to each of the six analysis cells of messages 22 to 31.
+
+### Diagram
+
+```mermaid
+sequenceDiagram
+    actor A as Analyst
+    participant MR as ":marimo runtime<br/>runs the cells"
+    participant NB as ":history_notebook<br/>module, interface, analysis cells"
+    participant IW as ":insight_view<br/>module, interface, planned"
+    participant JA as ":json_access<br/>module, interface"
+    participant RN as ":marimo_render<br/>module, interface"
+    A->>MR: 1: chooses an entry of the picker, block 2.2 messages 1 to 12 set selected
+    loop for each of the six analysis cells
+        MR->>+NB: 2: runs the analysis cell with selected
+        NB->>+IW: 3: build_insight_view(selected, analysis name)
+        IW->>+JA: 4: as_mapping(selected insights), as_list(selected analyses), as_mapping(insight of the entry)
+        JA-->>-IW: 5: neutral values when a part is missing
+        alt the result holds no insights (schema 1.0, or a run without --insights)
+            create participant IVM as ":InsightView<br/>interface, planned"
+            IW->>IVM: 6: create(state saved_without_insights)
+        else the insight of the analysis is available
+            IW->>IVM: 7: create(state available, label, provider, model, summary, suggestions with evidence and sample size)
+        else the insight is unavailable
+            IW->>IVM: 8: create(state unavailable, reason_text(reason), no text)
+        else the insight is not applicable
+            IW->>IVM: 9: create(state not_applicable)
+        else the insight part cannot be read
+            IW->>IVM: 10: create(state unreadable)
+        end
+        IW-->>-NB: 11: view
+        NB->>+RN: 12: render_insight(view)
+        RN->>+IVM: 13: suggestion_table(), lines()
+        IVM-->>-RN: 14: rows and lines
+        RN-->>-NB: 15: mo.Html, text as plain text under the label AI-generated
+        NB-->>-MR: 16: the insight shown below the analysis view and its limitation notes
+    end
+    MR-->>A: 17: the analysis views, each with its AI insight or the statement
+```
+
+### Pattern Annotations
+
+| Pattern (GRASP / GoF) | Applied to | Rationale |
+| --- | --- | --- |
+| Pure Fabrication (GRASP) | `insight_view.build_insight_view`, `marimo_render.render_insight` | As the other view builders and renderers of block 2.2: a pure function from the stored result to a view model, and the only marimo call in the renderer. |
+| Model-View separation (view model) | `InsightView` versus `marimo_render` | The view model holds what is shown, the renderer shows it, so the builder is testable without marimo. |
+| Tolerant Reader | `json_access` used by `build_insight_view` (messages 4 and 5) | A 1.0 result, a result without insights or a damaged insight part yields neutral values and one of the states, never an exception. |
+| Information Expert (GRASP) | `InsightView.suggestion_table`, `insight_view.reason_text` | The view model knows how its suggestions are tabled and the module knows the wording of each reason code. |
+| Observer (reactive dependency, implemented by marimo) | `MR` re-runs the analysis cells that depend on `selected` (message 2) | Not written by the project, as in block 2.2. |
+| Value Object | `InsightView`, `SuggestionView` | Frozen dataclasses built per selection. |
+
+### Postcondition Coverage
+
+| Postcondition (from contract, Designed change) | Satisfied by message |
+| --- | --- |
+| The Result History and every Analysis Result are unchanged; no provider is contacted and no text is generated | No message reaches a writer, a lock or a provider; the cells only read `selected` (3 to 5) and build views (6 to 11) |
+| A result that holds insights shows, per Analysis, an available insight with summary and suggestions marked AI-generated with provider and model, each suggestion with evidence and sample size; an unavailable one with its reason and no text; a not applicable one as such | 3 to 5, 7 (available), 8 (unavailable, reason), 9 (not applicable), 12 to 15 (rendered with the label), 16 (shown) |
+| The text of an insight is shown as plain text and apart from the findings | 15 (`render_insight` produces its own block with plain text and the label), 16 (shown below the analysis view, which is rendered by the built messages 27 to 31 of block 2.2) |
+| A result without insights states that it was saved without insights and shows the findings as before, no error | 6 (state `saved_without_insights`), 15 and 16 (the statement); the findings are shown by block 2.2 |
+| Exception: an insight part that cannot be read is shown without an insight and with a statement | 4 and 5 (neutral values), 10 (state `unreadable`), 15 |
+| Exception: unsupported major version: readable parts, including a readable insight, with the version notice | Block 2.2 messages 7 to 10 (the notice) and 4, 5, 7 here (the same tolerant reading) |
+
+### Responsibility Check
+
+The notebook cell sends 3 of the 17 messages here (a call to the builder, a call to the renderer and its return); the reading and the state decision are in `insight_view`, the accessors in `json_access`, the rendering in `marimo_render`. `insight_view` sends 7 (the creation of one of five states and the return), and no participant receives all messages.
+
+## Coverage Matrix of the Designed Contracts
+
+Every postcondition and exception of the designed contracts of [OC-001] is realized by at least one block. This extends the OC-001 Coverage Matrix above; the built rows are unchanged.
+
+| Contract | Postcondition or exception (short name) | Realized by block |
+| --- | --- | --- |
+| `getHolidayCalendar` | Holiday Calendar Listing created (country, generated time) | 3.1 |
+| `getHolidayCalendar` | Holiday Calendar Year per requested year, ascending, without duplicates | 3.1 |
+| `getHolidayCalendar` | Available year lists the calendar's holidays in date order | 3.1 |
+| `getHolidayCalendar` | Unavailable year `NO_CALENDAR_DATA`, no invented holiday | 3.1 |
+| `getHolidayCalendar` | Notices `CALENDAR_SOURCE`, `DEFAULT_YEAR_USED` | 3.1 |
+| `getHolidayCalendar` | No analysis, history unchanged, listing not retained | 3.0, 3.1 |
+| `getHolidayCalendar` | Serialized listing on standard output, exit code 0 | 3.1 |
+| `getHolidayCalendar` | Exception: `INVALID_YEARS` | 3.2 |
+| `getHolidayCalendar` | Exception: configuration error | 3.2 |
+| `getHolidayCalendar` | Exception: year without calendar data (not a failure) | 3.1 |
+| `getHolidayCalendar` | Exception: standard output cannot be written | 3.2 |
+| `getLlmProviders` | One Language Model Provider per supported provider, in order | 4.1 |
+| `getLlmProviders` | Provider Status reachable with models, or unreachable with reason | 4.1 |
+| `getLlmProviders` | Notice `NO_PROVIDER_REACHABLE`, still success | 4.1 |
+| `getLlmProviders` | No text generated, no booking data sent, history unchanged | 4.0, 4.1 |
+| `getLlmProviders` | Serialized listing on standard output, exit code 0 | 4.1 |
+| `getLlmProviders` | Exception: invalid configuration, including a non-loopback address | 4.2 |
+| `getLlmProviders` | Exception: provider not reachable (not a failure) | 4.1 |
+| `getLlmProviders` | Exception: standard output cannot be written | 4.2 |
+| `analyzeBookings` (Designed change) | Insights not requested: nothing changes, format version 1.0 | 5.0, 5.1 |
+| `analyzeBookings` (Designed change) | One AI Insight per Analysis, associated (has) | 5.1 |
+| `analyzeBookings` (Designed change) | Exactly one status per AI Insight | 5.1, 5.2 |
+| `analyzeBookings` (Designed change) | Available insight: label, time, prompt version, summary, one to five suggestions, model | 5.1 |
+| `analyzeBookings` (Designed change) | Suggestions: hypothesis, evidence, sample size, no causal word, no promise, no invented figure | 5.1, 5.2 |
+| `analyzeBookings` (Designed change) | Unavailable or not applicable insight has no text; no rejected text kept | 5.1, 5.2 |
+| `analyzeBookings` (Designed change) | No booking record, identifier, reference, fingerprint, path or date sent to a model | 5.1 |
+| `analyzeBookings` (Designed change) | Format version 1.1 and insights information | 5.1 |
+| `analyzeBookings` (Designed change) | `completed_with_warnings` and `INSIGHTS_UNAVAILABLE`; result still retained and delivered | 5.1, 5.2 |
+| `analyzeBookings` (Designed change) | Exception: `NO_PROVIDER` | 5.2 |
+| `analyzeBookings` (Designed change) | Exception: `NO_MODEL` | 5.2 |
+| `analyzeBookings` (Designed change) | Exception: `TIMEOUT` | 5.2 |
+| `analyzeBookings` (Designed change) | Exception: `MODEL_ERROR` | 5.2 |
+| `analyzeBookings` (Designed change) | Exception: `BAD_STRUCTURE` | 5.2 |
+| `analyzeBookings` (Designed change) | Exception: `GUARDRAIL_REJECTED` | 5.2 |
+| `analyzeBookings` (Designed change) | Exception: an Analysis is unavailable (not applicable) | 5.1 |
+| `analyzeBookings` (Designed change) | Exception: invalid `[llm]` configuration | 1.3 (unchanged failed-result path; the `[llm]` values are read by the configuration loader, block 4.2 shows the same loader failure) |
+| `analyzeBookings` (Designed change) | Exception: history or delivery failure with insights | 1.4, 1.5 (unchanged; the result is built before the store, block 5.1 note) |
+| `selectResult` (Designed change) | Nothing changed, no provider contacted | 2.4 |
+| `selectResult` (Designed change) | Insight shown per Analysis (available, unavailable with reason, not applicable) | 2.4 |
+| `selectResult` (Designed change) | Text shown as plain text, apart from the findings | 2.4 |
+| `selectResult` (Designed change) | Result without insights: statement, no error | 2.4 |
+| `selectResult` (Designed change) | Exceptions: unreadable insight part, unsupported major version | 2.4 (with 2.2) |
+
+## Design Notes
+
+These are choices the decisions [ADR-0008] to [ADR-0012] left open; they are not deviations, because nothing is built yet.
+
+| ID | Note |
+| --- | --- |
+| SN-1 | The listing use cases reuse the built ports `ConfigurationLoader`, `ResultSink`, `Clock` and `HolidayCalendar`. The port `HolidayCalendar` gains one operation `source() -> str` so that the notice `CALENDAR_SOURCE` of [ADR-0011] can name the source and its version (block 3.1 messages 14 and 15); `KhmerHolidayCalendar` implements it from the `holidays` package version. |
+| SN-2 | `AnalyzeBookings` calls `run_analyses` itself only when insights are requested (block 5.1 messages 2 and 3) and then `assemble_result`; otherwise it calls `build_result` as built. `build_result` is refactored so that its second half is the public `assemble_result` and its behavior does not change. The built blocks 1.1 to 1.5 therefore stay true. |
+| SN-3 | Provider discovery runs once per run when insights are requested, before the first analysis, and is not skipped when every analysis is unavailable (simplest rule; [ADR-0009] does not say). |
+| SN-4 | `GenerateInsights` is injected into `AnalyzeBookings` as a concrete application class, optional and absent by default; no port is defined for it, because both live in `application`. |
+| SN-5 | Model choice is a pure function `select_model` in `domain`, and the prompt and the validator are pure functions in `domain`, so the rules of [ADR-0009] and [ADR-0010] are testable without HTTP and without a model. |
+| SN-6 | The provider adapters hold their base address; the configuration is read after the composition root has run, so the registry `ConfiguredLlmProviders` creates them from `configuration.llm` when asked (block 4.1 messages 5 to 7). |
+
 ---
 
 [OC-001]: ./operation-contracts.md
@@ -859,3 +1685,8 @@ Differences between the built collaboration and earlier decisions ([ADR-0001] to
 [ADR-0005]: ./adr/adr-0005-delivery-and-failure-semantics.md
 [ADR-0006]: ./adr/adr-0006-architecture-and-invocation.md
 [ADR-0007]: ./adr/adr-0007-analysis-methods.md
+[ADR-0008]: ./adr/adr-0008-invocation-interface.md
+[ADR-0009]: ./adr/adr-0009-llm-provider-discovery-and-connection.md
+[ADR-0010]: ./adr/adr-0010-ai-insight-generation-and-guardrails.md
+[ADR-0011]: ./adr/adr-0011-output-contracts-and-result-1-1.md
+[ADR-0012]: ./adr/adr-0012-configuration-extension.md
