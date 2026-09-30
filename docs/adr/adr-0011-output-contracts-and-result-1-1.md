@@ -57,7 +57,7 @@ A year is `available` when the calendar source returns at least one holiday for 
 
 - A single year: `2025`. A range: `2024-2026`, inclusive, first year not after the last. A comma list of single years: `2024,2026` (a range is not allowed inside a list).
 - Omitted: the current year, taken from the clock port; the notice `DEFAULT_YEAR_USED` says which.
-- A year is a whole number from 1900 to 2100. Duplicates are removed and the years are sorted.
+- A year is a whole number from 1900 to 2100, written with the ASCII digits 0 to 9 only (digits of other scripts, such as Khmer digits, are invalid); blanks around the whole value are ignored, blanks inside it are invalid. Duplicates are removed and the years are sorted.
 - At most 30 years. More than 30, an empty value, a non-number, an out-of-range year, a reversed range or any other form gives a failed document with `INVALID_YEARS` and a message that names the problem.
 - `holidays` reads the configuration file only to check that it parses as TOML, so that an unreadable file is reported the same way as in the other commands; it uses no key from it and does not validate the `[llm]` values, which only `llm-providers` and `analyze --insights` validate ([ADR-0012]).
 
@@ -65,7 +65,7 @@ A year is `available` when the calendar source returns at least one holiday for 
 
 | Field | Meaning |
 | --- | --- |
-| `providers` | always two entries, in the order `ollama`, `lmstudio`: `{provider, base_url, status, reason, models}` |
+| `providers` | one or two entries (minimum 1, maximum 2), in the order `ollama`, `lmstudio`: `{provider, base_url, status, reason, models}` |
 | `providers[].provider` | `ollama` or `lmstudio` |
 | `providers[].base_url` | the configured base URL ([ADR-0012]) |
 | `providers[].status` | `reachable` or `unreachable` ([ADR-0009]) |

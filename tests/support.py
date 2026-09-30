@@ -99,7 +99,7 @@ class FakeConfigurationLoader:
     def __init__(self, loaded: LoadedConfiguration | InputError) -> None:
         self.loaded = loaded
 
-    def load(self, explicit_path: Path | None) -> LoadedConfiguration:
+    def load(self, explicit_path: Path | None, with_llm: bool = False) -> LoadedConfiguration:
         if isinstance(self.loaded, InputError):
             raise self.loaded
         return self.loaded

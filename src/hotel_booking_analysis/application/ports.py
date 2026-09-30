@@ -6,22 +6,28 @@ from typing import Protocol
 
 from hotel_booking_analysis.application.configuration import (
     AppConfiguration,
+    LlmConfiguration,
     LoadedConfiguration,
 )
 from hotel_booking_analysis.application.validate_bookings import ValidatedBookings
 from hotel_booking_analysis.domain.analysis import Analysis, AnalysisName, Holiday
 from hotel_booking_analysis.domain.booking import BookingSubmission
+from hotel_booking_analysis.domain.errors import Notice
 from hotel_booking_analysis.domain.history import HistoryReadout, RetentionPolicy
-from hotel_booking_analysis.domain.result import AnalysisResult
+from hotel_booking_analysis.domain.listing import HolidayCalendarListing
+from hotel_booking_analysis.domain.llm import LanguageModelProvider, ProviderListing, ProviderStatus
+from hotel_booking_analysis.domain.result import AnalysisResult, ResultError
 
 
 class ConfigurationLoader(Protocol):
     """Reads the configuration once at the start of a run (ADR-0004).
 
-    Raises `ConfigurationError` for an unparsable file or an invalid value.
+    Raises `ConfigurationError` for an unparsable file or an invalid value. The `[llm]` values
+    are read and validated only when `with_llm` is true (`llm-providers`, `analyze --insights`,
+    ADR-0012); otherwise `AppConfiguration.llm` holds the defaults.
     """
 
-    def load(self, explicit_path: Path | None) -> LoadedConfiguration: ...
+    def load(self, explicit_path: Path | None, with_llm: bool = False) -> LoadedConfiguration: ...
 
 
 class BookingReader(Protocol):
@@ -102,3 +108,46 @@ class HolidayCalendar(Protocol):
     """
 
     def holidays_in_year(self, year: int) -> tuple[Holiday, ...]: ...
+
+    def source(self) -> str:
+        """Name and installed version of the calendar source (ADR-0011 `CALENDAR_SOURCE`)."""
+        ...
+
+
+class HolidayListingSerializer(Protocol):
+    """Turns a holiday listing, or a failure, into one compact JSON line (ADR-0011)."""
+
+    def serialize(self, listing: HolidayCalendarListing) -> str: ...
+
+    def serialize_failure(
+        self, error: ResultError, notices: tuple[Notice, ...], generated_at: datetime
+    ) -> str: ...
+
+
+class LlmProvider(Protocol):
+    """One language model provider (ADR-0009). Discovery only reads; it never generates text.
+
+    Generation (`generate`) is added with the AI insights (MIL-011).
+    """
+
+    def provider(self) -> LanguageModelProvider: ...
+
+    def list_models(self, timeout_seconds: float) -> ProviderStatus:
+        """Check the provider within a total deadline; a failure is a status, never raised."""
+        ...
+
+
+class LlmProviderRegistry(Protocol):
+    """Supplies the provider adapters for a configuration, in the order ollama, lmstudio."""
+
+    def providers(self, configuration: LlmConfiguration) -> tuple[LlmProvider, ...]: ...
+
+
+class ProviderListingSerializer(Protocol):
+    """Turns a provider listing, or a failure, into one compact JSON line (ADR-0011)."""
+
+    def serialize(self, listing: ProviderListing) -> str: ...
+
+    def serialize_failure(
+        self, error: ResultError, notices: tuple[Notice, ...], generated_at: datetime
+    ) -> str: ...

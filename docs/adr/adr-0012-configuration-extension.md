@@ -82,6 +82,17 @@ Rules:
 - [UC-005] — the time limit and cost bound on model calls.
 - [PP-001] — open issue OI-19 (limits on latency and cost are the two timeouts and the one request per analysis; confirmation by S01 pending).
 
+## Amendment 2026-09-30 (MIL-010, DCD-001 DD-14 and DD-16)
+
+The `[llm]` table was built in MIL-010. The keys, defaults and validation table above are unchanged. The build makes these rules explicit:
+
+- **Validation on request.** The loader reads `[llm]` values only when the caller asks for them (the `with_llm` flag of `ConfigurationLoader.load`). `llm-providers` (and `analyze --insights`, MIL-011) ask; `analyze` without `--insights` and `holidays` do not, so a bad `[llm]` value stops only the commands that use it. Without the request the `llm` table is still checked to be a table and its defaults are applied.
+- **Unknown keys.** An unknown key in `[llm]` is listed in `CONFIG_UNKNOWN_KEYS` as `llm.<key>` whether or not the values are read; reporting it does not validate any value.
+- **Order.** `llm.allow_remote` is validated before the two URLs, so an invalid value is reported for its own key and not as a rejected host.
+- **Numbers.** A number that is not finite (`inf`, `nan`) is invalid for the two timeouts and the temperature, as are booleans and strings.
+
+This amendment records the built behavior and needs acceptance by S04.
+
 ---
 
 [UC-004]: ../use-cases/uc-004-get-available-llm-providers.md

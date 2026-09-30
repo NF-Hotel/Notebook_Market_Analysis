@@ -50,6 +50,9 @@ import-linter.
 | MIL-005 | The six analyses | Implemented |
 | MIL-006 | marimo notebook and acceptance | Implemented |
 | MIL-007 | System sequence diagrams, operation contracts, sequence diagrams, design class diagram | Drafted as built, reviews pending |
+| MIL-008, MIL-009 | Requirements and design for holidays, LLM discovery and AI insights | Approved |
+| MIL-010 | `holidays` and `llm-providers` commands, `[llm]` configuration | Implemented |
+| MIL-011 | AI insights (`analyze --insights`) | Not built yet |
 
 Not built yet: charts (the notebook shows tables), and real production input, whose schema is a
 proposal until the calling-system owner confirms it (ADR-0001).
@@ -94,6 +97,52 @@ Exit codes (ADR-0005):
 The result contract is defined in `docs/adr/adr-0002-result-json-contract.md`; the history and
 retention in `docs/adr/adr-0003-jsonl-history-and-retention.md`.
 
+## Holiday listing
+
+```powershell
+.venv\Scripts\python.exe -m hotel_booking_analysis holidays --years 2024-2026
+```
+
+Returns the Cambodian (`KH`) public holidays as JSON without running an analysis or touching the
+history (UC-003, ADR-0008, ADR-0011). The data comes from the `holidays` package; the notice
+`CALENDAR_SOURCE` names its version.
+
+- `--years` is one year (`2025`), an inclusive range (`2024-2026`) or a comma list (`2024,2026`).
+  Years are 1900 to 2100, at most 30. Omitted means the current year (notice `DEFAULT_YEAR_USED`).
+- A year the calendar has no data for is listed as `unavailable` with the reason
+  `NO_CALENDAR_DATA`; no holiday is invented.
+- `--config` is optional; the file is only checked to be valid TOML.
+- Exit codes: 0 listing produced, 2 invalid `--years` or unreadable configuration (a `failed`
+  document with `error` on standard output), 4 the listing could not be written to the caller.
+
+The output shape is `src/hotel_booking_analysis/adapters/schemas/holiday_calendar_1_0.schema.json`.
+
+## LLM provider listing
+
+```powershell
+.venv\Scripts\python.exe -m hotel_booking_analysis llm-providers --config hotel_analysis.toml
+```
+
+Lists whether Ollama and LM Studio are reachable and which models each offers, as JSON (UC-004,
+ADR-0009, ADR-0011). It only reads: no model is asked to generate text, no booking data is sent,
+and the history is not touched.
+
+- `providers` always holds `ollama` then `lmstudio`, each with `base_url`, `status`
+  (`reachable` or `unreachable`), `reason` and `models`.
+- The reason of an unreachable provider is `CONNECTION_REFUSED`, `TIMEOUT`, `UNEXPECTED_ANSWER` or
+  `NETWORK_ERROR`. An unreachable provider is a normal entry, not an error; when none is
+  reachable the notice `NO_PROVIDER_REACHABLE` is added and the exit code is still 0.
+- Each provider is checked within `llm.discovery_timeout_seconds` (a total limit, default 2 s).
+  On Windows a connection to a port where nothing listens can take about 2 s to be refused, so a
+  stopped provider may show `TIMEOUT` instead of `CONNECTION_REFUSED`; raise the timeout to see
+  the refusal.
+- Only local addresses (`localhost`, `127.0.0.1`, `::1`) are accepted unless `llm.allow_remote`
+  is `true`.
+- Exit codes: 0 listing produced, 2 unreadable configuration or an invalid `[llm]` value (a
+  `failed` document naming the key), 4 the listing could not be written to the caller.
+
+The output shape is `src/hotel_booking_analysis/adapters/schemas/llm_providers_1_0.schema.json`.
+
 ## Configuration
 
 `hotel_analysis.toml` in the working directory, or the file named by `--config` or by the
@@ -107,6 +156,18 @@ retention in `docs/adr/adr-0003-jsonl-history-and-retention.md`.
 | `history.path` | `output/analysis_history.jsonl` | history file, relative to the working directory |
 | `analysis.holiday_windows_days` | `[1, 3, 7]` | window sizes in days around holidays |
 | `analysis.min_group_size` | `30` | groups below this are flagged as small samples |
+| `llm.ollama_url` | `http://localhost:11434` | base URL of Ollama |
+| `llm.lmstudio_url` | `http://localhost:1234` | base URL of LM Studio |
+| `llm.discovery_timeout_seconds` | `2` | total time limit per provider when listing models (number above 0) |
+| `llm.generation_timeout_seconds` | `120` | total time limit per model request (number above 0; used by insights, MIL-011) |
+| `llm.provider` | `""` | `""` (automatic), `"ollama"` or `"lmstudio"` |
+| `llm.model` | `""` | `""` (automatic) or a model name |
+| `llm.allow_remote` | `false` | `true` allows a base URL that is not on this machine |
+| `llm.temperature` | `0` | model temperature, 0.0 to 1.0 |
+
+The `[llm]` values are validated only by `llm-providers` (and later `analyze --insights`); an
+invalid value names its key and gives exit code 2 there, and is ignored by `analyze` and
+`holidays` (ADR-0012).
 
 ## History notebook
 
