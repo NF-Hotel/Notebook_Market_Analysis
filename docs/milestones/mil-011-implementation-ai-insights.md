@@ -76,7 +76,7 @@ TBD, open issue OI-01 in PP-001.
 | 7 | Implement the insight view in marimo | Show each analysis's summary and suggestions, labeled AI-generated with the model and provider and with their sample sizes, and show results saved without insights. | Yes | UC-002 (revised), US-001.13, US-001.14 |
 | 8 | Add tests with a fake model | Test the generator, prompts, validator, schema and history compatibility with a deterministic fake model, including prompt scans for raw data and every failure case. | No | ADR-0010, ADR-0011 |
 | 9 | Add the end-to-end acceptance test | Run the command with the insight option against a fake model server and check that the returned JSON, the history line and the marimo view show the same insights. | No | UC-005, UC-002, ADR-0005 |
-| 10 | Update run documentation | Document the insight option, its configuration, the guardrails and the limits (AI text is a hypothesis, not a forecast) in the README, verifying each documented command. | No | ADR-0008, ADR-0010, ADR-0012 |
+| 10 | Update run documentation for the AI insights | Document the insight option, its configuration, the guardrails and the limits (AI text is a hypothesis, not a forecast) in the README, verifying each documented command. | No | ADR-0008, ADR-0010, ADR-0012 |
 
 ---
 

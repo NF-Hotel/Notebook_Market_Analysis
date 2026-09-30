@@ -69,7 +69,7 @@ TBD, open issue OI-01 in PP-001.
 | 3 | Implement LLM provider port and discovery adapters | Add the provider port and adapters for Ollama and LM Studio that list reachable models with a short timeout, using only the standard library or an already approved dependency. | No | ADR-0009, DCD-001 |
 | 4 | Implement the provider listing command | Add the use case and command that return the status and models of each configured provider as JSON, with unreachable providers reported and not treated as errors. | Yes | UC-004, US-001.12, ADR-0011 |
 | 5 | Add output schemas and contract tests | Add JSON Schemas for the holiday and provider listings and test every output against them, with fake HTTP servers for both providers and cases for timeout, refused connection and malformed answers. | No | ADR-0011, ADR-0009 |
-| 6 | Update run documentation | Document the new commands, their output and the new configuration keys in the README and the example configuration, verifying every documented command by running it. | No | ADR-0008, ADR-0012 |
+| 6 | Update run documentation for the holiday and provider listings | Document the new commands, their output and the new configuration keys in the README and the example configuration, verifying every documented command by running it. | No | ADR-0008, ADR-0012 |
 
 ---
 
