@@ -88,6 +88,18 @@ Reason codes: `NO_PROVIDER` means no provider can be reached (none is reachable,
 - [ADR-0012] — the keys `llm.ollama_url`, `llm.lmstudio_url`, `llm.discovery_timeout_seconds`, `llm.generation_timeout_seconds`, `llm.provider`, `llm.model`, `llm.allow_remote` and `llm.temperature`.
 - [PP-001] — OI-13 (partly resolved) and OI-14 (proposed as local only, S03 to confirm).
 
+## Amendment 2026-09-30 (MIL-010, DCD-001 DD-11 and DD-12)
+
+The discovery was built in MIL-010 and differs from the text above in three places. The decision, the reason codes and the deadlines are unchanged.
+
+- **`http.client` instead of `urllib.request`.** The HTTP calls use the standard library module `http.client`; no dependency is added. `urllib` gives no access to the socket between reads, which the total deadline needs. The rule stays as written: the adapter takes the start time, sets the socket timeout to the time that remains, reads the answer in chunks and checks the deadline before each read. Because `http.client` uses no proxy and follows no redirect, an answer with a 3xx status is `UNEXPECTED_ANSWER`.
+- **A shutdown timer.** A daemon timer shuts the socket down at the deadline, so a provider that trickles its headers cannot hold the call open past it. The call then reports `TIMEOUT`.
+- **A size limit.** An answer larger than 1 MiB (by its declared length or while reading) is `UNEXPECTED_ANSWER`. A model list is far smaller.
+- **Generation is not built yet.** MIL-010 builds only the list request (`get_json`). The generation request (`post_json` and `generate`) is built in MIL-011 under the text above.
+- **Windows.** A connection to a local port where nothing listens can take about 2 s to be refused on Windows, so with the default `llm.discovery_timeout_seconds` a stopped provider may be reported as `TIMEOUT` instead of `CONNECTION_REFUSED`. A larger timeout shows the refusal.
+
+This amendment records the built behavior and needs acceptance by S04.
+
 ---
 
 [UC-004]: ../use-cases/uc-004-get-available-llm-providers.md
