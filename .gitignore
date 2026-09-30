@@ -27,6 +27,10 @@ htmlcov/
 framework/
 .agents/
 docs/ai-prompts/
+.codex/
+
+# Local configuration; copy hotel_analysis.toml.example to create it
+hotel_analysis.toml
 
 # marimo session cache, rewritten on every export
 __marimo__/
