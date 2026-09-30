@@ -17,6 +17,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -131,6 +132,8 @@ Each selected artifact has exactly one task. Review records (RC) are separate ar
 | SD-001 Sequence Diagrams | How the built objects realize each contract | MIL-007 task 3 | OC-001 |
 | DCD-001 Design Class Diagram | The built classes, ports and relationships per layer | MIL-007 task 4 | SD-001, DM-001 |
 | RC records for SSD-001, OC-001, SD-001, DCD-001 | Review evidence for the behavior and design artifacts | MIL-007 tasks 5 to 8 | the reviewed artifact |
+| UC-001 (revision), ADR-0005, ADR-0003 and ADR-0006 (amendments) | Bring the requirement and the decisions in line with what was built | MIL-007 tasks 9 to 12 | SSD-001, OC-001, DCD-001 |
+| RC record for UC-001 (revision) | Review evidence for the revised use case | MIL-007 task 14 | UC-001 |
 | BC-001, UCD-001, US-001 (revisions) | Add objectives 8 to 10, the new use cases and stories US-001.11 to US-001.14 | MIL-008 tasks 1 to 3 | existing artifacts |
 | UC-003 Get Holiday Calendar | Actor goal: holidays as JSON without an analysis | MIL-008 task 4 | UCD-001, US-001 |
 | UC-004 Get Available LLM Providers | Actor goal: reachable providers and models as JSON without an analysis | MIL-008 task 5 | UCD-001, US-001 |
@@ -150,7 +153,7 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 
 ## Planning Coverage Check
 
-- Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) 8 (G6), 8 (G7), 14 (G8), 15 (G9), 6 (G10), 10 (G11) and 6 (G12, conditional) tasks.
+- Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) 8 (G6), 14 (G7), 14 (G8), 15 (G9), 6 (G10), 10 (G11) and 6 (G12, conditional) tasks.
 - Every user story traces to UC-001, UC-002 or a gateway: US-001.01 to .07 to UC-001 and MIL-002, US-001.08 and .09 to UC-001, US-001.10 to UC-002.
 - Every coding task cites the ADR, story or use case it implements, and no coding task appears before MIL-004.
 - Every gateway has a deliverable and numbered Go/No-Go criteria.
@@ -212,6 +215,13 @@ Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are
 - **OI-18:** Parameters of the holiday listing: which years (the years in the data, a given range, or the current year) and whether Cambodia only. Resolve in G8 and G9 (ADR-0011). Owner S02.
 - **OI-19:** Whether insights are cached or regenerated, and how latency and model cost are limited. Resolve in G9 (ADR-0010, ADR-0012). Owner S01.
 - **OI-20:** The request says marked analyst, read here as market analyst, the Analyst actor S05; confirm, and confirm whether the Calling system also consumes the suggestions. Resolve in G8. Owner S01.
+- **OI-21:** UC-001 differs from the built system in three places: no input outside development gives a failed result (AD-1), retention failure and lock timeout have no extension (OD-1), and configuration reading and the history check are not steps (AD-5). Resolve in G7 (MIL-007 task 9). Owner S01.
+- **OI-22:** ADR-0005 does not cover a failed result that cannot be delivered (exit code 4, nothing stored, AD-2). Resolve in G7 (MIL-007 task 10). Owner S02.
+- **OI-23:** Retention uses file order while the notebook lists by generated time (AD-3). Resolve in G7 (MIL-007 task 11). Owner S01.
+- **OI-24:** ADR-0006 differs from the build: a fifth interface layer, the notebook using concrete adapters, ten ports instead of the listed ones, and no list-results or load-result use cases (AD-4, SD-1, SD-2, DD-6 to DD-8). Resolve in G7 (MIL-007 task 12). Owner S01.
+- **OI-25:** DM-001 differs from the build: analysis kinds are strategies, there is no Result History class, the result holds a copy of the input metadata instead of a link, group statistics are transient, and retained results are JSON on the read side (OD-2, SD-4, SD-6, SD-7, DD-1, DD-2, DD-4, DD-5, DD-9). Resolve in G9 (MIL-009 task 1). Owner S01.
+- **OI-26:** Definitions with no production caller and a placeholder analysis branch that production never reaches (SD-5, DD-3, DD-10). Resolve in G7 (MIL-007 task 13). Owner S01.
+- **OI-27:** The history is read a second time after every run only to count malformed lines (SD-3, AD-5). Resolve in G7 (MIL-007 task 13). Owner S01.
 
 ---
 

@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -67,7 +68,7 @@ TBD, open issue OI-01 in PP-001.
 
 | # | Task | Summary | Needs its own Use Case/User Story? | Reference |
 | --- | --- | --- | --- | --- |
-| 1 | Revise DM-001 for LLM providers and AI insights | Add the concepts behind the new stories: language model provider, language model, provider status, AI insight, executive summary, improvement suggestion and holiday calendar listing, with their associations. It keeps one vocabulary for the contracts and code. | No | DM-001 |
+| 1 | Revise DM-001 for LLM providers and AI insights | Add the concepts behind the new stories: language model provider, language model, provider status, AI insight, executive summary, improvement suggestion and holiday calendar listing, with their associations. It keeps one vocabulary for the contracts and code. The same revision states how the as-built model differs from DM-001 (analysis kinds as strategies, the history as a file behind two ports, the result holding a copy of the input metadata, transient group statistics, retained results as JSON on the read side) and resolves OI-25. | No | DM-001 |
 | 2 | Write ADR-0008 invocation interface | Decide whether the app is called through command-line subcommands or a FastAPI service, given the long model calls and a possibly remote caller. It resolves OI-17 and closes OI-04. | No | ADR-0008, UC-003, UC-004, UC-005 |
 | 3 | Write ADR-0009 LLM provider discovery and connection | Decide how Ollama and LM Studio are found and queried, the endpoints and timeouts, and how a model is chosen. Discovery must be a quick, read-only check that never starts an analysis. | No | ADR-0009, UC-004 |
 | 4 | Write ADR-0010 AI insight generation and guardrails | Decide what data reaches the model (aggregates only), the structured answer required, and the wording rules that keep suggestions as hypotheses tied to sample sizes. It also fixes behavior on failure, timeout and unsuitable answers. | No | ADR-0010, UC-005 |
