@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -33,7 +34,7 @@ Four artifact documents, each with one section per use case, plus a review recor
 | 3 | Every postcondition in OC-001 is realized by a sequence diagram in SD-001, and each diagram names the contract it realizes | All postconditions covered | Any postcondition unrealized |
 | 4 | Every class, port and method in DCD-001 exists in `src/` under the same name and layer, and every class in the domain layer of `src/` appears in DCD-001 | Names and layers match | Any mismatch not listed as a documented deviation |
 | 5 | DCD-001 layers agree with the import-linter contracts in `pyproject.toml`, with no dependency drawn against the direction | Consistent | Any dependency against the direction |
-| 6 | Every difference between the built code and ADR-0001 to ADR-0007 that the artifacts reveal is listed in the artifact concerned and raised as an open issue or a new task | All listed | Any difference unlisted |
+| 6 | Every difference between the built code and ADR-0001 to ADR-0007 that the artifacts reveal is listed in the artifact concerned and raised as an open issue or a new task (open issues OI-21 to OI-27 in PP-001; tasks 9 to 14 below; the domain-model differences are resolved by MIL-009 task 1) | All listed | Any difference unlisted |
 | 7 | An RC record exists for each of SSD-001, OC-001, SD-001 and DCD-001 with verdict Go (or Go-with-conditions and all action items closed) | All Go | Any No-Go verdict or open action item |
 | 8 | TM-001 has rows for the four documents linking them to UC-001, UC-002 and DM-001 | Present | Missing |
 
@@ -73,6 +74,12 @@ TBD, open issue OI-01 in PP-001.
 | 6 | Review OC-001 | Produce the RC record for OC-001 against QC-OC-001, including the one-contract-per-message check. | No | OC-001, QC-OC-001 |
 | 7 | Review SD-001 | Produce the RC record for SD-001 against QC-SD-001, including the check that every postcondition is realized. | No | SD-001, QC-SD-001 |
 | 8 | Review DCD-001 | Produce the RC record for DCD-001 against QC-DCD-001, including the check against `src/` and the import-linter contracts. | No | DCD-001, QC-DCD-001 |
+| 9 | Revise UC-001 for the as-built findings | Update Analyze Hotel Bookings so that it states what the system does: a failed result for missing input (AD-1), the extensions for a retention failure and a lock timeout (OD-1), and the reading of the configuration and the check of the history after a run (AD-5). Resolves OI-21. | No | UC-001, SSD-001, OC-001 |
+| 10 | Amend ADR-0005 for the uncovered delivery case | Add the case the outcome table does not cover: a failed result that cannot be delivered ends with exit code 4 and nothing stored (AD-2). It is an amendment with a new Version History row and resolves OI-22. | No | ADR-0005, OC-001 |
+| 11 | Amend ADR-0003 for the order of retained results | Decide and record the difference between retention, which uses file order, and the notebook, which lists by generated time (AD-3). Resolves OI-23. | No | ADR-0003, UC-002 |
+| 12 | Amend ADR-0006 for the as-built layers and ports | Record the fifth interface layer, the concrete adapters used by the notebook, the ten ports that were built and the missing list-results and load-result use cases, or decide to add them (AD-4, SD-1, SD-2, DD-6 to DD-8). Resolves OI-24. | No | ADR-0006, DCD-001 |
+| 13 | Remove unused definitions and decide the second history read | Remove or use the definitions no production code calls (HolidayWindow, availability_of, in_window, stay_bucket, lead_time_band, capped_label, three wording helpers), decide whether the placeholder analysis branch stays as an extension point, and decide whether the history read after a run is kept (DD-3, SD-5, DD-10, SD-3, AD-5). Resolves OI-26 and OI-27. | No | DCD-001 |
+| 14 | Review UC-001 (revision) | Produce the RC record for the revised UC-001 against QC-UC-001. | No | UC-001, QC-UC-001 |
 
 ---
 
