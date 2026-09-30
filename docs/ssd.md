@@ -14,6 +14,7 @@
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -221,7 +222,7 @@ The System instance is one marimo notebook session, created when the Analyst ope
 
 Update 2026-09-30: UC-001 was revised to state the differences AD-1, AD-5 and OD-1 (extensions 1a.2, 6a, 6b, 7b, 7c, 8a and the notes on the main scenario), so those three no longer differ from the use case. AD-2 is amended in ADR-0005, AD-3 in ADR-0003 and AD-4 in ADR-0006.
 
-Differences between the built behavior, seen from the system boundary, and earlier decisions. They are recorded here and are not corrected in the diagrams; each is to be raised as an open issue or a new task through the MIL-007 review (Go/No-Go criterion 6).
+Differences between the built behavior, seen from the system boundary, and earlier decisions. They are recorded here and are not corrected in the diagrams; each was raised as an open issue in the project plan (OI-21 to OI-27) through the MIL-007 review (Go/No-Go criterion 6), and the last column gives its status.
 
 | ID | Earlier decision | As built | Effect on this document |
 | --- | --- | --- | --- |
