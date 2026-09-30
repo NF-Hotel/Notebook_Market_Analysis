@@ -1616,7 +1616,7 @@ classDiagram
     ProviderStatus "1" --> "1" LanguageModelProvider : provider
     ProviderStatus "1" *-- "0..*" LanguageModel : models
     ProviderStatus "1" --> "0..1" ProviderReason : reason, unreachable only
-    ProviderListing "1" *-- "2" ProviderStatus : providers
+    ProviderListing "1" *-- "1..2" ProviderStatus : providers
     ProviderListing "1" *-- "0..*" Notice : notices
     HolidayCalendarListing "1" *-- "1..*" HolidayCalendarYear : covers
     HolidayCalendarListing "1" *-- "0..*" Notice : notices
@@ -2051,7 +2051,7 @@ Every concept added to [DM-001] on 2026-09-30 and how it is designed (the prompt
 | is produced by (AI Insight * to 0..1 Language Model) | not an association: the stored insight keeps the provider and model names as text (`AiInsight.provider`, `AiInsight.model`, [DM-001] states the same); DN-3 |
 | is offered by (Language Model * to 1 Language Model Provider) | `LanguageModel --> LanguageModelProvider` |
 | reports (Language Model Provider 1 to 1 Provider Status) | reversed to `ProviderStatus --> LanguageModelProvider`, and `ProviderStatus *-- LanguageModel`; DN-2 |
-| covers, reports (LLM Provider Listing 1 to 1..* Language Model Provider and 1 to 1..* Provider Status) | composition `ProviderListing *-- ProviderStatus` (two statuses; each status refers to its provider) |
+| covers, reports (LLM Provider Listing 1 to 1..* Language Model Provider and 1 to 1..* Provider Status) | composition `ProviderListing *-- ProviderStatus` (one or two statuses, ADR-0011; each status refers to its provider) |
 | covers (Holiday Calendar Listing 1 to 1..* Holiday Calendar Year) | composition `HolidayCalendarListing *-- HolidayCalendarYear` |
 | lists (Holiday Calendar Year 1 to 0..* Holiday) | composition `HolidayCalendarYear *-- Holiday` (the built `Holiday`) |
 
