@@ -13,12 +13,13 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
 ## Purpose and Scope
 
-Stories for the epic in [MIL-002]: analyze hotel bookings supplied as JSON by the Calling system, return and keep the result, and review prior results. Stories US-001.11 to US-001.14 (added in [MIL-008]) cover the holiday listing, the provider listing and the AI executive summary and improvement suggestions per analysis. Roles match the actors in [UCD-001]. The Analyst is provisional (open issue OI-03 in [PP-001]). Field names below come from the example CSV and are not the production schema, which is decided in ADR-0001. Where a field is missing, the dependent analysis is reported as unavailable, never estimated. For the AI stories, the tension in [BC-001] applies: the suggestions aim to increase NF Hotel earnings, but they are hypotheses drawn from observed associations, never causes, forecasts or promised earnings. Assumptions recorded here: local models only (OI-14), English (OI-15), insights inside the result and history (OI-16), regenerated per run and not cached (OI-19), the years of the holiday listing are the years requested with the current year as default (OI-18), and the Analyst (S05) is the market analyst who reads the insights (OI-20); the open issues are in [PP-001].
+Stories for the epic in [MIL-002]: analyze hotel bookings supplied as JSON by the Calling system, return and keep the result, and review prior results. Stories US-001.11 to US-001.15 (added in [MIL-008]) cover the holiday listing, the provider listing, the AI executive summary and improvement suggestions per analysis, and the Analyst's view of them. Roles match the actors in [UCD-001]. The Analyst is provisional (open issue OI-03 in [PP-001]). Field names below come from the example CSV and are not the production schema, which is decided in ADR-0001. Where a field is missing, the dependent analysis is reported as unavailable, never estimated. For the AI stories, the tension in [BC-001] applies: the suggestions aim to increase NF Hotel earnings, but they are hypotheses drawn from observed associations, never causes, forecasts or promised earnings. Assumptions recorded here: local models only (OI-14), English (OI-15), insights inside the result and history (OI-16), regenerated per run and not cached (OI-19), the holiday listing covers Cambodia only, for the years requested with the current year as default (OI-18), and the Analyst (S05) is the market analyst who reads the insights (OI-20); the open issues are in [PP-001].
 
 ## Story List
 
@@ -211,7 +212,6 @@ Stories for the epic in [MIL-002]: analyze hotel bookings supplied as JSON by th
 - Given no provider is reachable, when insights are requested, then no summary is produced, the result says insights were unavailable with the reason, and the analysis result stays valid and is returned and saved.
 - Given the model fails or does not answer within the time limit, or its answer is rejected as unsuitable, when insights are requested, then that analysis has no summary and is marked unavailable with the reason, the other analyses are not affected, and the analysis result stays valid.
 - Given an analysis is itself unavailable, then it has no summary and no text is invented for it.
-- Given the Analyst opens a saved result in the history view ([UC-002]), then each summary is shown marked AI-generated with model and provider, a result saved without insights is shown without them and says so, and an insight marked unavailable is shown with its reason.
 
 | Traces to | Size | INVEST exceptions |
 | --- | --- | --- |
@@ -229,15 +229,28 @@ Stories for the epic in [MIL-002]: analyze hotel bookings supplied as JSON by th
 - Given an answer contains a suggestion without a sample size, a causal statement or a promised earning, when the answer is checked, then that answer is rejected and none of its text appears in the result.
 - Given only aggregate findings are used, then no raw booking record and no booking identifier appears in any prompt.
 - Given no provider is reachable, or the model fails, times out or gives an unsuitable answer, when insights are requested, then the affected analyses have no suggestions and state the reason, and the analysis result stays valid, returned and saved.
-- Given the Analyst opens a saved result in the history view ([UC-002]), then each suggestion is shown marked AI-generated with model and provider, with its sample sizes and hypothesis wording, and results without suggestions are shown without error.
 
 | Traces to | Size | INVEST exceptions |
 | --- | --- | --- |
 | [UC-005], [UC-002], [MIL-008] | fits one iteration | none |
 
+### US-001.15 — See saved AI insights in the history view
+
+**As an** Analyst, **I want** to see the AI executive summary and the improvement suggestions of a saved result, marked as AI-generated, **so that** I can judge them against the analysis they belong to and act on them as hypotheses.
+
+**Acceptance Criteria**
+
+- Given the Analyst opens a saved result that has insights, when the result is shown, then each analysis shows its executive summary and its improvement suggestions marked AI-generated with the model and provider that produced them, and each suggestion shows the sample sizes it rests on and its hypothesis wording.
+- Given a result was saved without insights, when it is shown, then it is shown without them and says so, and no error appears.
+- Given an insight was marked unavailable, when the result is shown, then the insight is shown with its reason.
+
+| Traces to | Size | INVEST exceptions |
+| --- | --- | --- |
+| [UC-002], [MIL-008] | fits one iteration | none |
+
 ## INVEST Check
 
-Independent, Negotiable, Valuable, Estimable, Small and Testable hold for all fourteen stories. Note: stories US-001.02 to US-001.07 share the result contract and the small-sample rule (ADR-0002, ADR-0007), so they are independent in behavior but not in schema; the dependency is recorded in [MIL-003] and does not block estimation. Stories US-001.13 and US-001.14 rest on the same insight generation but are separable, because the summary and the suggestions are separate outputs, each testable on its own by the label, sample-size and forbidden-word checks in its criteria; US-001.11 and US-001.12 are independent of the analysis and of each other.
+Independent, Negotiable, Valuable, Estimable, Small and Testable hold for all fifteen stories. Note: stories US-001.02 to US-001.07 share the result contract and the small-sample rule (ADR-0002, ADR-0007), so they are independent in behavior but not in schema; the dependency is recorded in [MIL-003] and does not block estimation. Stories US-001.13 and US-001.14 rest on the same insight generation but are separable, because the summary and the suggestions are separate outputs, each testable on its own by the label, sample-size and forbidden-word checks in its criteria; US-001.11 and US-001.12 are independent of the analysis and of each other; US-001.15 is the Analyst's view of what US-001.13 and US-001.14 produce and is separate because it belongs to another actor.
 
 ---
 

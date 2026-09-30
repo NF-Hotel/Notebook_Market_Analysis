@@ -13,6 +13,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -160,7 +161,7 @@ Qualitative, because no cost, budget or benefit figures are supplied.
 
 | Costs | Benefits |
 | --- | --- |
-| Effort to write and review the artifacts and code across six gateways | Repeatable, documented analyses with visible limits |
+| Effort to write and review the artifacts and code across the gateways of the project plan | Repeatable, documented analyses with visible limits |
 | Review time from an independent reviewer (S04) | Stable result contract for the calling system |
 | Maintenance of the history and configuration behavior | Bounded, viewable history of past analyses |
 | Effort to write, guard and review the AI insight feature, and to run local models (hardware, time per run) | Summaries and hypotheses that help a market analyst find ideas to test |

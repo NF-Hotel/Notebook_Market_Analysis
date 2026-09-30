@@ -11,6 +11,7 @@
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -24,7 +25,7 @@ The Calling system asks the application which language-model (LLM) providers it 
 
 For each configured provider the system makes a quick, read-only check within a time limit. The addresses of the providers come from configuration; their defaults are fixed later in the design gateway (ADR-0009 and ADR-0012, planned). The answer lists every configured provider with whether it is reachable, the reason when it is not (for example not running or timed out), and, for a reachable provider, the models it offers. A provider that is not reachable is a normal entry in the answer, not an error: the request still succeeds. Which model is chosen when a provider offers several is not part of this use case (open issue OI-13 in [PP-001], owner S01).
 
-If the Calling system asks about a provider that is not configured, the system reports it as unknown rather than guessing an address. If the configuration is invalid, the system returns a failed answer that names the problem and does not guess. If the answer cannot be returned to the Calling system, the system reports the failure and does not report success; nothing was stored, so a retry has no side effect.
+If the configuration is invalid, the system returns a failed answer that names the problem and does not guess. If the answer cannot be returned to the Calling system, the system reports the failure and does not report success; nothing was stored, so a retry has no side effect.
 
 Preconditions: the application can be called by the Calling system; no booking file is needed; a configuration may exist, and defaults apply when it does not. Postconditions: the Calling system holds a JSON answer listing each configured provider as reachable or not with the reason, and the models of the reachable ones; no analysis ran, no model was asked to generate text, and the history is unchanged.
 

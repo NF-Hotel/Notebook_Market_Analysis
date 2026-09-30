@@ -13,6 +13,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -20,7 +21,7 @@
 
 The system boundary is the hotel-booking analysis application, including its marimo interface. Inside the boundary are validating and analyzing booking records, returning the result as JSON, keeping the JSONL history with configured retention, and displaying saved results, returning the Cambodian holidays and the reachable language-model (LLM) providers as JSON without an analysis, and adding AI-generated insights to an analysis on request. Outside are the calling system itself, the source of the booking data, and the person who reads results.
 
-The primary actor is the Calling system. The Analyst is a provisional secondary actor for reviewing saved results; whether that actor is a human, or whether the Calling system also views history, is open issue OI-03 in [PP-001] and must be confirmed by S01 before the use cases are written. The Analyst also sees the AI insights that were saved with a result, through Review Analysis History; the request calls this reader a market analyst and the Analyst actor S05 is assumed to be that person (open issue OI-20). The language-model providers (Ollama, LM Studio) are external services the system calls; they are not actors that pursue a goal here, so they are not drawn.
+The primary actor is the Calling system. The Analyst is a provisional secondary actor for reviewing saved results; whether that actor is a human, or whether the Calling system also views history, is open issue OI-03 in [PP-001] and is to be confirmed by S01 (the use cases were written on the provisional assumption). The Analyst also sees the AI insights that were saved with a result, through Review Analysis History; the request calls this reader a market analyst and the Analyst actor S05 is assumed to be that person (open issue OI-20). The language-model providers (Ollama, LM Studio) are external services the system calls; they are not actors that pursue a goal here, so they are not drawn.
 
 ## Diagram
 
@@ -66,7 +67,8 @@ flowchart LR
 | From | Relationship (`<<include>>` / `<<extend>>`) | To | Justification |
 | --- | --- | --- | --- |
 | Get AI Insights for Analyses | `<<extend>>` (extension point: insights requested, after step 4 and before step 5 of Analyze Hotel Bookings) | Analyze Hotel Bookings | The insights are optional (off by default) and Analyze Hotel Bookings is complete and valid without them, so the base use case never depends on the extension; the extension runs only under the condition that the Calling system asks for insights, and it needs the findings produced at step 4. It is not an `<<include>>` because it is not always part of the base flow |
-| None | None | None | Get Holiday Calendar and Get Available LLM Providers are independent goals: they run no analysis, write nothing to the history and use no other use case. The history is written by Analyze Hotel Bookings and read by Review Analysis History, which is a data dependency, not an include or extend |
+
+Get Holiday Calendar and Get Available LLM Providers are independent goals: they run no analysis, write nothing to the history and use no other use case. The history is written by Analyze Hotel Bookings and read by Review Analysis History, which is a data dependency, not an include or extend.
 
 ---
 
