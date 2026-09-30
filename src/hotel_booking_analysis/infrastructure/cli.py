@@ -1,6 +1,7 @@
-"""Command-line entry: `analyze`, `holidays`, `llm-providers` (ADR-0006, ADR-0008, ADR-0005).
+"""Command-line entry: `analyze`, `holidays`, `llm-providers`, `serve` (ADR-0006, ADR-0013).
 
-The result JSON goes to standard output; messages go to standard error.
+The result JSON goes to standard output; messages go to standard error. `serve` starts the HTTP
+service instead and writes nothing to standard output.
 """
 
 import argparse
@@ -22,6 +23,9 @@ EXIT_SUCCESS = 0
 EXIT_INPUT_ERROR = 2
 EXIT_HISTORY_FAILURE = 3
 EXIT_DELIVERY_FAILURE = 4
+
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_PORT = 8000
 
 _EXIT_CODES: dict[RunStatus, int] = {
     RunStatus.SUCCEEDED: EXIT_SUCCESS,
@@ -55,7 +59,17 @@ def build_parser() -> argparse.ArgumentParser:
         "llm-providers", help="List the reachable language model providers and their models."
     )
     providers.add_argument("--config", type=Path, help="TOML configuration file.")
+    serve = commands.add_parser("serve", help="Start the HTTP service (no authentication).")
+    serve.add_argument("--host", default=DEFAULT_HOST, help="Address to bind (default loopback).")
+    serve.add_argument("--port", type=_port, default=DEFAULT_PORT, help="Port to listen on.")
+    serve.add_argument("--config", type=Path, help="TOML configuration file for every request.")
     return parser
+
+
+def _port(text: str) -> int:
+    if not text.isascii() or not text.isdigit() or not 1 <= int(text) <= 65535:
+        raise argparse.ArgumentTypeError(f"{text!r} is not a port from 1 to 65535.")
+    return int(text)
 
 
 def main(
@@ -74,6 +88,8 @@ def main(
             return _list_holidays(arguments, stdout, working_directory, environ)
         if arguments.command == "llm-providers":
             return _list_llm_providers(arguments, stdout, working_directory, environ)
+        if arguments.command == "serve":
+            return _serve(arguments, working_directory, environ, lock_wait_seconds)
         use_case = build_analyze_bookings(stdout, working_directory, environ, lock_wait_seconds)
         _LOGGER.info("Analysis started.")
         outcome = use_case.run(arguments.input, arguments.config, arguments.insights)
@@ -105,6 +121,19 @@ def _list_llm_providers(
     outcome = use_case.run(arguments.config)
     _report_listing(outcome, "Provider listing")
     return _EXIT_CODES[outcome.status]
+
+
+def _serve(
+    arguments: argparse.Namespace,
+    working_directory: Path,
+    environ: Mapping[str, str],
+    lock_wait_seconds: float,
+) -> int:
+    # Imported here so the other commands do not pay for loading the web framework.
+    from hotel_booking_analysis.infrastructure.http_api import ServiceSettings, serve
+
+    settings = ServiceSettings(working_directory, environ, arguments.config, lock_wait_seconds)
+    return serve(arguments.host, arguments.port, settings)
 
 
 def _attach_stderr(stderr: TextIO) -> logging.Handler:
