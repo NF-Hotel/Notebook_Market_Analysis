@@ -10,7 +10,7 @@
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
-| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 

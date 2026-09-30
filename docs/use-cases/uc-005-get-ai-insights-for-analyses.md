@@ -10,8 +10,9 @@
 ## Version History
 | Date | Status | Author | Reviewer |
 | --- | --- | --- | --- |
-| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
-| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -56,8 +57,8 @@ Insights are not requested by default. When they are not requested this use case
 
 ### Extensions (Alternative / Exception Flows)
 
-- 2a. No configured provider is reachable, or no reachable provider offers a model:
-  1. The system does not contact any model, records in the result that insights were unavailable with the reason "no reachable provider", and [UC-001] continues; the analysis result stays valid (see [UC-004] for how reachability is reported to the Calling system).
+- 2a. No configured provider is reachable, or the reachable provider offers no usable model (none, or not the configured one):
+  1. The system does not contact any model, records in the result that insights were unavailable with the reason "no reachable provider" (or "no model" when a provider is reachable but offers no usable model), and [UC-001] continues; the analysis result stays valid (see [UC-004] for how reachability is reported to the Calling system).
 - 3a. An analysis is unavailable (a required field was missing, [UC-001] step 4a, or the calendar had no data for every year, step 4b; an analysis that is unavailable only for some years, such as the holidays of one year, still counts as available and its insight states the years left out):
   1. The system produces no insight for it and marks the insight not applicable because the analysis is unavailable; nothing is invented.
 - 4a. The model fails, or does not answer within the time limit:

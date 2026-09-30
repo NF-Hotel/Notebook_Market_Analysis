@@ -12,6 +12,7 @@
 | --- | --- | --- | --- |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -63,6 +64,13 @@ The result returned to the caller and the history line are the same serializatio
 - [ADR-0003] — history lines use this format.
 - [ADR-0005] — delivery of the same serialization.
 
+## Amendment 2026-09-30 (ADR-0011)
+
+[ADR-0011] extends this contract; nothing above is removed or changed for a result made without insights. Two points are added:
+
+- The `status` `completed_with_warnings` also covers a completed analysis in which the result was requested with insights and some available analysis has an unavailable insight (notice `INSIGHTS_UNAVAILABLE`), in addition to an unavailable analysis or invalid data.
+- A result schema version `"1.1"` exists. It adds the top-level `insights` object and an `insight` in each analysis entry as a MINOR change, and is used only when insights were requested and the result `status` is `completed` or `completed_with_warnings`. A failed result and every result made without insights stay `"1.0"`.
+
 ---
 
 [US-001]: ../user-stories.md
@@ -72,3 +80,4 @@ The result returned to the caller and the history line are the same serializatio
 [ADR-0003]: ./adr-0003-jsonl-history-and-retention.md
 [ADR-0005]: ./adr-0005-delivery-and-failure-semantics.md
 [ADR-0007]: ./adr-0007-analysis-methods.md
+[ADR-0011]: ./adr-0011-output-contracts-and-result-1-1.md
