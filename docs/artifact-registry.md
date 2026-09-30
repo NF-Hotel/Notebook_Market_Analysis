@@ -13,14 +13,14 @@ each document lives in *this* project and the next version to use.
 | MIL | Milestone / Gateway | docs/milestones/*.md | 013 |
 | UCD | Use Case Diagram | docs/use-case-diagram.md | 002 |
 | US | User Story | docs/user-stories.md | 002 |
-| UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 003 |
+| UC | Use Case (Brief/Casual/Fully Dressed) | docs/use-cases/*.md | 006 |
 | DM | Domain Model | docs/domain-model.md | 002 |
 | SSD | System Sequence Diagram | docs/ssd.md | 002 |
 | OC | Operation Contract | docs/operation-contracts.md | 002 |
 | SD | Sequence Diagram | docs/sequence-diagrams.md | 002 |
 | DCD | Design Class Diagram | docs/dcd.md | 002 |
 | ADR | Architecture Decision Record | docs/adr/adr-NNNN-*.md | 0008 |
-| RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 019 |
+| RC | SQA Review Record | docs/sqa/reviews/rc-*.md | 026 |
 | TM | Traceability Matrix | docs/sqa/traceability-matrix.md | 002 |
 
 ## Notes

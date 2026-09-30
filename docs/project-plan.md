@@ -15,9 +15,10 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
-| 2026-09-29 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
-| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
-| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
@@ -155,7 +156,7 @@ Types assessed and not selected: BMC, BPMN and RA (no business-model, process or
 ## Planning Coverage Check
 
 - Every artifact in the table above has exactly one task; the gateway documents hold 14 (G1), 6 (G2), 9 (G3), 10 (G4), 8 (G5) 8 (G6), 14 (G7), 14 (G8), 15 (G9), 6 (G10), 10 (G11) and 6 (G12, conditional) tasks.
-- Every user story traces to UC-001, UC-002 or a gateway: US-001.01 to .07 to UC-001 and MIL-002, US-001.08 and .09 to UC-001, US-001.10 to UC-002.
+- Every user story traces to a use case or a gateway: US-001.01 to .07 to UC-001 and MIL-002, US-001.08 and .09 to UC-001, US-001.10 to UC-002, US-001.11 to UC-003, US-001.12 to UC-004, US-001.13 and .14 to UC-005, US-001.15 to UC-002 (MIL-008).
 - Every coding task cites the ADR, story or use case it implements, and no coding task appears before MIL-004.
 - Every gateway has a deliverable and numbered Go/No-Go criteria.
 
@@ -208,14 +209,14 @@ Verdict: Go-with-conditions. Conditions: S01 supplies dates or confirms none are
 - **OI-10:** Retained-result semantics, retention timing and concurrency: proposed in ADR-0003 (one valid line is one result, retention after append, lock file); awaiting acceptance.
 - **OI-11:** `marimo`, `polars`, `holidays` and `pytest` are not installed and KH holiday coverage for the data's years is unverified. Verify at the start of G4 (MIL-004 task 1).
 - **OI-12:** The input carries no currency, so estimated room values are labeled in the price units of the input (ADR-0007). Confirm the currency with S02 or S03.
-- **OI-13:** Which models are acceptable (minimum size or quality, hardware) and how the default model is chosen when a provider offers several. Resolve in G9 (ADR-0009). Owner S01.
-- **OI-14:** Whether models may run only locally (Ollama, LM Studio on the same machine) or also remote, and whether aggregate findings may leave the machine. Assumed local only. Resolve in G8 (BC-001) and G9 (ADR-0010). Owner S03.
-- **OI-15:** Language of the summaries and suggestions (English assumed). Resolve in G8. Owner S05.
-- **OI-16:** Whether the insights belong inside the result and history (assumed, result 1.1) or in a separate output. Resolve in G9 (ADR-0011). Owner S02.
+- **OI-13:** Which models are acceptable (minimum size or quality, hardware) and how the default model is chosen when a provider offers several. Resolve in G9 (ADR-0009). Owner S01. Assumption in MIL-008: the model choice is left to ADR-0009; owner S01.
+- **OI-14:** Whether models may run only locally (Ollama, LM Studio on the same machine) or also remote, and whether aggregate findings may leave the machine. Assumed local only. Resolve in G8 (BC-001) and G9 (ADR-0010). Owner S03. Assumption in BC-001, UC-004 and UC-005: local models only; confirmation by S03 pending.
+- **OI-15:** Language of the summaries and suggestions (English assumed). Resolve in G8. Owner S05. Assumption in US-001 and UC-005: English; confirmation by S05 pending.
+- **OI-16:** Whether the insights belong inside the result and history (assumed, result 1.1) or in a separate output. Resolve in G9 (ADR-0011). Owner S02. Assumption in US-001 and UC-005: insights inside the result and history; confirmation by S02 pending.
 - **OI-17:** How the calling system invokes the app once it has three operations and slow model calls: command-line subcommands (proposed) or a FastAPI service. Extends OI-04. Resolve in G9 (ADR-0008). Owner S02.
-- **OI-18:** Parameters of the holiday listing: which years (the years in the data, a given range, or the current year) and whether Cambodia only. Resolve in G8 and G9 (ADR-0011). Owner S02.
-- **OI-19:** Whether insights are cached or regenerated, and how latency and model cost are limited. Resolve in G9 (ADR-0010, ADR-0012). Owner S01.
-- **OI-20:** The request says marked analyst, read here as market analyst, the Analyst actor S05; confirm, and confirm whether the Calling system also consumes the suggestions. Resolve in G8. Owner S01.
+- **OI-18:** Parameters of the holiday listing: which years (the years in the data, a given range, or the current year) and whether Cambodia only. Resolve in G8 and G9 (ADR-0011). Owner S02. Assumption in US-001.11 and UC-003: Cambodia only, the years requested, the current year by default; confirmation by S02 pending.
+- **OI-19:** Whether insights are cached or regenerated, and how latency and model cost are limited. Resolve in G9 (ADR-0010, ADR-0012). Owner S01. Assumption in UC-005: regenerated per run, not cached; confirmation by S01 pending.
+- **OI-20:** The request says marked analyst, read here as market analyst, the Analyst actor S05; confirm, and confirm whether the Calling system also consumes the suggestions. Resolve in G8. Owner S01. Assumption in UCD-001 and UC-002: the market analyst is the Analyst S05; whether the Calling system also uses the suggestions stays open.
 - **OI-21:** UC-001 differs from the built system in three places: no input outside development gives a failed result (AD-1), retention failure and lock timeout have no extension (OD-1), and configuration reading and the history check are not steps (AD-5). Resolve in G7 (MIL-007 task 9). Owner S01. Resolved 2026-09-30 by the revision of UC-001 (MIL-007 task 9); acceptance by S02 pending.
 - **OI-22:** ADR-0005 does not cover a failed result that cannot be delivered (exit code 4, nothing stored, AD-2). Resolve in G7 (MIL-007 task 10). Owner S02. Resolved 2026-09-30 by the amendment of ADR-0005 (task 10); acceptance by S02 and S04 pending.
 - **OI-23:** Retention uses file order while the notebook lists by generated time (AD-3). Resolve in G7 (MIL-007 task 11). Owner S01. Resolved 2026-09-30 by the amendment of ADR-0003 (task 11); acceptance by S01 and S04 pending.

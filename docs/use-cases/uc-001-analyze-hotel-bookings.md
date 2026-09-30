@@ -4,7 +4,7 @@
 | Key | Value |
 | --- | --- |
 | ID | UC-001 |
-| CrossReference | [UCD-001], [US-001], [SA-001], [DM-001], [SSD-001] |
+| CrossReference | [UCD-001], [US-001], [SA-001], [DM-001], [SSD-001], [UC-005] |
 | DomainLanguages | IT Professional English |
 
 ## Version History
@@ -14,6 +14,7 @@
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
 | 2026-09-29 | Approved | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-29 | Proposed | Jens Tirsvad Nielsen | TBD (S04 not yet named) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
@@ -48,6 +49,8 @@
 6. The system appends the result to the history as one JSON line.
 7. The system applies the retention limit to the history.
 8. The system returns the result to the Calling system as JSON, and reports success.
+
+**Extension point: insights requested**, after step 4 and before step 5. When the Calling system asked for AI insights together with its request, [UC-005] extends this use case at that point; otherwise steps 4 and 5 follow one another as written.
 
 The system also reads the configuration file before step 2. After a successful run it reads the history once more, only to count malformed lines and warn about them; this does not change the history.
 
@@ -104,3 +107,4 @@ The system also reads the configuration file before step 2. After a successful r
 [DM-001]: ../domain-model.md
 [SSD-001]: ../ssd.md
 [ADR-0005]: ../adr/adr-0005-delivery-and-failure-semantics.md
+[UC-005]: ./uc-005-get-ai-insights-for-analyses.md

@@ -19,6 +19,7 @@
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 | 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
+| 2026-09-30 | Proposed | Jens Tirsvad Nielsen | Team2 (S04) |
 
 ---
 
@@ -31,8 +32,8 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | Artifact Instance | Type | Upstream (Backward Link) | Downstream (Forward Link) | Last Reviewed (RC-ID) |
 | --- | --- | --- | --- | --- |
 | [SA-001] | Stakeholder Analysis | - | [BC-001], [UCD-001] | [RC-001] |
-| [BC-001] | Business Case | [SA-001] | [UCD-001], [PP-001] | [RC-002] |
-| [UCD-001] | Use Case Diagram | [SA-001], [BC-001] | [US-001], [UC-001], [UC-002] | [RC-003] |
+| [BC-001] | Business Case | [SA-001] | [UCD-001], [PP-001] | [RC-002], [RC-019] |
+| [UCD-001] | Use Case Diagram | [SA-001], [BC-001] | [US-001], [UC-001], [UC-002] | [RC-003], [RC-020] |
 | [PP-001] | Project Plan | [BC-001] | [MIL-001] to [MIL-006] | - |
 | [MIL-001] | Milestone / Gateway | [PP-001] | - | [RC-004] |
 | [MIL-002] | Milestone / Gateway | [PP-001] | - | [RC-005] |
@@ -46,9 +47,12 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 | [MIL-010] | Milestone / Gateway | [PP-001] | - | - |
 | [MIL-011] | Milestone / Gateway | [PP-001] | - | - |
 | [MIL-012] | Milestone / Gateway | [PP-001] | - | - |
-| [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | [RC-010] |
+| [US-001] | User Story | [UCD-001], [BC-001], [MIL-002] | [UC-001], [UC-002] | [RC-010], [RC-021] |
 | [UC-001] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-011], [RC-018] |
-| [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-012] |
+| [UC-002] | Use Case | [UCD-001], [US-001], [SA-001] | [DM-001], [SSD-001] | [RC-012], [RC-025] |
+| [UC-003] | Use Case | [UCD-001], [US-001], [SA-001] | - | [RC-022] |
+| [UC-004] | Use Case | [UCD-001], [US-001], [SA-001] | - | [RC-023] |
+| [UC-005] | Use Case | [UCD-001], [US-001], [SA-001], [UC-001] | - | [RC-024] |
 | [DM-001] | Domain Model | [UC-001], [UC-002], [UCD-001] | [ADR-0001], [ADR-0002], [ADR-0003], [ADR-0007], [SSD-001], [DCD-001] | [RC-013] |
 | [ADR-0001] | Architecture Decision Record | [US-001], [UC-001] | - | - |
 | [ADR-0002] | Architecture Decision Record | [US-001], [UC-001] | - | - |
@@ -66,7 +70,7 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 
 - ADR instances have no QC checklist, so no RC record is possible for them (OI-07); they are approved by the S04 reviewer instead.
 - `-` in Upstream means foundational, in Downstream means nothing is built on it yet, and in Last Reviewed means no `RC-*` record exists yet.
-- RC-001 to RC-018 are AI-assisted draft reviews with verdict Go-with-conditions, awaiting confirmation by S04. ADR and PP have no QC checklist, so no RC record is possible for them.
+- RC-001 to RC-025 are AI-assisted draft reviews with verdict Go-with-conditions, awaiting confirmation by S04. ADR and PP have no QC checklist, so no RC record is possible for them.
 
 ---
 
@@ -119,3 +123,13 @@ Tracks backward/forward links between artifact instances so that the Business Ca
 [MIL-011]: ./../milestones/mil-011-implementation-ai-insights.md
 [MIL-012]: ./../milestones/mil-012-conditional-http-api-fastapi.md
 [RC-018]: ./reviews/rc-018-uc-001-revision.md
+[UC-003]: ./../use-cases/uc-003-get-holiday-calendar.md
+[UC-004]: ./../use-cases/uc-004-get-available-llm-providers.md
+[UC-005]: ./../use-cases/uc-005-get-ai-insights-for-analyses.md
+[RC-019]: ./reviews/rc-019-business-case-revision.md
+[RC-020]: ./reviews/rc-020-use-case-diagram-revision.md
+[RC-021]: ./reviews/rc-021-user-stories-revision.md
+[RC-022]: ./reviews/rc-022-uc-003.md
+[RC-023]: ./reviews/rc-023-uc-004.md
+[RC-024]: ./reviews/rc-024-uc-005.md
+[RC-025]: ./reviews/rc-025-uc-002-revision.md
